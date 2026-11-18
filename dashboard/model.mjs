@@ -44,7 +44,9 @@ export function espnWeek(snapshot,rosters){
     day.set(game.home,game);
     day.set(game.away,game);
   }
-  const keys=new Set(rosters.flat().map(player=>playerKey(player.name)));
+  const history=snapshot.rosterUpdates||[];
+  const priorPlayers=history.flatMap(update=>Object.values(update.previous).flat());
+  const keys=new Set([...rosters.flat(),...priorPlayers].map(player=>playerKey(player.name)));
   const logsByPlayer=new Map();
   const completedBoxes=new Set();
   for(const log of feed.logs){
@@ -58,9 +60,12 @@ export function espnWeek(snapshot,rosters){
   for(const logs of logsByPlayer.values())logs.sort((a,b)=>b.date.localeCompare(a.date));
   const totals=rosters.map(players=>{
     const total={actual:0,actualStarts:0,projected:0,projectedStarts:0,missingStarts:0};
+    const teamId=players[0]?.team_id;
     for(const [date,games] of gamesByDate){
       const finishedDay=date<feed.nbaDate||([...games.values()].length>0&&[...games.values()].every(game=>game.completed));
-      const candidates=players.flatMap(player=>{
+      const nextUpdate=history.find(update=>date<update.effectiveNbaDate&&update.previous[teamId]);
+      const dailyRoster=nextUpdate?.previous[teamId]||players;
+      const candidates=dailyRoster.flatMap(player=>{
         const logs=logsByPlayer.get(playerKey(player.name))||[];
         const dayLog=logs.find(log=>log.gameDate===date);
         const game=games.get(dayLog?.nba||player.nba);

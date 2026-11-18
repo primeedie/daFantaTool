@@ -277,48 +277,6 @@
         {
           "team_id": "4",
           "slot": "BN",
-          "name": "Kyshawn George",
-          "nba": "WAS",
-          "positions": [
-            "SG",
-            "SF",
-            "PF"
-          ],
-          "status": "",
-          "gp": 15,
-          "mpg": "33:12",
-          "pts": 17.7,
-          "reb": 4.4,
-          "ast": 4.5,
-          "st": 0.7,
-          "blk": 1.2,
-          "to": 2.9,
-          "fpts": 31.08
-        },
-        {
-          "team_id": "4",
-          "slot": "BN",
-          "name": "Jaylen Brown",
-          "nba": "PHI",
-          "positions": [
-            "SG",
-            "SF",
-            "PF"
-          ],
-          "status": "O",
-          "gp": 14,
-          "mpg": "34:38",
-          "pts": 22.6,
-          "reb": 6.6,
-          "ast": 3.6,
-          "st": 1.3,
-          "blk": 0.5,
-          "to": 2.6,
-          "fpts": 37.42
-        },
-        {
-          "team_id": "4",
-          "slot": "BN",
           "name": "Nikola Jokić",
           "nba": "DEN",
           "positions": [
@@ -395,6 +353,46 @@
           "blk": 1.3,
           "to": 3,
           "fpts": 25.6
+        },
+        {
+          "team_id": "4",
+          "slot": "BN",
+          "name": "Tyler Herro",
+          "nba": "MIL",
+          "positions": [
+            "PG",
+            "SG"
+          ],
+          "status": "",
+          "gp": 13,
+          "mpg": "30:27",
+          "pts": 20.3,
+          "reb": 4.2,
+          "ast": 4.2,
+          "st": 0.9,
+          "blk": 0.2,
+          "to": 2.3,
+          "fpts": 31.49
+        },
+        {
+          "team_id": "4",
+          "slot": "BN",
+          "name": "Cameron Boozer",
+          "nba": "MEM",
+          "positions": [
+            "PF",
+            "C"
+          ],
+          "status": "",
+          "gp": 14,
+          "mpg": "31:17",
+          "pts": 16.5,
+          "reb": 9.5,
+          "ast": 5.4,
+          "st": 0.6,
+          "blk": 0.7,
+          "to": 3.2,
+          "fpts": 35.1
         }
       ]
     },
@@ -405,7 +403,7 @@
       "record": "3-1-0",
       "points": 5100.2,
       "waiver": 7,
-      "moves": 14,
+      "moves": 15,
       "players": [
         {
           "team_id": "2",
@@ -683,6 +681,19 @@
           "blk": 0.1,
           "to": 1.7,
           "fpts": 38.54
+        },
+        {
+          "name": "Derrick Jones Jr.",
+          "nba": "LAC",
+          "positions": [
+            "SF",
+            "PF"
+          ],
+          "status": "",
+          "gp": 11,
+          "fpts": 23.56,
+          "slot": "Unconfirmed",
+          "team_id": "2"
         }
       ]
     },
@@ -798,26 +809,6 @@
         },
         {
           "team_id": "1",
-          "slot": "F",
-          "name": "Cameron Boozer",
-          "nba": "MEM",
-          "positions": [
-            "PF",
-            "C"
-          ],
-          "status": "",
-          "gp": 14,
-          "mpg": "31:17",
-          "pts": 16.5,
-          "reb": 9.5,
-          "ast": 5.4,
-          "st": 0.6,
-          "blk": 0.7,
-          "to": 3.2,
-          "fpts": 35.1
-        },
-        {
-          "team_id": "1",
           "slot": "C",
           "name": "Onyeka Okongwu",
           "nba": "ATL",
@@ -915,26 +906,6 @@
         {
           "team_id": "1",
           "slot": "BN",
-          "name": "Tyler Herro",
-          "nba": "MIL",
-          "positions": [
-            "PG",
-            "SG"
-          ],
-          "status": "",
-          "gp": 13,
-          "mpg": "30:27",
-          "pts": 20.3,
-          "reb": 4.2,
-          "ast": 4.2,
-          "st": 0.9,
-          "blk": 0.2,
-          "to": 2.3,
-          "fpts": 31.49
-        },
-        {
-          "team_id": "1",
-          "slot": "BN",
           "name": "Kyrie Irving",
           "nba": "DAL",
           "positions": [
@@ -971,6 +942,48 @@
           "blk": 3,
           "to": 1.7,
           "fpts": 33.66
+        },
+        {
+          "team_id": "1",
+          "slot": "BN",
+          "name": "Jaylen Brown",
+          "nba": "PHI",
+          "positions": [
+            "SG",
+            "SF",
+            "PF"
+          ],
+          "status": "O",
+          "gp": 14,
+          "mpg": "34:38",
+          "pts": 22.6,
+          "reb": 6.6,
+          "ast": 3.6,
+          "st": 1.3,
+          "blk": 0.5,
+          "to": 2.6,
+          "fpts": 37.42
+        },
+        {
+          "team_id": "1",
+          "slot": "Unconfirmed",
+          "name": "Kyshawn George",
+          "nba": "WAS",
+          "positions": [
+            "SG",
+            "SF",
+            "PF"
+          ],
+          "status": "",
+          "gp": 15,
+          "mpg": "33:12",
+          "pts": 17.7,
+          "reb": 4.4,
+          "ast": 4.5,
+          "st": 0.7,
+          "blk": 1.2,
+          "to": 2.9,
+          "fpts": 31.08
         }
       ]
     },
@@ -1928,7 +1941,7 @@
       "record": "2-2-0",
       "points": 4621.9,
       "waiver": 10,
-      "moves": 16,
+      "moves": 17,
       "players": [
         {
           "team_id": "9",
@@ -2206,6 +2219,19 @@
           "blk": 0.8,
           "to": 2.3,
           "fpts": 44.3
+        },
+        {
+          "name": "Klay Thompson",
+          "nba": "MIA",
+          "positions": [
+            "SG",
+            "SF"
+          ],
+          "status": "",
+          "gp": 13,
+          "fpts": 21.83,
+          "slot": "BN",
+          "team_id": "9"
         }
       ]
     },
@@ -3137,7 +3163,7 @@
   "trades": [
     {
       "id": 47,
-      "status": "Processing",
+      "status": "Completed",
       "from": "4",
       "to": "1",
       "send": [
@@ -3148,7 +3174,7 @@
         "Tyler Herro",
         "Cameron Boozer"
       ],
-      "note": "Yahoo says reflected on the Nov 18 lineup. Captured before processing; verify in Yahoo.",
+      "note": "Completed Nov 18 at 5:20 pm as displayed by Yahoo.",
       "url": "https://basketball.fantasysports.yahoo.com/nba/60472/4/viewtrade?trid=47"
     },
     {
@@ -3267,8 +3293,8 @@
   },
   "coverage": {
     "rosters": 10,
-    "available": 597,
-    "transactions": 132,
+    "available": 595,
+    "transactions": 135,
     "draftPicks": 130,
     "visibleTrades": 2
   },
@@ -3351,18 +3377,6 @@
       "availability": "W (Nov 20)",
       "gp": 15,
       "fpts": 23.61
-    },
-    {
-      "name": "Derrick Jones Jr.",
-      "nba": "LAC",
-      "positions": [
-        "SF",
-        "PF"
-      ],
-      "status": "",
-      "availability": "FA",
-      "gp": 11,
-      "fpts": 23.56
     },
     {
       "name": "Jrue Holiday",
@@ -3492,18 +3506,6 @@
       "availability": "FA",
       "gp": 12,
       "fpts": 21.88
-    },
-    {
-      "name": "Klay Thompson",
-      "nba": "MIA",
-      "positions": [
-        "SG",
-        "SF"
-      ],
-      "status": "",
-      "availability": "FA",
-      "gp": 13,
-      "fpts": 21.83
     },
     {
       "name": "Collin Gillespie",
@@ -12536,6 +12538,24 @@
   ],
   "transactions": [
     {
+      "date": "Nov 18 5:20 pm",
+      "team": "4,1",
+      "action": "Trade",
+      "details": "Jaylen Brown / Kyshawn George / Tyler Herro / Cameron Boozer"
+    },
+    {
+      "date": "Nov 18 11:28 am",
+      "team": "2",
+      "action": "Add",
+      "details": "Derrick Jones Jr."
+    },
+    {
+      "date": "Nov 18 11:18 am",
+      "team": "9",
+      "action": "Add",
+      "details": "Klay Thompson"
+    },
+    {
       "date": "Nov 18 2:38 am",
       "team": "7",
       "action": "Add",
@@ -14038,5 +14058,1171 @@
     ],
     "playerGameLogs": [],
     "note": "Scores verified from the public RotoWire scoreboard. Player box-score data was not available through the web reader. ESPN pages were inaccessible. Do not infer individual fantasy points from team scores."
-  }
+  },
+  "rosterUpdatedLabel": "Nov 18, 5:20 PM Manila",
+  "rosterUpdates": [
+    {
+      "effectiveNbaDate": "2026-11-18",
+      "previous": {
+        "1": [
+          {
+            "team_id": "1",
+            "slot": "PG",
+            "name": "Daniss Jenkins",
+            "nba": "DET",
+            "positions": [
+              "PG",
+              "SG"
+            ],
+            "status": "",
+            "gp": 12,
+            "mpg": "28:04",
+            "pts": 13.2,
+            "reb": 3.6,
+            "ast": 4.3,
+            "st": 1,
+            "blk": 0.1,
+            "to": 1.4,
+            "fpts": 25.17
+          },
+          {
+            "team_id": "1",
+            "slot": "SG",
+            "name": "Jeremiah Fears",
+            "nba": "NOP",
+            "positions": [
+              "PG",
+              "SG"
+            ],
+            "status": "",
+            "gp": 15,
+            "mpg": "29:28",
+            "pts": 15.5,
+            "reb": 4.9,
+            "ast": 5.5,
+            "st": 1,
+            "blk": 0.5,
+            "to": 2.8,
+            "fpts": 29.93
+          },
+          {
+            "team_id": "1",
+            "slot": "G",
+            "name": "Ajay Mitchell",
+            "nba": "OKC",
+            "positions": [
+              "PG",
+              "SG"
+            ],
+            "status": "",
+            "gp": 12,
+            "mpg": "27:19",
+            "pts": 18.1,
+            "reb": 3.6,
+            "ast": 3.4,
+            "st": 1.3,
+            "blk": 0.3,
+            "to": 1.5,
+            "fpts": 30.07
+          },
+          {
+            "team_id": "1",
+            "slot": "SF",
+            "name": "Jalen Johnson",
+            "nba": "ATL",
+            "positions": [
+              "SF",
+              "PF"
+            ],
+            "status": "",
+            "gp": 11,
+            "mpg": "34:21",
+            "pts": 19.5,
+            "reb": 9,
+            "ast": 7.3,
+            "st": 0.9,
+            "blk": 0.5,
+            "to": 3.5,
+            "fpts": 40.2
+          },
+          {
+            "team_id": "1",
+            "slot": "PF",
+            "name": "Scottie Barnes",
+            "nba": "TOR",
+            "positions": [
+              "SF",
+              "PF",
+              "C"
+            ],
+            "status": "",
+            "gp": 9,
+            "mpg": "33:40",
+            "pts": 24.2,
+            "reb": 7.8,
+            "ast": 5,
+            "st": 2.1,
+            "blk": 0.8,
+            "to": 3.6,
+            "fpts": 44.36
+          },
+          {
+            "team_id": "1",
+            "slot": "F",
+            "name": "Cameron Boozer",
+            "nba": "MEM",
+            "positions": [
+              "PF",
+              "C"
+            ],
+            "status": "",
+            "gp": 14,
+            "mpg": "31:17",
+            "pts": 16.5,
+            "reb": 9.5,
+            "ast": 5.4,
+            "st": 0.6,
+            "blk": 0.7,
+            "to": 3.2,
+            "fpts": 35.1
+          },
+          {
+            "team_id": "1",
+            "slot": "C",
+            "name": "Onyeka Okongwu",
+            "nba": "ATL",
+            "positions": [
+              "C"
+            ],
+            "status": "",
+            "gp": 14,
+            "mpg": "30:25",
+            "pts": 14.1,
+            "reb": 8.1,
+            "ast": 2.5,
+            "st": 1.1,
+            "blk": 0.9,
+            "to": 1.1,
+            "fpts": 31.92
+          },
+          {
+            "team_id": "1",
+            "slot": "C",
+            "name": "Mo Bamba",
+            "nba": "UTA",
+            "positions": [
+              "C"
+            ],
+            "status": "",
+            "gp": 10,
+            "mpg": "19:30",
+            "pts": 9.3,
+            "reb": 5.8,
+            "ast": 1,
+            "st": 0.4,
+            "blk": 1.8,
+            "to": 0.6,
+            "fpts": 23.46
+          },
+          {
+            "team_id": "1",
+            "slot": "Util",
+            "name": "Darius Acuff Jr.",
+            "nba": "SAC",
+            "positions": [
+              "PG"
+            ],
+            "status": "",
+            "gp": 13,
+            "mpg": "36:51",
+            "pts": 25.5,
+            "reb": 3.5,
+            "ast": 7.1,
+            "st": 1,
+            "blk": 0.1,
+            "to": 4.1,
+            "fpts": 37.5
+          },
+          {
+            "team_id": "1",
+            "slot": "Util",
+            "name": "LeBron James",
+            "nba": "PHI",
+            "positions": [
+              "SF",
+              "PF"
+            ],
+            "status": "",
+            "gp": 11,
+            "mpg": "32:33",
+            "pts": 15.1,
+            "reb": 7.2,
+            "ast": 6.9,
+            "st": 1.2,
+            "blk": 0.7,
+            "to": 2.6,
+            "fpts": 35.89
+          },
+          {
+            "team_id": "1",
+            "slot": "BN",
+            "name": "Fred VanVleet",
+            "nba": "HOU",
+            "positions": [
+              "PG"
+            ],
+            "status": "",
+            "gp": 12,
+            "mpg": "30:00",
+            "pts": 13.5,
+            "reb": 3.1,
+            "ast": 5.4,
+            "st": 1.2,
+            "blk": 0.3,
+            "to": 1,
+            "fpts": 28.32
+          },
+          {
+            "team_id": "1",
+            "slot": "BN",
+            "name": "Tyler Herro",
+            "nba": "MIL",
+            "positions": [
+              "PG",
+              "SG"
+            ],
+            "status": "",
+            "gp": 13,
+            "mpg": "30:27",
+            "pts": 20.3,
+            "reb": 4.2,
+            "ast": 4.2,
+            "st": 0.9,
+            "blk": 0.2,
+            "to": 2.3,
+            "fpts": 31.49
+          },
+          {
+            "team_id": "1",
+            "slot": "BN",
+            "name": "Kyrie Irving",
+            "nba": "DAL",
+            "positions": [
+              "PG",
+              "SG"
+            ],
+            "status": "",
+            "gp": 11,
+            "mpg": "30:43",
+            "pts": 22.7,
+            "reb": 3.5,
+            "ast": 4.4,
+            "st": 1.3,
+            "blk": 0.5,
+            "to": 1.7,
+            "fpts": 36.35
+          },
+          {
+            "team_id": "1",
+            "slot": "IL",
+            "name": "Chet Holmgren",
+            "nba": "OKC",
+            "positions": [
+              "PF",
+              "C"
+            ],
+            "status": "O",
+            "gp": 3,
+            "mpg": "30:00",
+            "pts": 12,
+            "reb": 9.3,
+            "ast": 1.3,
+            "st": 0.7,
+            "blk": 3,
+            "to": 1.7,
+            "fpts": 33.66
+          }
+        ],
+        "2": [
+          {
+            "team_id": "2",
+            "slot": "PG",
+            "name": "Ayo Dosunmu",
+            "nba": "MIN",
+            "positions": [
+              "PG",
+              "SG"
+            ],
+            "status": "",
+            "gp": 14,
+            "mpg": "31:00",
+            "pts": 17.8,
+            "reb": 4.6,
+            "ast": 3.4,
+            "st": 1.3,
+            "blk": 0.4,
+            "to": 2.1,
+            "fpts": 30.37
+          },
+          {
+            "team_id": "2",
+            "slot": "SG",
+            "name": "Cade Cunningham",
+            "nba": "DET",
+            "positions": [
+              "PG",
+              "SG"
+            ],
+            "status": "",
+            "gp": 12,
+            "mpg": "34:40",
+            "pts": 25.7,
+            "reb": 5.2,
+            "ast": 7.9,
+            "st": 1.5,
+            "blk": 0.9,
+            "to": 3.2,
+            "fpts": 46.19
+          },
+          {
+            "team_id": "2",
+            "slot": "G",
+            "name": "Anthony Black",
+            "nba": "ORL",
+            "positions": [
+              "PG",
+              "SG",
+              "SF"
+            ],
+            "status": "",
+            "gp": 10,
+            "mpg": "32:12",
+            "pts": 16.7,
+            "reb": 5.2,
+            "ast": 5.6,
+            "st": 1.9,
+            "blk": 0.8,
+            "to": 3.2,
+            "fpts": 34.64
+          },
+          {
+            "team_id": "2",
+            "slot": "SF",
+            "name": "Ace Bailey",
+            "nba": "UTA",
+            "positions": [
+              "SF",
+              "PF"
+            ],
+            "status": "",
+            "gp": 14,
+            "mpg": "31:12",
+            "pts": 13.4,
+            "reb": 6.5,
+            "ast": 2,
+            "st": 0.6,
+            "blk": 1.2,
+            "to": 1.8,
+            "fpts": 26.9
+          },
+          {
+            "team_id": "2",
+            "slot": "PF",
+            "name": "Karl-Anthony Towns",
+            "nba": "NYK",
+            "positions": [
+              "PF",
+              "C"
+            ],
+            "status": "",
+            "gp": 13,
+            "mpg": "32:27",
+            "pts": 21.6,
+            "reb": 13.9,
+            "ast": 3.6,
+            "st": 0.9,
+            "blk": 0.5,
+            "to": 3.2,
+            "fpts": 43.08
+          },
+          {
+            "team_id": "2",
+            "slot": "F",
+            "name": "Grayson Allen",
+            "nba": "CHA",
+            "positions": [
+              "SG",
+              "SF"
+            ],
+            "status": "O",
+            "gp": 13,
+            "mpg": "27:04",
+            "pts": 14.9,
+            "reb": 3.1,
+            "ast": 3.3,
+            "st": 0.8,
+            "blk": 0.3,
+            "to": 2.6,
+            "fpts": 22.97
+          },
+          {
+            "team_id": "2",
+            "slot": "C",
+            "name": "Donovan Clingan",
+            "nba": "POR",
+            "positions": [
+              "C"
+            ],
+            "status": "",
+            "gp": 13,
+            "mpg": "25:09",
+            "pts": 10.9,
+            "reb": 10.5,
+            "ast": 1.5,
+            "st": 0.5,
+            "blk": 2.4,
+            "to": 1.3,
+            "fpts": 32.5
+          },
+          {
+            "team_id": "2",
+            "slot": "C",
+            "name": "Ivica Zubac",
+            "nba": "IND",
+            "positions": [
+              "C"
+            ],
+            "status": "",
+            "gp": 9,
+            "mpg": "23:13",
+            "pts": 10.4,
+            "reb": 8.4,
+            "ast": 1.7,
+            "st": 0,
+            "blk": 0.7,
+            "to": 1.6,
+            "fpts": 22.73
+          },
+          {
+            "team_id": "2",
+            "slot": "Util",
+            "name": "Keyonte George",
+            "nba": "UTA",
+            "positions": [
+              "PG",
+              "SG"
+            ],
+            "status": "",
+            "gp": 13,
+            "mpg": "32:41",
+            "pts": 20.3,
+            "reb": 4.5,
+            "ast": 6.6,
+            "st": 0.8,
+            "blk": 0.2,
+            "to": 3.6,
+            "fpts": 33.2
+          },
+          {
+            "team_id": "2",
+            "slot": "Util",
+            "name": "Kyle Kuzma",
+            "nba": "MIL",
+            "positions": [
+              "SF",
+              "PF"
+            ],
+            "status": "",
+            "gp": 14,
+            "mpg": "26:55",
+            "pts": 11.3,
+            "reb": 5.3,
+            "ast": 2.5,
+            "st": 1,
+            "blk": 0.3,
+            "to": 1.9,
+            "fpts": 22.46
+          },
+          {
+            "team_id": "2",
+            "slot": "BN",
+            "name": "Jalen Green",
+            "nba": "PHX",
+            "positions": [
+              "SG",
+              "SF"
+            ],
+            "status": "",
+            "gp": 13,
+            "mpg": "26:37",
+            "pts": 11.9,
+            "reb": 3.4,
+            "ast": 2.9,
+            "st": 0.9,
+            "blk": 0.5,
+            "to": 2.5,
+            "fpts": 20.78
+          },
+          {
+            "team_id": "2",
+            "slot": "BN",
+            "name": "Julius Randle",
+            "nba": "BKN",
+            "positions": [
+              "PF"
+            ],
+            "status": "",
+            "gp": 13,
+            "mpg": "33:04",
+            "pts": 20.9,
+            "reb": 6.2,
+            "ast": 4.7,
+            "st": 1,
+            "blk": 0.2,
+            "to": 3.6,
+            "fpts": 33.59
+          },
+          {
+            "team_id": "2",
+            "slot": "BN",
+            "name": "Paul George",
+            "nba": "BOS",
+            "positions": [
+              "SF",
+              "PF"
+            ],
+            "status": "",
+            "gp": 12,
+            "mpg": "30:10",
+            "pts": 20.8,
+            "reb": 5.6,
+            "ast": 3.9,
+            "st": 2,
+            "blk": 0.3,
+            "to": 2.7,
+            "fpts": 36.22
+          },
+          {
+            "team_id": "2",
+            "slot": "IL",
+            "name": "Stephen Curry",
+            "nba": "GSW",
+            "positions": [
+              "PG"
+            ],
+            "status": "O",
+            "gp": 10,
+            "mpg": "26:18",
+            "pts": 27.8,
+            "reb": 3.7,
+            "ast": 3.9,
+            "st": 0.9,
+            "blk": 0.1,
+            "to": 1.7,
+            "fpts": 38.54
+          }
+        ],
+        "4": [
+          {
+            "team_id": "4",
+            "slot": "PG",
+            "name": "Darius Garland",
+            "nba": "LAC",
+            "positions": [
+              "PG"
+            ],
+            "status": "",
+            "gp": 12,
+            "mpg": "33:10",
+            "pts": 21.3,
+            "reb": 2.3,
+            "ast": 6.9,
+            "st": 0.6,
+            "blk": 0.1,
+            "to": 4.9,
+            "fpts": 29.16
+          },
+          {
+            "team_id": "4",
+            "slot": "SG",
+            "name": "Darryn Peterson",
+            "nba": "UTA",
+            "positions": [
+              "PG",
+              "SG"
+            ],
+            "status": "",
+            "gp": 14,
+            "mpg": "31:21",
+            "pts": 17.1,
+            "reb": 4.3,
+            "ast": 3.8,
+            "st": 1.2,
+            "blk": 0.8,
+            "to": 1.8,
+            "fpts": 31.26
+          },
+          {
+            "team_id": "4",
+            "slot": "G",
+            "name": "Amen Thompson",
+            "nba": "HOU",
+            "positions": [
+              "PG",
+              "SG"
+            ],
+            "status": "Q",
+            "gp": 14,
+            "mpg": "33:21",
+            "pts": 15.8,
+            "reb": 7,
+            "ast": 3.4,
+            "st": 1.1,
+            "blk": 0.7,
+            "to": 1.8,
+            "fpts": 32
+          },
+          {
+            "team_id": "4",
+            "slot": "SF",
+            "name": "Mikal Bridges",
+            "nba": "NYK",
+            "positions": [
+              "SF",
+              "PF"
+            ],
+            "status": "",
+            "gp": 13,
+            "mpg": "25:18",
+            "pts": 6.8,
+            "reb": 3.5,
+            "ast": 2.2,
+            "st": 1.1,
+            "blk": 0.5,
+            "to": 1.1,
+            "fpts": 17.45
+          },
+          {
+            "team_id": "4",
+            "slot": "PF",
+            "name": "Collin Murray-Boyles",
+            "nba": "TOR",
+            "positions": [
+              "PF",
+              "C"
+            ],
+            "status": "",
+            "gp": 12,
+            "mpg": "24:15",
+            "pts": 10.1,
+            "reb": 5.2,
+            "ast": 1.8,
+            "st": 1.1,
+            "blk": 1.1,
+            "to": 1.8,
+            "fpts": 22.94
+          },
+          {
+            "team_id": "4",
+            "slot": "F",
+            "name": "Peyton Watson",
+            "nba": "CLE",
+            "positions": [
+              "SF",
+              "PF"
+            ],
+            "status": "Q",
+            "gp": 12,
+            "mpg": "27:40",
+            "pts": 10.7,
+            "reb": 4.5,
+            "ast": 2.5,
+            "st": 0.7,
+            "blk": 1.5,
+            "to": 1.8,
+            "fpts": 23.75
+          },
+          {
+            "team_id": "4",
+            "slot": "C",
+            "name": "Victor Wembanyama",
+            "nba": "SAS",
+            "positions": [
+              "C"
+            ],
+            "status": "",
+            "gp": 14,
+            "mpg": "29:47",
+            "pts": 28.6,
+            "reb": 11.6,
+            "ast": 3.3,
+            "st": 1.1,
+            "blk": 4.3,
+            "to": 2,
+            "fpts": 60.67
+          },
+          {
+            "team_id": "4",
+            "slot": "C",
+            "name": "Moussa Diabaté",
+            "nba": "CHA",
+            "positions": [
+              "C"
+            ],
+            "status": "",
+            "gp": 11,
+            "mpg": "28:43",
+            "pts": 9,
+            "reb": 9.7,
+            "ast": 2,
+            "st": 1.3,
+            "blk": 1.1,
+            "to": 2,
+            "fpts": 27.84
+          },
+          {
+            "team_id": "4",
+            "slot": "Util",
+            "name": "Sandro Mamukelashvili",
+            "nba": "LAL",
+            "positions": [
+              "PF",
+              "C"
+            ],
+            "status": "",
+            "gp": 14,
+            "mpg": "23:25",
+            "pts": 10.4,
+            "reb": 4.3,
+            "ast": 1.7,
+            "st": 0.8,
+            "blk": 0.5,
+            "to": 0.9,
+            "fpts": 20.66
+          },
+          {
+            "team_id": "4",
+            "slot": "Util",
+            "name": "Yaxel Lendeborg",
+            "nba": "GSW",
+            "positions": [
+              "SF",
+              "PF"
+            ],
+            "status": "",
+            "gp": 14,
+            "mpg": "31:38",
+            "pts": 20.8,
+            "reb": 7.4,
+            "ast": 3.4,
+            "st": 1,
+            "blk": 0.8,
+            "to": 3.3,
+            "fpts": 35.23
+          },
+          {
+            "team_id": "4",
+            "slot": "BN",
+            "name": "Kyshawn George",
+            "nba": "WAS",
+            "positions": [
+              "SG",
+              "SF",
+              "PF"
+            ],
+            "status": "",
+            "gp": 15,
+            "mpg": "33:12",
+            "pts": 17.7,
+            "reb": 4.4,
+            "ast": 4.5,
+            "st": 0.7,
+            "blk": 1.2,
+            "to": 2.9,
+            "fpts": 31.08
+          },
+          {
+            "team_id": "4",
+            "slot": "BN",
+            "name": "Jaylen Brown",
+            "nba": "PHI",
+            "positions": [
+              "SG",
+              "SF",
+              "PF"
+            ],
+            "status": "O",
+            "gp": 14,
+            "mpg": "34:38",
+            "pts": 22.6,
+            "reb": 6.6,
+            "ast": 3.6,
+            "st": 1.3,
+            "blk": 0.5,
+            "to": 2.6,
+            "fpts": 37.42
+          },
+          {
+            "team_id": "4",
+            "slot": "BN",
+            "name": "Nikola Jokić",
+            "nba": "DEN",
+            "positions": [
+              "C"
+            ],
+            "status": "",
+            "gp": 12,
+            "mpg": "36:34",
+            "pts": 24.1,
+            "reb": 10.9,
+            "ast": 8.9,
+            "st": 1.8,
+            "blk": 1.1,
+            "to": 3.4,
+            "fpts": 54.13
+          },
+          {
+            "team_id": "4",
+            "slot": "IL",
+            "name": "Trey Murphy III",
+            "nba": "NOP",
+            "positions": [
+              "SG",
+              "SF"
+            ],
+            "status": "O",
+            "gp": 9,
+            "mpg": "32:46",
+            "pts": 15.6,
+            "reb": 4.8,
+            "ast": 3.6,
+            "st": 1,
+            "blk": 0.2,
+            "to": 1.7,
+            "fpts": 27.81
+          },
+          {
+            "team_id": "4",
+            "slot": "IL",
+            "name": "Kawhi Leonard",
+            "nba": "TOR",
+            "positions": [
+              "SG",
+              "SF",
+              "PF"
+            ],
+            "status": "O",
+            "gp": 2,
+            "mpg": "26:00",
+            "pts": 19.5,
+            "reb": 7.5,
+            "ast": 1.5,
+            "st": 3.5,
+            "blk": 0.5,
+            "to": 2,
+            "fpts": 39.75
+          },
+          {
+            "team_id": "4",
+            "slot": "IL",
+            "name": "Jaren Jackson Jr.",
+            "nba": "UTA",
+            "positions": [
+              "PF",
+              "C"
+            ],
+            "status": "O",
+            "gp": 4,
+            "mpg": "26:00",
+            "pts": 16.3,
+            "reb": 5,
+            "ast": 2,
+            "st": 0.3,
+            "blk": 1.3,
+            "to": 3,
+            "fpts": 25.6
+          }
+        ],
+        "9": [
+          {
+            "team_id": "9",
+            "slot": "PG",
+            "name": "Davion Mitchell",
+            "nba": "MIA",
+            "positions": [
+              "PG"
+            ],
+            "status": "",
+            "gp": 14,
+            "mpg": "35:34",
+            "pts": 16.7,
+            "reb": 2.4,
+            "ast": 9.2,
+            "st": 1.4,
+            "blk": 0.6,
+            "to": 2.4,
+            "fpts": 35.78
+          },
+          {
+            "team_id": "9",
+            "slot": "SG",
+            "name": "Deni Avdija",
+            "nba": "POR",
+            "positions": [
+              "SG",
+              "SF",
+              "PF"
+            ],
+            "status": "O",
+            "gp": 13,
+            "mpg": "32:27",
+            "pts": 24.2,
+            "reb": 6.2,
+            "ast": 6.1,
+            "st": 1.1,
+            "blk": 0.4,
+            "to": 3.3,
+            "fpts": 40.34
+          },
+          {
+            "team_id": "9",
+            "slot": "G",
+            "name": "Jared McCain",
+            "nba": "OKC",
+            "positions": [
+              "PG",
+              "SG"
+            ],
+            "status": "",
+            "gp": 14,
+            "mpg": "26:42",
+            "pts": 13.4,
+            "reb": 3.4,
+            "ast": 1.9,
+            "st": 0.9,
+            "blk": 0.2,
+            "to": 1.6,
+            "fpts": 21.23
+          },
+          {
+            "team_id": "9",
+            "slot": "SF",
+            "name": "Matas Buzelis",
+            "nba": "CHI",
+            "positions": [
+              "SF",
+              "PF"
+            ],
+            "status": "",
+            "gp": 13,
+            "mpg": "27:09",
+            "pts": 14.4,
+            "reb": 4.7,
+            "ast": 1.8,
+            "st": 0.5,
+            "blk": 0.8,
+            "to": 2.6,
+            "fpts": 22.74
+          },
+          {
+            "team_id": "9",
+            "slot": "PF",
+            "name": "Naz Reid",
+            "nba": "CHA",
+            "positions": [
+              "PF",
+              "C"
+            ],
+            "status": "",
+            "gp": 13,
+            "mpg": "29:37",
+            "pts": 17.2,
+            "reb": 8.2,
+            "ast": 2.2,
+            "st": 0.8,
+            "blk": 0.5,
+            "to": 2.7,
+            "fpts": 30.19
+          },
+          {
+            "team_id": "9",
+            "slot": "F",
+            "name": "RJ Barrett",
+            "nba": "TOR",
+            "positions": [
+              "SG",
+              "SF",
+              "PF"
+            ],
+            "status": "",
+            "gp": 13,
+            "mpg": "33:46",
+            "pts": 20.8,
+            "reb": 6.5,
+            "ast": 4.2,
+            "st": 0.5,
+            "blk": 0.5,
+            "to": 2.1,
+            "fpts": 34.75
+          },
+          {
+            "team_id": "9",
+            "slot": "C",
+            "name": "Neemias Queta",
+            "nba": "BOS",
+            "positions": [
+              "C"
+            ],
+            "status": "",
+            "gp": 13,
+            "mpg": "22:00",
+            "pts": 9.1,
+            "reb": 6.6,
+            "ast": 1.8,
+            "st": 0.2,
+            "blk": 1.3,
+            "to": 1.2,
+            "fpts": 22.42
+          },
+          {
+            "team_id": "9",
+            "slot": "C",
+            "name": "Brook Lopez",
+            "nba": "LAC",
+            "positions": [
+              "C"
+            ],
+            "status": "",
+            "gp": 12,
+            "mpg": "24:25",
+            "pts": 14.1,
+            "reb": 5.3,
+            "ast": 1.8,
+            "st": 0.5,
+            "blk": 0.9,
+            "to": 1,
+            "fpts": 25.86
+          },
+          {
+            "team_id": "9",
+            "slot": "Util",
+            "name": "Dyson Daniels",
+            "nba": "ATL",
+            "positions": [
+              "SG",
+              "SF"
+            ],
+            "status": "",
+            "gp": 14,
+            "mpg": "30:25",
+            "pts": 9.5,
+            "reb": 7.4,
+            "ast": 5.6,
+            "st": 2.9,
+            "blk": 0.3,
+            "to": 1.3,
+            "fpts": 34.43
+          },
+          {
+            "team_id": "9",
+            "slot": "Util",
+            "name": "Aday Mara",
+            "nba": "OKC",
+            "positions": [
+              "C"
+            ],
+            "status": "",
+            "gp": 14,
+            "mpg": "21:34",
+            "pts": 9.1,
+            "reb": 6.5,
+            "ast": 1.4,
+            "st": 0.1,
+            "blk": 1.7,
+            "to": 1.8,
+            "fpts": 21.7
+          },
+          {
+            "team_id": "9",
+            "slot": "BN",
+            "name": "Alex Sarr",
+            "nba": "WAS",
+            "positions": [
+              "C"
+            ],
+            "status": "",
+            "gp": 14,
+            "mpg": "27:25",
+            "pts": 11.8,
+            "reb": 7.3,
+            "ast": 1.6,
+            "st": 0.9,
+            "blk": 1.1,
+            "to": 1.4,
+            "fpts": 26.86
+          },
+          {
+            "team_id": "9",
+            "slot": "BN",
+            "name": "Cooper Flagg",
+            "nba": "DAL",
+            "positions": [
+              "SG",
+              "SF",
+              "PF"
+            ],
+            "status": "",
+            "gp": 13,
+            "mpg": "33:18",
+            "pts": 23.5,
+            "reb": 6.7,
+            "ast": 6.2,
+            "st": 1.9,
+            "blk": 0.8,
+            "to": 2.9,
+            "fpts": 44.59
+          },
+          {
+            "team_id": "9",
+            "slot": "IL",
+            "name": "Jalen Duren",
+            "nba": "DET",
+            "positions": [
+              "C"
+            ],
+            "status": "O",
+            "gp": 2,
+            "mpg": "19:00",
+            "pts": 13,
+            "reb": 7.5,
+            "ast": 2,
+            "st": 1,
+            "blk": 1,
+            "to": 1,
+            "fpts": 29.5
+          },
+          {
+            "team_id": "9",
+            "slot": "IL",
+            "name": "Tyrese Haliburton",
+            "nba": "IND",
+            "positions": [
+              "PG",
+              "SG"
+            ],
+            "status": "O",
+            "gp": 4,
+            "mpg": "33:00",
+            "pts": 21.8,
+            "reb": 4.5,
+            "ast": 9.5,
+            "st": 1.3,
+            "blk": 0.8,
+            "to": 2.3,
+            "fpts": 44.3
+          }
+        ]
+      }
+    }
+  ]
 }
