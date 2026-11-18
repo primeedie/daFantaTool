@@ -52,7 +52,7 @@ export function parseRosterConfig(hash){
  } catch {return null;}
 }
 
-export function setupRosterBook(onChange,openFreeAgents){
+export function setupRosterBook(onChange,openFreeAgents,openRosterPicker){
  const $=selector=>document.querySelector(selector);
  const dialog=$('#saved-rosters-dialog'),form=$('#saved-rosters-form');
  const configs=$('#saved-config-select'),teams=$('#saved-team-select');
@@ -141,6 +141,29 @@ export function setupRosterBook(onChange,openFreeAgents){
  $('#share-saved-config').addEventListener('click',()=>{if(current())copyConfig(current());});
  $('#share-saved-team').addEventListener('click',()=>{if(currentTeam())copyConfig({...current(),teams:[currentTeam()]});});
  $('#browse-free-agents').addEventListener('click',()=>{if(current())openFreeAgents(current());});
+ for(const button of form.querySelectorAll('[data-draft-roster]'))button.addEventListener('click',()=>{
+  const group=button.dataset.draftRoster;
+  const field=value(group==='il'?'injuredPlayers':'regularPlayers');
+  const names=playerList(field.value);
+  const limit=Number(value(group).value);
+  if(!numeric(limit,group==='il'?0:1)){value(group).reportValidity();return;}
+  if(names.length>=limit){status.textContent=group==='il'?'The injured list has no open spots.':'The regular roster has no open spots.';return;}
+  const otherTeams=(current()?.teams||[]).filter((_team,index)=>String(index)!==teams.value);
+  const entered=['regularPlayers','injuredPlayers'].flatMap(name=>playerList(value(name).value)).map(playerKey);
+  const taken=new Set([...entered,...otherTeams.flatMap(members)]);
+  const rostered=player=>taken.has(playerKey(player.name));
+  const remaining=()=>limit-names.length;
+  openRosterPicker({
+   title:group==='il'?'Add IL players':'Add regular roster players',rostered,remaining,
+   add(player){
+    if(!remaining()||rostered(player))return;
+    names.push(player.name);
+    taken.add(playerKey(player.name));
+    field.value=names.join('\n');
+    status.textContent='Click Save Team to keep your changes.';
+   }
+  });
+ });
  importButton.addEventListener('click',()=>{
   if(!imported)return;
   const index=library.length;

@@ -1,4 +1,23 @@
+import {playerKey} from './model.mjs';
+
 export const boxFields={pts:'PTS',reb:'REB',oreb:'OREB',dreb:'DREB',ast:'AST',st:'STL',blk:'BLK',to:'TOV'};
+const playerAliases=new Map([
+ ['nikolajokic',['joker','thejoker']],['victorwembanyama',['wemby','alien','thealien']],
+ ['shaigilgeousalexander',['sga']],['giannisantetokounmpo',['greekfreak','thegreekfreak']],
+ ['lukadoncic',['lukamagic']],['anthonyedwards',['ant','antman']],['karlanthonytowns',['kat']],
+ ['donovanmitchell',['spida']],['anthonydavis',['ad','brow','thebrow']],['kevindurant',['kd','slimreaper']],
+ ['stephencurry',['steph','chef','chefcurry']],['lebronjames',['bron','kingjames']],
+ ['jamesharden',['beard','thebeard']],['damianlillard',['dame','dametime']],['joelembiid',['theprocess']],
+ ['jimmybutler',['jimmybuckets']],['devinbooker',['dbook']],['traeyoung',['icetrae']]
+]);
+
+export function pickerMatch(player,query){
+ if(!query)return 1;
+ const name=playerKey(player.name);
+ const aliases=playerAliases.get(player.id)||[];
+ if(name===query||aliases.includes(query))return 2;
+ return Number(name.includes(query)||Boolean(player.nba?.toLowerCase().includes(query))||aliases.some(alias=>alias.includes(query)));
+}
 const easternDate=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'});
 function easternDay(date){
  const {year,month,day}=Object.fromEntries(easternDate.formatToParts(date).map(part=>[part.type,part.value]));

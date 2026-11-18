@@ -7,9 +7,9 @@
  <link rel="icon" href="./player-logo.png?v=3">
  <link rel="stylesheet" href="./style.css">
  <link rel="stylesheet" href="./font.css?v=logo-contrast">
- <link rel="stylesheet" href="./trading.css?v=roster-adjustments">
+ <link rel="stylesheet" href="./trading.css?v=roster-search">
  <script type="module" src="./theme.mjs?v=logo-contrast"></script>
- <script type="module" src="./trading.mjs?v=roster-adjustments"></script>
+ <script type="module" src="./trading.mjs?v=roster-search"></script>
 </head>
 <body>
  <header class="site-header"><div class="masthead">
@@ -163,7 +163,7 @@
  </main>
  <dialog id="saved-rosters-dialog" aria-labelledby="saved-rosters-title">
   <div class="roster-heading"><h2 id="saved-rosters-title">Saved rosters</h2><button class="button" id="close-roster-book" type="button">Close</button></div>
-  <p class="sub">Save one team or add every team in a league. Separate full player names with new lines or commas.</p>
+  <p class="sub">Search for players or paste full names, one per line. Save one team or add every team in a league.</p>
   <form id="saved-rosters-form" class="saved-rosters-form">
    <div class="saved-roster-fields">
     <label>Configuration <select id="saved-config-select"></select></label>
@@ -172,8 +172,14 @@
     <label>IL spots <input name="il" type="number" min="0" max="99" step="1" required></label>
     <label>Team <select id="saved-team-select"></select></label>
     <label>Team name <input name="teamName" maxlength="60" placeholder="e.g. Milch" required></label>
-    <label>Regular roster <textarea name="regularPlayers" rows="6" maxlength="6000"></textarea></label>
-    <label>Injured list <textarea name="injuredPlayers" rows="6" maxlength="6000"></textarea></label>
+    <div class="saved-roster-entry">
+     <div><label for="regular-players">Regular roster</label><button class="button" type="button" data-draft-roster="regular" aria-label="Search for regular roster players">Search players</button></div>
+     <textarea id="regular-players" name="regularPlayers" rows="6" maxlength="6000"></textarea>
+    </div>
+    <div class="saved-roster-entry">
+     <div><label for="injured-players">Injured list</label><button class="button" type="button" data-draft-roster="il" aria-label="Search for injured list players">Search players</button></div>
+     <textarea id="injured-players" name="injuredPlayers" rows="6" maxlength="6000"></textarea>
+    </div>
    </div>
    <div class="entry-actions">
     <button class="button primary" type="submit">Save team</button>
@@ -195,10 +201,10 @@
   </form>
  </dialog>
  <dialog id="player-picker" class="picker" aria-labelledby="picker-title">
-  <div class="picker-head"><h2 id="picker-title">Add player</h2><form method="dialog"><button class="button" aria-label="Close player picker">×</button></form></div>
+  <div class="picker-head"><h2 id="picker-title">Add player</h2><form method="dialog"><button class="button" id="close-player-picker" aria-label="Close player picker">×</button></form></div>
   <div class="picker-controls">
-   <label class="sr-only" for="picker-search">Search name or NBA team</label>
-   <input type="search" id="picker-search" placeholder="Search player or NBA team">
+   <label class="sr-only" for="picker-search">Search player name, nickname, or NBA team</label>
+   <input type="search" id="picker-search" placeholder="Name, nickname, or NBA team">
    <label class="sr-only" for="picker-sort">Sort players</label>
    <select id="picker-sort"><option value="season">Season rank</option><option value="draft">RotoWire draft rank</option><option value="name">Name</option></select>
   </div>

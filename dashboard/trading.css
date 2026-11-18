@@ -239,6 +239,9 @@ body .chat-question .number-token {color:#ffedba}
 .saved-roster-fields label {display:grid;gap:4px}
 .saved-roster-fields :is(input,select,textarea) {width:100%;min-width:0}
 .saved-roster-fields textarea {padding:8px;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--ink);font:inherit;resize:vertical}
+.saved-roster-entry {display:grid;gap:6px}
+.saved-roster-entry > div {display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
+.saved-roster-entry .button {padding:5px 8px}
 #save-roster-import {margin-top:10px}
 #saved-rosters-status:empty {display:none}
 .trade-subsection {margin-top:30px}

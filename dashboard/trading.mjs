@@ -1,6 +1,6 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
-import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=roster-adjustments';
-import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment} from './trade-model.mjs?v=roster-adjustments';
+import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=roster-search';
+import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch} from './trade-model.mjs?v=roster-search';
 
 const $=selector=>document.querySelector(selector);
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -77,7 +77,7 @@ const picks={a:[],b:[]};
 const roster={...defaultRoster,a:{open:0,ilOut:0,ilIn:0,players:[]},b:{open:0,ilOut:0,ilIn:0,players:[]}};
 const rosterPanel=$('#trade-roster');
 const settingsKey='real-balliggas-trade-weights';
-let weights,side='a',pickerPurpose='trade',pickerLeague,dataset,dataRequest,rosterBook;
+let weights,side='a',pickerPurpose='trade',pickerLeague,draftPicker,dataset,dataRequest,rosterBook;
 let currentRanks=new Map();
 let injuryData,injuryRequest;
 let injuryHistoryData,historyRequest,historyFailed=false;
@@ -708,14 +708,18 @@ function renderPicker(){
  if(!dataset){status.textContent='Player data unavailable. Close the picker and try again.';results.innerHTML='';return;}
  const query=playerKey(search.value);
  const browsing=pickerPurpose==='browse';
- const action=pickerPurpose==='trade'?'trade':!browsing&&spotsFor(side).cuts?'cut':'pickup';
- const {config,team,allows}=browsing?{config:pickerLeague,allows:savedRosterFilter(pickerLeague,null,'pickup')}:rosterScope(side,action);
- const players=dataset.players.filter(player=>allows(player)&&(!query||playerKey(player.name).includes(query)||player.nba?.toLowerCase().includes(query)));
+ const entry=pickerPurpose==='draft'?draftPicker:null;
+ const action=pickerPurpose==='roster'?(spotsFor(side).cuts?'cut':'pickup'):browsing?'pickup':'trade';
+ const {config,team,allows}=browsing?{config:pickerLeague,allows:savedRosterFilter(pickerLeague,null,'pickup')}:entry?{allows:()=>true}:rosterScope(side,action);
+ const matches=dataset.players.filter(allows).map(player=>({player,match:pickerMatch(player,query)})).filter(row=>row.match);
  const nameOrder=(a,b)=>a.name.localeCompare(b.name);
  const byRank=(a,b,getRank)=>(getRank(a)??Infinity)-(getRank(b)??Infinity)||nameOrder(a,b);
- players.sort(sort.value==='draft'?(a,b)=>byRank(a,b,player=>player.rank):sort.value==='name'?nameOrder:(a,b)=>byRank(a,b,seasonRank));
+ const order=sort.value==='draft'?(a,b)=>byRank(a,b,player=>player.rank):sort.value==='name'?nameOrder:(a,b)=>byRank(a,b,seasonRank);
+ matches.sort((a,b)=>b.match-a.match||order(a.player,b.player));
+ const players=matches.map(row=>row.player);
  const notes=[];
- if(action==='pickup')notes.push(config?`Excludes regular and IL players across ${config.teams.length} saved team${config.teams.length===1?'':'s'} in ${config.name}.`:'Check pickup availability in your league.');
+ if(entry)notes.push(`${entry.remaining()} open spots · Select players, then click Done.`);
+ else if(action==='pickup')notes.push(config?`Excludes regular and IL players across ${config.teams.length} saved team${config.teams.length===1?'':'s'} in ${config.name}.`:'Check pickup availability in your league.');
  else if(team)notes.push(action==='cut'?`Regular roster for ${team.name}.`:`Regular roster and IL for ${team.name}.`);
  else notes.push(`Season rank uses your FP per game rules across ${currentRanks.size} players with stats.`);
  if(players.length>100)notes.push(`Showing 100 of ${players.length}. Search to narrow the list.`);
@@ -723,10 +727,11 @@ function renderPicker(){
  status.textContent=notes.join(' ');
  results.innerHTML=players.slice(0,100).map(player=>{
   const points=fp(player);
-  const selected=!browsing&&pickerOccupied(player.id);
+  const selected=entry?entry.rostered(player):!browsing&&pickerOccupied(player.id);
+  const full=entry?.remaining()===0;
   const lead=sort.value==='draft'?rankText(player.rank):rankText(seasonRank(player));
-  const cells=`<span>${lead}</span><span><strong>${esc(player.name)}</strong><span class="sub">${nbaBadge(player.nba)} ${esc(player.position)} · ${rankSummary(player)}</span></span><span class="${!selected&&points!==null?'trade-fp':''}">${selected?'Added':points===null?(weights?'No stats':''):`${format(points)} FP`}</span>`;
-  return browsing?`<div class="picker-row">${cells}</div>`:`<button class="picker-row" type="button" data-player-id="${esc(player.id)}" ${selected?'disabled':''}>${cells}</button>`;
+  const cells=`<span>${lead}</span><span><strong>${esc(player.name)}</strong><span class="sub">${nbaBadge(player.nba)} ${esc(player.position)} · ${rankSummary(player)}</span></span><span class="${!selected&&!full&&points!==null?'trade-fp':''}">${selected?(entry?'On roster':'Added'):full?'Roster full':points===null?(weights?'No stats':''):`${format(points)} FP`}</span>`;
+  return browsing?`<div class="picker-row">${cells}</div>`:`<button class="picker-row" type="button" data-player-id="${esc(player.id)}" ${selected||full?'disabled':''}>${cells}</button>`;
  }).join('');
  colorNumbers(results);
  colorNumbers(status);
@@ -736,6 +741,9 @@ async function openPicker(title){
  $('#picker-title').textContent=title;
  colorNumbers($('#picker-title'));
  search.value='';
+ const close=$('#close-player-picker');
+ close.textContent=pickerPurpose==='draft'?'Done':'×';
+ close.setAttribute('aria-label',pickerPurpose==='draft'?'Done adding roster players':'Close player picker');
  $('#picker-status').textContent='Loading players…';
  $('#picker-results').innerHTML='';
  picker.showModal();
@@ -765,7 +773,17 @@ search.addEventListener('input',renderPicker);
 sort.addEventListener('change',renderPicker);
 $('#picker-results').addEventListener('click',event=>{
  const button=event.target.closest('[data-player-id]');
- if(!button||button.disabled||pickerOccupied(button.dataset.playerId))return;
+ if(!button||button.disabled)return;
+ if(pickerPurpose==='draft'){
+  const player=dataset.players.find(player=>player.id===button.dataset.playerId);
+  if(!player)return;
+  draftPicker.add(player);
+  renderPicker();
+  search.focus();
+  search.select();
+  return;
+ }
+ if(pickerOccupied(button.dataset.playerId))return;
  const target=pickerPurpose==='roster'?roster[side].players:picks[side];
  const {cuts,pickups}=spotsFor(side);
  if(pickerPurpose==='roster'&&target.length>=(cuts||pickups))return;
@@ -783,6 +801,11 @@ rosterBook=setupRosterBook((config,key)=>{
  pickerPurpose='browse';
  if(!weights)sort.value='draft';
  openPicker(`Free agents · ${config.name}`);
+},entry=>{
+ draftPicker=entry;
+ pickerPurpose='draft';
+ if(!weights)sort.value='draft';
+ openPicker(entry.title);
 });
 
 if(sharedTrade){

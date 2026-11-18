@@ -3,9 +3,21 @@ import assert from 'node:assert/strict';
 import {scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,packageForm,compareGamesPlayed,statSwings,packageScenarios,nextOpponents,easternWeek,weeklyPackage,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,rosterSpots,rosterSettings,rosterAdjustment} from '../dashboard/trade-model.mjs';
 import {normalizeRosterConfig,savedRosterFilter,rosterConfigHash,parseRosterConfig} from '../dashboard/saved-rosters.mjs';
 import {injuryHistory} from '../refresh-injury-history.mjs';
+import {pickerMatch} from '../dashboard/trade-model.mjs';
+import {playerKey} from '../dashboard/model.mjs';
 
 const base={pts:'1',reb:'1.2',ast:'1.5',st:'3',blk:'3',to:'1.5'};
 const box={pts:20,reb:10,oreb:3,dreb:7,ast:5,st:1,blk:1,to:4};
+
+test('the player picker prioritizes exact nicknames and keeps NBA-team and name search',()=>{
+ const jokic={id:'nikolajokic',name:'Nikola Jokić',nba:'DEN'};
+ const wemby={id:'victorwembanyama',name:'Victor Wembanyama',nba:'SAS'};
+ assert.equal(pickerMatch(jokic,playerKey('The Joker')),2);
+ assert.equal(pickerMatch(wemby,playerKey('WEMBY')),2);
+ assert.equal(pickerMatch(wemby,playerKey('The Joker')),0);
+ assert.equal(pickerMatch(jokic,playerKey('Jokic')),1);
+ assert.equal(pickerMatch(jokic,playerKey('DEN')),1);
+});
 
 test('roster adjustments apply cuts and pickups and keep existing and IL slots separate',()=>{
  const a=rosterSpots(1,2),b=rosterSpots(2,1);
