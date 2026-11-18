@@ -9,6 +9,17 @@ const palettes={
  warriors:'Warriors',wizards:'Wizards Cherry Blossom',wolves:'Wolves'
 };
 const root=document.documentElement;
+document.body.insertAdjacentHTML('beforeend',`<svg class="brand-filters" width="0" height="0" aria-hidden="true" focusable="false">
+ <defs><filter id="player-palette" color-interpolation-filters="sRGB">
+  <feFlood flood-color="white" result="white"/>
+  <feComposite in="white" in2="SourceAlpha" operator="in" result="silhouette"/>
+  <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  6 -6 0 0 -1.8" result="redDetails"/>
+  <feComposite in="redDetails" in2="SourceAlpha" operator="in" result="detailMask"/>
+  <feFlood class="player-accent-fill" result="accent"/>
+  <feComposite in="accent" in2="detailMask" operator="in" result="details"/>
+  <feMerge><feMergeNode in="silhouette"/><feMergeNode in="details"/></feMerge>
+ </filter></defs>
+</svg>`);
 const toggles=document.querySelectorAll('[data-theme-toggle]');
 let theme,palette;
 try {theme=localStorage.getItem(preferenceKey);palette=localStorage.getItem(paletteKey);} catch {}
