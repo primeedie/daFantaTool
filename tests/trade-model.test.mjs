@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,recentPackagePoints,compareGamesPlayed,statSwings} from '../dashboard/trade-model.mjs';
+import {scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,recentPackagePoints,compareGamesPlayed,statSwings,packageScenarios} from '../dashboard/trade-model.mjs';
 
 const base={pts:'1',reb:'1.2',ast:'1.5',st:'3',blk:'3',to:'1.5'};
 const box={pts:20,reb:10,oreb:3,dreb:7,ast:5,st:1,blk:1,to:4};
@@ -67,4 +67,11 @@ test('availability compares shared seasons and recent FP requires three valid ga
  assert.deepEqual(compareGamesPlayed(a,b),{gameTotals:[{year:'2024',a:41,b:70},{year:'2025',a:59,b:75}],avgA:50,avgB:72.5});
  assert.equal(recentPackagePoints([a],{pts:2}),20);
  assert.equal(recentPackagePoints([a,b],{pts:2}),null);
+});
+
+test('trade floor and ceiling add individual quartiles and require five games per player',()=>{
+ const p={gameLogs:[10,0,8,2,4,6].map(pts=>({pts}))};
+ const q={gameLogs:[10,20,30,40,50].map(pts=>({pts}))};
+ assert.deepEqual(packageScenarios([p,q],{pts:1}),{floor:22.5,ceiling:47.5});
+ assert.equal(packageScenarios([q,{gameLogs:q.gameLogs.slice(0,4)}],{pts:1}),null);
 });

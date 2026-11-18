@@ -68,11 +68,29 @@
     <p class="sub">On season FP per game: fair within 10%, edge through 20%, lopsided above 20%. The gap is measured against the larger package.</p>
    </section>
    <section id="trade-context" class="panel panel-body trade-balance" aria-labelledby="trade-context-title" hidden>
-    <h2 id="trade-context-title">What could swing it?</h2>
+    <h2 id="trade-context-title">Trade breakdown</h2>
+    <div id="trade-scenarios"></div>
     <div id="trade-analysis"></div>
     <div id="trade-risk-sides" class="trade-risk-sides"></div>
     <p id="trade-roster-note" class="sub"></p>
     <p id="trade-injury-source" class="sub"></p>
+   </section>
+   <section id="trade-assistant" class="panel panel-body trade-balance" aria-labelledby="assistant-title" hidden>
+    <h2 id="assistant-title">Ask the trade desk</h2>
+    <p class="sub">Ask about this trade. Answers use the selected players and your scoring settings.</p>
+    <div class="question-chips" id="trade-questions">
+     <button class="button" type="button" data-question="Is this fair?">Is this fair?</button>
+     <button class="button" type="button" data-question="Who has the better floor and ceiling?">Floor &amp; ceiling</button>
+     <button class="button" type="button" data-question="What are the injury risks?">Injury risk</button>
+     <button class="button" type="button" data-question="Who has played more games?">Games played</button>
+     <button class="button" type="button" data-question="Which stats drive the trade?">Stat drivers</button>
+    </div>
+    <div id="trade-chat-log" class="trade-chat-log" role="log" aria-live="polite"></div>
+    <form id="trade-ask" class="trade-ask">
+     <label class="sr-only" for="trade-question">Your question</label>
+     <input id="trade-question" placeholder="Ask about the trade…" maxlength="200" required>
+     <button class="button primary" type="submit">Ask</button>
+    </form>
    </section>
    <p id="trade-sources" class="sub"></p>
   </section>

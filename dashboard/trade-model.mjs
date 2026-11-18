@@ -65,11 +65,29 @@ export function managerChanges(outgoingA,outgoingB){
 export function recentPackagePoints(players,weights){
  let total=0;
  for(const player of players){
-  const sample=(player.recent||[]).map(box=>tradePoints(box,weights)).filter(points=>points!==null);
+  const sample=(player.gameLogs||player.recent||[]).slice(0,5).map(box=>tradePoints(box,weights)).filter(points=>points!==null);
   if(sample.length<3)return null;
   total+=sample.reduce((sum,points)=>sum+points,0)/sample.length;
  }
  return total;
+}
+
+export function percentile(sorted,fraction){
+ const index=(sorted.length-1)*fraction;
+ const lower=Math.floor(index);
+ return sorted[lower]+(sorted[Math.ceil(index)]-sorted[lower])*(index-lower);
+}
+
+export function packageScenarios(players,weights){
+ if(!players.length)return null;
+ let floor=0,ceiling=0;
+ for(const player of players){
+  const scores=(player.gameLogs||player.recent||[]).map(box=>tradePoints(box,weights)).filter(points=>points!==null).sort((a,b)=>a-b);
+  if(scores.length<5)return null;
+  floor+=percentile(scores,.25);
+  ceiling+=percentile(scores,.75);
+ }
+ return {floor,ceiling};
 }
 
 export function compareGamesPlayed(playerA,playerB){

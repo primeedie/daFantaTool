@@ -2,16 +2,16 @@
  max-width:1240px;
  --manager-a:var(--brand-strong);
  --manager-b:var(--brand-hot);
- --manager-a-text:#9f0a36;
+ --manager-a-text:var(--brand-strong);
  --manager-b-text:var(--brand-black);
- --fp-gain:var(--brand-black);
- --fp-loss:#a90c3a;
+ --fp-gain:#215743;
+ --fp-loss:#9c3643;
 }
 [data-theme="dark"] .trade-tool {
- --manager-a-text:#ff8bad;
- --manager-b-text:var(--brand-blush);
- --fp-gain:var(--brand-blush);
- --fp-loss:#ff7ca3;
+ --manager-a-text:var(--brand-light);
+ --manager-b-text:var(--ink);
+ --fp-gain:#a4d7b7;
+ --fp-loss:#ecc0c6;
 }
 .trade-title {display:flex;align-items:baseline;gap:18px;margin-bottom:20px}
 .trade-title a {white-space:nowrap;text-decoration:underline}
@@ -49,7 +49,7 @@
  height:12px;
  border:1px solid var(--line);
  border-radius:10px;
- background:linear-gradient(to right,var(--manager-a) 0 40%,#eb8aa5 40% 45%,var(--brand-blush) 45% 55%,#ff91b2 55% 60%,var(--manager-b) 60% 100%);
+ background:linear-gradient(to right,var(--manager-a) 0 40%,var(--brand-light) 40% 45%,var(--brand-blush) 45% 55%,var(--line) 55% 60%,var(--manager-b) 60% 100%);
 }
 #balance-marker {
  position:absolute;
@@ -75,8 +75,23 @@
 .manager-impacts dl {display:flex;gap:16px;flex-wrap:wrap;margin:8px 0 0}
 .manager-impacts dt {font-size:13px;color:var(--muted)}
 .manager-impacts dd {margin:0}
-#trade-analysis ul {padding-inline-start:20px}
-#trade-analysis li+li {margin-top:9px}
+.trade-subsection {margin-top:24px}
+.trade-subsection h3 {margin-bottom:10px;font-size:18px;font-weight:700}
+.trade-subsection .sub {max-width:70ch}
+.trade-insights {display:grid;gap:12px;margin-top:20px}
+.trade-insight {padding:14px 16px;background:var(--paper);border:1px solid var(--line);border-radius:8px}
+.trade-insight p {margin:5px 0 0;max-width:72ch}
+.trade-scenario-table td,.trade-scenario-table th {padding:10px 12px}
+.trade-scenario-table td {font-variant-numeric:tabular-nums}
+.question-chips {display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.question-chips .button {padding:6px 10px;font-size:14px}
+.trade-chat-log:not(:empty) {display:grid;gap:10px;max-height:400px;overflow:auto;margin:16px 0}
+.chat-turn {display:grid;gap:7px}
+.chat-turn p {margin:0;padding:9px 13px;border-radius:10px;max-width:74ch}
+.chat-turn .chat-question {justify-self:end;background:var(--brand-strong);color:#fff}
+.chat-turn .chat-answer {justify-self:start;background:var(--paper);border:1px solid var(--line)}
+.trade-ask {display:flex;gap:8px}
+.trade-ask input {flex:1;min-width:0}
 .trade-risk-sides {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}
 .trade-risk-side {padding:12px;background:var(--paper);border:1px solid var(--line);border-radius:8px}
 .trade-risk-side ul {padding-left:17px;margin:8px 0}

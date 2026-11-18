@@ -1,5 +1,5 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
-import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,recentPackagePoints,compareGamesPlayed,statSwings} from './trade-model.mjs';
+import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,recentPackagePoints,compareGamesPlayed,statSwings,packageScenarios} from './trade-model.mjs';
 
 const $=selector=>document.querySelector(selector);
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -20,6 +20,7 @@ const settingsKey='real-balliggas-trade-weights';
 let weights,side='a',dataset,dataRequest;
 let currentRanks=new Map();
 let injuryData,injuryRequest;
+let chatTrade,chatVersion='';
 let totalRebound='';
 
 try {
@@ -120,11 +121,11 @@ function renderBalance(totals){
   return;
  }
  const {gap,percentage,level,leader,position}=balance;
- const winner=leader&&manager(leader),other=leader&&manager(leader==='A'?'B':'A');
- if(!winner)verdict.textContent='Dead even. Nobody gets bragging rights.';
- else if(level==='fair')verdict.textContent=`Fair deal on paper. ${winner} gets the small edge.`;
- else if(level==='edge')verdict.textContent=`${winner} got the better end of the deal.`;
- else verdict.textContent=`${winner} is trying to fleece ${other}!`;
+ const winner=leader&&manager(leader);
+ if(!winner)verdict.textContent='Even on season averages';
+ else if(level==='fair')verdict.textContent=`Balanced · small edge for ${winner}`;
+ else if(level==='edge')verdict.textContent=`Edge for ${winner}`;
+ else verdict.textContent=`Big edge for ${winner}`;
  delta.textContent=winner?`${winner} gains ${format(gap)} FP / game on season averages. The packages are ${format(percentage)}% apart.`:'Both packages have the same FP per game.';
  scale.setAttribute('aria-label',`${verdict.textContent}. ${delta.textContent}`);
  $('#balance-marker').style.left=`${position}%`;
@@ -143,16 +144,22 @@ async function loadInjuries(){
 function renderContext(selected,totals){
  const section=$('#trade-context');
  const a=selected.a.length,b=selected.b.length;
+ const version=JSON.stringify([picks.a,picks.b,weights]);
+ if(version!==chatVersion){$('#trade-chat-log').textContent='';chatVersion=version;}
+ $('#trade-assistant').hidden=!a||!b;
  section.hidden=!a&&!b;
- if(section.hidden)return;
+ if(section.hidden){chatTrade=null;return;}
  const incoming={a:selected.b,b:selected.a};
  const risks={a:tradeContext(incoming.a,injuryData?.players,weights),b:tradeContext(incoming.b,injuryData?.players,weights)};
+ const scenarios=a&&b?{a:packageScenarios(incoming.a,weights),b:packageScenarios(incoming.b,weights)}:null;
+ chatTrade={incoming,selected,risks,scenarios,totals};
+ $('#trade-scenarios').innerHTML=a&&b?scenarioTable(scenarios,totals):'';
  $('#trade-analysis').innerHTML=a&&b?analysisNotes(selected,totals,risks):'';
  $('#trade-risk-sides').innerHTML=['a','b'].filter(key=>incoming[key].length).map(key=>{
   const context=risks[key];
   const {flagged,flaggedPoints,entries}=context;
-  const summary=flagged?`${flagged} with uncertain availability${flaggedPoints===null?'':` · ${format(flaggedPoints)} FP / game from those players`}`:
-   injuryData?'No out, doubtful, or questionable flags found.':'Injury data unavailable.';
+  const summary=flagged?`${flagged} out or at risk of missing time${flaggedPoints===null?'':` · ${format(flaggedPoints)} FP / game`}`:
+   injuryData?'No availability flags in the current feed.':'Injury report unavailable.';
   const details=entries.map(({player,injury,smallSample})=>{
    const status=injury?.status?`${esc(injury.status)}${injury.gameDate?` · ${esc(injury.gameDate)} NBA slate`:''}`:'';
    const note=injury?.noteUrl?`<a href="${esc(injury.noteUrl)}" target="_blank" rel="noopener noreferrer">${esc(injury.noteArea)} update</a> · ${esc(injury.noteDate)}`:
@@ -170,18 +177,27 @@ function renderContext(selected,totals){
   `<a href="${esc(injuryData.lineupsUrl)}" target="_blank" rel="noopener noreferrer">RotoWire lineups</a> and <a href="${esc(injuryData.reportUrl)}" target="_blank" rel="noopener noreferrer">injury reports</a> · checked ${esc(checked)} Manila time. Check the latest report before accepting.`:'';
 }
 
+function scenarioTable(scenarios,totals){
+ const rows=[['Floor · 25th percentile','floor'],['Season average','average'],['Ceiling · 75th percentile','ceiling']];
+ return `<section class="trade-subsection"><h3>Scoring range</h3><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Scenario</th><th class="num">Manager A receives</th><th class="num">Manager B receives</th><th>Balance</th></tr></thead><tbody>${rows.map(([label,key])=>{
+  const a=key==='average'?totals.b:scenarios.a?.[key]??null;
+  const b=key==='average'?totals.a:scenarios.b?.[key]??null;
+  const balance=tradeBalance(a,b);
+  const edge=balance?.leader?`${manager(balance.leader)} +${format(balance.gap)} FP`:'Even';
+  return `<tr><th scope="row">${label}</th><td class="num">${format(a)}</td><td class="num">${format(b)}</td><td>${balance?edge:'Not enough games'}</td></tr>`;
+ }).join('')}</tbody></table></div><p class="sub">FP per game. Floor and ceiling add each player’s 25th or 75th percentile from this season’s game logs. Each player needs five complete games. These are low and high scenarios for the package, with no adjustment for missed games or synchronized schedules.</p></section>`;
+}
+
+function gamesPlayedTable(selected){
+ const rows=['a','b'].flatMap(key=>selected[key==='a'?'b':'a'].map(player=>({key,player})));
+ const years=[...new Set(rows.flatMap(({player})=>Object.keys(player.history||{})))].sort();
+ if(!years.length)return '';
+ const heading=year=>`${year}–${String(Number(year)+1).slice(-2)}`;
+ return `<section class="trade-subsection"><h3>Games played by season</h3><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Player</th><th>Goes to</th>${years.map(year=>`<th class="num">${heading(year)}</th>`).join('')}<th class="num">This season</th></tr></thead><tbody>${rows.map(({key,player})=>`<tr><th scope="row">${esc(player.name)}</th><td class="manager-${key}-text">${manager(key)}</td>${years.map(year=>`<td class="num">${player.history?.[year]??'—'}</td>`).join('')}<td class="num">${player.games??'—'}</td></tr>`).join('')}</tbody></table></div><p class="sub">Games played measures availability. It doesn’t tell us why someone missed time.</p></section>`;
+}
+
 function analysisNotes(selected,totals,risks){
  const notes=[];
- const best=players=>players.filter(player=>fp(player)!==null).sort((a,b)=>fp(b)-fp(a))[0]||players[0];
- const playerA=best(selected.b),playerB=best(selected.a);
- const availability=compareGamesPlayed(playerA,playerB);
- if(availability){
-  const {gameTotals,avgA,avgB}=availability;
-  const yearLabel=year=>`${year}–${String(Number(year)+1).slice(-2)}`;
-  const years=gameTotals.map(row=>yearLabel(row.year)).join(', ');
-  const edge=Math.abs(avgA-avgB)>=5?` ${esc(avgA>avgB?playerA.name:playerB.name)} played ${format(Math.abs(avgA-avgB))} more games per season on average.`:'';
-  notes.push(`<strong>Games played.</strong> In ${years}, ${esc(playerA.name)} (to Manager A) played ${gameTotals.map(row=>row.a).join(' / ')} games and ${esc(playerB.name)} (to Manager B) played ${gameTotals.map(row=>row.b).join(' / ')}.${edge} Games missed can include injuries, rest, or other absences.`);
- }
  const recentA=recentPackagePoints(selected.a,weights),recentB=recentPackagePoints(selected.b,weights);
  if(recentA!==null&&recentB!==null){
   const gap=Number((recentB-recentA).toFixed(2));
@@ -198,8 +214,92 @@ function analysisNotes(selected,totals,risks){
    notes.push(`<strong>If the flagged players sit.</strong> The incoming packages would be worth ${format(a)} FP / game for Manager A and ${format(b)} for Manager B before any replacement players.`);
   }
  }
- return notes.length?`<ul>${notes.map(note=>`<li>${note}</li>`).join('')}</ul>`:'';
+ return gamesPlayedTable(selected)+(notes.length?`<div class="trade-insights">${notes.map(note=>`<article class="trade-insight"><p>${note}</p></article>`).join('')}</div>`:'');
 }
+
+function tradeAnswer(question){
+ const {incoming,totals,risks,scenarios,selected}=chatTrade;
+ const q=question.toLowerCase();
+ const chosen=[...incoming.a,...incoming.b].filter(player=>playerKey(question).includes(player.id));
+ const comparison=(a,b)=>{
+  const result=tradeBalance(a,b);
+  if(!result)return 'Some players are missing the stats needed for this comparison.';
+  const verdict=result.leader?`${manager(result.leader)} leads by ${format(result.gap)} FP per game.`:'The packages are even.';
+  return `Manager A receives ${format(a)} FP per game and Manager B receives ${format(b)}. ${verdict}`;
+ };
+ if(/\b(floor|ceiling|quartile|variance|range|upside)\b/.test(q)){
+  if(!scenarios.a||!scenarios.b)return 'Every player needs five complete season games before both packages can be compared at the floor and ceiling.';
+  return `Floor: ${comparison(scenarios.a.floor,scenarios.b.floor)} Ceiling: ${comparison(scenarios.a.ceiling,scenarios.b.ceiling)} These sum individual percentiles. Players can hit their highs and lows on different nights.`;
+ }
+ if(/injur|\brisk\b|\bhealthy\b|\bmiss\b|\bsit\b/.test(q)){
+  if(!injuryData)return 'The injury feed is unavailable. The season FP comparison doesn’t account for missed games.';
+  const entries=['a','b'].map(key=>{
+   const items=risks[key].entries.filter(entry=>entry.injury?.status&&(chosen.length===0||chosen.includes(entry.player)));
+   return items.length?`${manager(key)} receives ${items.map(({player,injury})=>`${player.name} (${injury.status}${injury.gameDate?` for the ${injury.gameDate} slate`:''})`).join(', ')}.`:`No reported status for the players checked on ${manager(key)}’s return.`;
+  });
+  return entries.join(' ')+' A missing status doesn’t confirm availability.';
+ }
+ if(/games.*play|play.*games|durability|availability|histor/.test(q)){
+  if(chosen.length===1){
+   const p=chosen[0];
+   const records=Object.entries(p.history||{}).map(([year,games])=>`${year}–${String(Number(year)+1).slice(-2)}: ${games}`);
+   const season=p.games==null?'Season games played are unavailable.':`${p.name} has played ${p.games} games this season.`;
+   return records.length?`${season} Completed seasons: ${records.join(', ')}.`:season;
+  }
+  const anchor=players=>players.slice().sort((a,b)=>(fp(b)??-Infinity)-(fp(a)??-Infinity))[0];
+  const a=chosen.length>=2?chosen[0]:anchor(incoming.a),b=chosen.length>=2?chosen[1]:anchor(incoming.b);
+  const history=compareGamesPlayed(a,b);
+  if(!history)return 'There are no shared completed seasons in the data for those players. See the games-played table for their available records.';
+  return `Over ${history.gameTotals.length} shared completed season(s), ${a.name} averaged ${format(history.avgA)} games played and ${b.name} averaged ${format(history.avgB)}. Games played can reflect injuries, rest, and other absences.`;
+ }
+ if(/recent|form|last (five|5)|trend/.test(q)){
+  const a=recentPackagePoints(incoming.a,weights),b=recentPackagePoints(incoming.b,weights);
+  if(a===null||b===null)return 'Recent form needs at least three complete box scores for every selected player.';
+  return `Over up to five recent games per player, ${comparison(a,b)} That is a short sample.`;
+ }
+ if(/stats?|drive|\bwhy\b|categor/.test(q)){
+  const changes=statSwings(selected.a,selected.b,weights).slice(0,3);
+  return changes.length?`Manager A’s biggest changes are ${changes.map(({stat,points})=>`${boxFields[stat]} ${signed(points)} FP`).join(', ')} per game. Manager B gets the opposite changes.`:'No weighted stat difference is available for these packages.';
+ }
+ if(/roster|waiver|stream|\bcut\b|\bdrop\b|slot/.test(q)){
+  const gap=incoming.a.length-incoming.b.length;
+  return gap?`${manager(gap>0?'a':'b')} receives ${Math.abs(gap)} extra player(s) and may need to make room. The other manager may get an open spot. The tool doesn’t assume who gets cut or picked up.`:'Both managers receive the same number of players. The trade itself does not change roster size.';
+ }
+ if(/fair|even|balance|\bwin|\bwins\b|\bleads?\b|\bnet\b|fleece|worth|accept|better|should.*take/.test(q)){
+  const result=tradeBalance(totals.b,totals.a);
+  if(!result)return comparison(totals.b,totals.a);
+  const label={fair:'Balanced on season averages',edge:'An edge on season averages',lopsided:'A large gap on season averages'}[result.level];
+  return `${label} (${format(result.percentage)}%). ${comparison(totals.b,totals.a)} Check the floor, ceiling, and availability before deciding.`;
+ }
+ if(chosen.length===1){
+  const player=chosen[0],points=fp(player);
+  return `${player.name} has ${points===null?'no complete FP average':`${format(points)} FP per game`} under your settings${player.games>0?` across ${player.games} games`:''}. Ask about injuries, recent form, or games played for more context.`;
+ }
+ return 'I can compare fairness, floor and ceiling, recent form, injury risk, games played, stat drivers, and roster spots for this trade. Try one of those topics.';
+}
+
+function askTrade(question){
+ if(!question||!chatTrade?.incoming.a.length||!chatTrade.incoming.b.length)return;
+ const turns=$('#trade-chat-log');
+ const turn=document.createElement('article');
+ turn.className='chat-turn';
+ for(const [className,text] of [['chat-question',question],['chat-answer',tradeAnswer(question)]]){
+  const paragraph=document.createElement('p');
+  paragraph.className=className;
+  paragraph.textContent=text;
+  turn.append(paragraph);
+ }
+ turns.append(turn);
+ if(turns.childElementCount>8)turns.firstElementChild.remove();
+ turns.scrollTop=turns.scrollHeight;
+}
+$('#trade-questions').addEventListener('click',event=>askTrade(event.target.closest('[data-question]')?.dataset.question));
+$('#trade-ask').addEventListener('submit',event=>{
+ event.preventDefault();
+ const input=$('#trade-question');
+ askTrade(input.value.trim());
+ input.value='';
+});
 
 async function loadPlayers(){
  if(dataset)return dataset;
