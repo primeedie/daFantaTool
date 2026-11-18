@@ -71,6 +71,53 @@ dialog {max-width:780px;font-family:var(--typeface)}
 .signin input {width:100%}
 .signin button {justify-self:start}
 .signin #sign-in-status:empty {display:none}
+.nba-badge {
+  display:inline-block;
+  border:1px solid #000;
+  border-radius:5px;
+  background:var(--nba-fill,#eee);
+  color:var(--nba-ink,#000);
+  padding:.06em .42em;
+  line-height:1.35;
+}
+.nba-picker[data-nba] {
+  background:var(--nba-fill,var(--surface));
+  color:var(--nba-ink,#000);
+  border:1px solid #000;
+}
+.nba-picker option {background:var(--surface);color:#000}
+.player-name {flex-wrap:wrap}
+.player-link:hover .nba-badge {text-decoration:underline}
+[data-nba="ATL"] {--nba-fill:#c52640;--nba-ink:#fff}
+[data-nba="BKN"] {--nba-fill:#181818;--nba-ink:#fff}
+[data-nba="BOS"] {--nba-fill:#00754a;--nba-ink:#fff}
+[data-nba="CHA"] {--nba-fill:#007987;--nba-ink:#fff}
+[data-nba="CHI"] {--nba-fill:#c8102e;--nba-ink:#fff}
+[data-nba="CLE"] {--nba-fill:#6f263d;--nba-ink:#fff}
+[data-nba="DAL"] {--nba-fill:#00538c;--nba-ink:#fff}
+[data-nba="DEN"] {--nba-fill:#0e2240;--nba-ink:#fff}
+[data-nba="DET"] {--nba-fill:#1d42ba;--nba-ink:#fff}
+[data-nba="GSW"] {--nba-fill:#1d428a;--nba-ink:#fff}
+[data-nba="HOU"] {--nba-fill:#ab1734;--nba-ink:#fff}
+[data-nba="IND"] {--nba-fill:#f4cc46}
+[data-nba="LAC"] {--nba-fill:#21396b;--nba-ink:#fff}
+[data-nba="LAL"] {--nba-fill:#fdb927}
+[data-nba="MEM"] {--nba-fill:#8fb9e5}
+[data-nba="MIA"] {--nba-fill:#98002e;--nba-ink:#fff}
+[data-nba="MIL"] {--nba-fill:#235137;--nba-ink:#fff}
+[data-nba="MIN"] {--nba-fill:#78be20}
+[data-nba="NOP"] {--nba-fill:#a98c5f}
+[data-nba="NYK"] {--nba-fill:#f58426}
+[data-nba="OKC"] {--nba-fill:#4db5ed}
+[data-nba="ORL"] {--nba-fill:#0067ad;--nba-ink:#fff}
+[data-nba="PHI"] {--nba-fill:#19569c;--nba-ink:#fff}
+[data-nba="PHX"] {--nba-fill:#522387;--nba-ink:#fff}
+[data-nba="POR"] {--nba-fill:#a32035;--nba-ink:#fff}
+[data-nba="SAC"] {--nba-fill:#5a2d81;--nba-ink:#fff}
+[data-nba="SAS"] {--nba-fill:#c4ced4}
+[data-nba="TOR"] {--nba-fill:#a80d35;--nba-ink:#fff}
+[data-nba="UTA"] {--nba-fill:#7662e0}
+[data-nba="WAS"] {--nba-fill:#14274b;--nba-ink:#fff}
 @media(max-width:650px) {
   .masthead .sidebar-label,.week-range {display:none}
   .masthead {padding-block:15px}
