@@ -176,18 +176,20 @@ button,input,select {letter-spacing:inherit}
  [data-palette="suns"],[data-palette="blazers"],[data-palette="jazz"],[data-palette="rockets"],[data-palette="wizards"]) {--palette-trim-size:6px}
 .masthead,.site-header nav {max-width:1500px;margin:auto;padding-inline:clamp(18px,4vw,56px)}
 .masthead {display:flex;align-items:center;justify-content:space-between;gap:20px;padding-block:23px}
-.masthead .logo {font-size:clamp(28px,4vw,38px)}
-.masthead .site-wordmark {display:block;width:clamp(142px,22vw,180px);height:auto}
+.masthead .logo {position:relative;isolation:isolate;font-size:clamp(28px,4vw,38px)}
+.masthead .site-wordmark {position:relative;display:block;width:clamp(142px,22vw,180px);height:auto}
 .logo small {font-size:12px;color:#fff}
 .masthead .player-logo {
-  width:clamp(46px,8vw,64px);
+  position:absolute;
+  inset:0;
+  margin:auto;
+  width:clamp(78px,13vw,112px);
   height:auto;
   aspect-ratio:1;
   object-fit:contain;
-  flex:none;
-  padding:3px;
-  border-radius:9px;
-  background:var(--surface);
+  opacity:.42;
+  filter:drop-shadow(0 0 2px #ffffff75);
+  pointer-events:none;
 }
 .masthead .sidebar-label {margin:0;color:#fff;font-size:14px;letter-spacing:0}
 .site-header nav {display:flex;gap:7px;overflow-x:auto}
@@ -263,7 +265,6 @@ dialog {max-width:780px;font-family:var(--typeface)}
 }
 [data-theme="dark"] .site-header {background:var(--brand-dark);border-top-color:var(--brand-strong)}
 [data-theme="dark"] .site-header nav a.active {color:var(--ink)}
-[data-theme="dark"] .player-logo {background:#e5e9f1}
 [data-theme="dark"] .panel-head,[data-theme="dark"] .metric-row div,
 [data-theme="dark"] .match-card,[data-theme="dark"] .result-box,[data-theme="dark"] .error-box,
 [data-theme="dark"] th,[data-theme="dark"] .row-mine,[data-theme="dark"] tbody tr:hover {
@@ -344,6 +345,7 @@ dialog {max-width:780px;font-family:var(--typeface)}
 :root:is([data-palette="bucks"],[data-palette="wizards"]):not([data-theme="dark"]) .site-header :is(nav a,.sidebar-label) {color:var(--ink)}
 :root:is([data-palette="bucks"],[data-palette="wizards"]):not([data-theme="dark"]) .site-header nav a:hover {background:var(--surface)}
 :root:is([data-palette="bucks"],[data-palette="wizards"]):not([data-theme="dark"]) .site-wordmark {filter:brightness(0)}
+:root:is([data-palette="bucks"],[data-palette="wizards"]):not([data-theme="dark"]) .masthead .player-logo {opacity:.28}
 :root[data-palette="bucks"][data-theme="dark"] {--paper:#151d18;--surface:#202b23;--ink:#f6ead2;--muted:#ccbf9f;--line:#606653}
 :root[data-palette="wizards"][data-theme="dark"] {--paper:#14192c;--surface:#202841;--ink:#fff1f8;--muted:#d7bdd2;--line:#685976}
 :root[data-palette="wizards"][data-theme="dark"] .site-header {background:linear-gradient(100deg,#552e50,var(--brand-dark) 74%)}

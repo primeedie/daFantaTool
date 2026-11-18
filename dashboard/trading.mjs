@@ -7,6 +7,7 @@ const number=new Intl.NumberFormat('en-US',{maximumFractionDigits:2});
 const format=value=>value===null?'—':number.format(value);
 const signed=value=>value===null?'—':`${value>0?'+':''}${format(value)}`;
 const tone=value=>value>0?'fp-gain':value<0?'fp-loss':'';
+const edgeLabel={fair:'Small edge for',edge:'Edge for',lopsided:'Big edge for'};
 const tipoff=new Intl.DateTimeFormat('en-PH',{timeZone:'Asia/Manila',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
 const numberPattern=/\d{4}(?:-\d{2}-\d{2}|[–-]\d{2,4})|\d{1,2}:\d{2}|[+−-]?\d[\d,]*(?:\.\d+)?(?:%|\/\d+)?/g;
 function colorNumbers(container){
@@ -191,8 +192,8 @@ function renderTrade(){
    return `<article class="trade-card"><h3>${nbaBadge(player.nba,player.name)}</h3><button class="button" type="button" data-remove="${esc(player.id)}" data-side="${key}" aria-label="Remove ${esc(player.name)}">×</button><span class="sub">${esc(player.position)} · ${rankSummary(player)}${profile}</span><strong class="trade-fp">${points===null?'No score':`${format(points)} <span>FP / game</span>`}</strong><div class="trade-stats">${playerStats(player)}</div></article>`;
   }).join(''):'<p class="trade-empty sub">No players selected.</p>';
  }
- renderBalance(totals);
- renderContext(selected,totals);
+ const balance=renderBalance(totals);
+ renderContext(selected,totals,balance);
  shareButton.disabled=!dataset||!(selected.a.length||selected.b.length);
  colorNumbers(board);
 }
@@ -214,11 +215,12 @@ function renderBalance(totals){
  const {gap,percentage,level,leader,position}=balance;
  const winner=leader&&manager(leader);
  if(!winner)verdict.textContent='Even on season averages';
- else verdict.innerHTML=`${{fair:'Balanced · small edge for',edge:'Edge for',lopsided:'Big edge for'}[level]} ${feedbackManager(leader)}`;
+ else verdict.innerHTML=`${level==='fair'?'Balanced · small edge for':edgeLabel[level]} ${feedbackManager(leader)}`;
  if(winner)delta.innerHTML=`${feedbackManager(leader)} gains ${format(gap)} FP / game on season averages. The packages are ${format(percentage)}% apart.`;
  else delta.textContent='Both packages have the same FP per game.';
  scale.setAttribute('aria-label',`${verdict.textContent}. ${delta.textContent}`);
  $('#balance-marker').style.left=`${position}%`;
+ return balance;
 }
 
 async function loadInjuries(){
@@ -318,16 +320,30 @@ function outlookTable(players){
  return `<section class="trade-subsection">${title}${blocks}<p class="sub">Defense uses recent regular-season finals from <a href="https://www.espn.com/nba/scoreboard" target="_blank" rel="noopener noreferrer">ESPN</a>. The per-100 figure uses estimated possessions and needs at least five box scores. Last meeting uses available RotoWire regular-season logs and your scoring settings.</p></section>`;
 }
 
-function renderContext(selected,totals){
+function renderSummary(balance,risks){
+ const result=$('#trade-summary-result');
+ if(!balance)result.textContent='Season FP edge unavailable.';
+ else if(!balance.leader)result.textContent='Even on season FP per game.';
+ else result.innerHTML=`${edgeLabel[balance.level]} ${feedbackManager(balance.leader)} · <strong class="fp-gain">+${format(balance.gap)} FP/game</strong>`;
+
+ const flagged=Object.values(risks).flatMap(risk=>risk.entries.filter(entry=>entry.atRisk));
+ const watch=$('#trade-summary-flags');
+ watch.hidden=!flagged.length;
+ const names=flagged.slice(0,2).map(({player,injury})=>`${player.name} (${injury.status})`);
+ watch.textContent=flagged.length?`Injury watch · ${names.join(', ')}${flagged.length>2?` +${flagged.length-2} more`:''}`:'';
+}
+
+function renderContext(selected,totals,balance){
  const section=$('#trade-context');
  const a=selected.a.length,b=selected.b.length;
  const version=JSON.stringify([picks.a,picks.b,weights,managerNames]);
  if(version!==chatVersion){$('#trade-chat-log').textContent='';chatVersion=version;}
- $('#trade-assistant').hidden=!a||!b;
+ $('#trade-assistant').hidden=$('#trade-summary').hidden=!a||!b;
  section.hidden=!a&&!b;
  if(section.hidden){chatTrade=null;return;}
  const incoming={a:selected.b,b:selected.a};
  const risks={a:tradeContext(incoming.a,injuryData?.players,weights),b:tradeContext(incoming.b,injuryData?.players,weights)};
+ if(a&&b)renderSummary(balance,risks);
  const scenarios=a&&b?{a:packageScenarios(incoming.a,weights),b:packageScenarios(incoming.b,weights)}:null;
  const formRows=a&&b?[5,10,15].map(window=>({
   window,a:packageForm(incoming.a,weights,window),b:packageForm(incoming.b,weights,window)
@@ -438,7 +454,7 @@ function tradeAnswer(question){
   const week=weekComparison(incoming,/\bthis week\b/.test(q)?0:1);
   if(!week||week.a.total===null||week.b.total===null)return 'Full-week totals are unavailable for one or both sides.';
   const margin=week.a.total-week.b.total;
-  return `${manager('a')} projects for ${format(week.a.total)} FP over ${week.a.games} player-games. ${manager('b')} projects for ${format(week.b.total)} FP over ${week.b.games}. ${Math.abs(margin)<.005?'Even on the weekly projection.':`${manager(margin>0?'a':'b')} leads by ${format(Math.abs(margin))} FP.`} This assumes everyone plays their listed games.`;
+  return `${manager('a')} projects for ${format(week.a.total)} FP over ${week.a.games} player-games.\n${manager('b')} projects for ${format(week.b.total)} FP over ${week.b.games}.\n${Math.abs(margin)<.005?'Even on the weekly projection.':`${manager(margin>0?'a':'b')} leads by ${format(Math.abs(margin))} FP.`} Assumes everyone plays their listed games.`;
  }
  if(/\b(opponents?|schedule|next (five|5))\b/.test(q)){
   if(!outlookData)return 'The NBA schedule is currently unavailable.';
@@ -446,11 +462,11 @@ function tradeAnswer(question){
   return players.slice(0,4).map(player=>{
    const opponents=nextOpponents(player,outlookData,weights).map(game=>`${game.home?'vs':'at'} ${game.opponent}`);
    return opponents.length?`${player.name}: ${opponents.join(', ')}.`:`No upcoming games in the feed for ${player.name}.`;
-  }).join(' ')+' See Next five opponents for defense and last meetings.';
+  }).join('\n')+'\nSee Next five opponents for defense and last meetings.';
  }
  if(/\b(floor|ceiling|quartile|variance|range|upside)\b/.test(q)){
   if(!scenarios.a||!scenarios.b)return 'Every player needs five complete season games before both packages can be compared at the floor and ceiling.';
-  return `Floor: ${comparison(scenarios.a.floor,scenarios.b.floor)} Ceiling: ${comparison(scenarios.a.ceiling,scenarios.b.ceiling)} These sum individual percentiles. Players can hit their highs and lows on different nights.`;
+  return `Floor: ${comparison(scenarios.a.floor,scenarios.b.floor)}\nCeiling: ${comparison(scenarios.a.ceiling,scenarios.b.ceiling)}\nPlayers can hit their highs and lows on different nights.`;
  }
  if(/injur|\brisk\b|\bhealthy\b|\bmiss\b|\bsit\b/.test(q)){
   if(/history|historical|past|recurr|durability/.test(q)){
@@ -462,14 +478,14 @@ function tradeAnswer(question){
     if(!sample)return `Injury history unavailable for ${player.name}.`;
     const area=record.areas[0];
     return `${player.name}: ${sample.missed} documented injury absences over ${sample.games} played or injury-missed games in the covered completed seasons.${area?` ${area.area} was the most reported area (${area.games} games in the available history).`:''}${sample.adjusted===null?'':` Historical availability scenario: ${format(sample.adjusted)} FP per game.`}`;
-   }).join(' ');
+   }).join('\n');
   }
   if(!injuryData)return 'The injury feed is unavailable. The season FP comparison doesn’t account for missed games.';
   const entries=['a','b'].map(key=>{
    const items=risks[key].entries.filter(entry=>entry.injury?.status&&(chosen.length===0||chosen.includes(entry.player)));
    return items.length?`${manager(key)} receives ${items.map(({player,injury})=>`${player.name} (${injury.status}${injury.gameDate?` for the ${injury.gameDate} slate`:''})`).join(', ')}.`:`No reported status for the players checked on ${manager(key)}’s return.`;
   });
-  return entries.join(' ')+' A missing status doesn’t confirm availability.';
+  return entries.join('\n')+'\nAvailability is unconfirmed for players without a status.';
  }
  if(/games.*play|play.*games|durability|availability|histor/.test(q)){
   if(chosen.length===1){
@@ -502,7 +518,7 @@ function tradeAnswer(question){
   const result=tradeBalance(totals.b,totals.a);
   if(!result)return comparison(totals.b,totals.a);
   const label={fair:'Balanced on season averages',edge:'An edge on season averages',lopsided:'A large gap on season averages'}[result.level];
-  return `${label} (${format(result.percentage)}%). ${comparison(totals.b,totals.a)} Check the floor, ceiling, and availability before deciding.`;
+  return `${label} (${format(result.percentage)}%).\n${comparison(totals.b,totals.a)}`;
  }
  if(chosen.length===1){
   const player=chosen[0],points=fp(player);
@@ -516,12 +532,17 @@ function askTrade(question){
  const turns=$('#trade-chat-log');
  const turn=document.createElement('article');
  turn.className='chat-turn';
- for(const [className,text] of [['chat-question',question],['chat-answer',tradeAnswer(question)]]){
+ const prompt=document.createElement('p');
+ prompt.className='chat-question';
+ prompt.textContent=question;
+ const answer=document.createElement('div');
+ answer.className='chat-answer';
+ for(const text of tradeAnswer(question).split('\n')){
   const paragraph=document.createElement('p');
-  paragraph.className=className;
   paragraph.textContent=text;
-  turn.append(paragraph);
+  answer.append(paragraph);
  }
+ turn.append(prompt,answer);
  turns.append(turn);
  colorNumbers(turn);
  if(turns.childElementCount>8)turns.firstElementChild.remove();
