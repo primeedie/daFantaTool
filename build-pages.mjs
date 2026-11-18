@@ -4,7 +4,7 @@ import {fileURLToPath} from 'node:url';
 const root=dirname(fileURLToPath(import.meta.url)),out=resolve(root,'dist');
 await mkdir(resolve(out,'fonts'),{recursive:true});
 // Only ship the reviewed public snapshot and the listed assets.
-for(const file of ['app.js','style.css','font.css','model.mjs','public-ui.mjs','fonts/slam-dunk.otf','fonts/LICENSE.txt','public-league.json','manager-verifiers.json'])await copyFile(resolve(root,'dashboard',file),resolve(out,file));
+for(const file of ['app.js','style.css','font.css','model.mjs','public-ui.mjs','fonts/slam-dunk.otf','fonts/LICENSE.txt','public-league.json','manager-verifiers.json','player-logo.png'])await copyFile(resolve(root,'dashboard',file),resolve(out,file));
 const html=await readFile(resolve(root,'dashboard/index.html'),'utf8');
 await writeFile(resolve(out,'index.html'),html.replace('<html lang="en">','<html lang="en" data-public-league>'));
 const folder=process.env.FANTASY_DATA_DIR||resolve(root,'../../data/private');

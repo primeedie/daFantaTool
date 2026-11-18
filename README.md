@@ -1,8 +1,8 @@
-# Shohoku Fantasy
+# REAL BALLIGGAS
 
 NBA fantasy tools for my Yahoo league. Slam Dunk theme.
 
-[Project page](https://shohoku-fantasy-companion.milchyboi.chatgpt.site)
+[Project page](https://primeedie.github.io/shohoku-fantasy-companion/)
 
 Planned: daily briefing, lineups, waiver picks, weekly matchups, and streaming.
 

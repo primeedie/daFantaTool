@@ -52,8 +52,8 @@ if(process.argv.includes('--export-snapshot')){
 }else{
   const accountPath=resolve(privateDir,'manager-accounts.json');
   const auth=existsSync(accountPath)?managerAuth(accountPath):null;
-  const files={'/':'dashboard/index.html','/app.js':'dashboard/app.js','/style.css':'dashboard/style.css','/font.css':'dashboard/font.css','/model.mjs':'dashboard/model.mjs','/public-ui.mjs':'dashboard/public-ui.mjs'};
-  const mime={html:'text/html; charset=utf-8',js:'text/javascript; charset=utf-8',mjs:'text/javascript; charset=utf-8',css:'text/css; charset=utf-8'};
+  const files={'/':'dashboard/index.html','/app.js':'dashboard/app.js','/style.css':'dashboard/style.css','/font.css':'dashboard/font.css','/player-logo.png':'dashboard/player-logo.png','/model.mjs':'dashboard/model.mjs','/public-ui.mjs':'dashboard/public-ui.mjs'};
+  const mime={png:'image/png',html:'text/html; charset=utf-8',js:'text/javascript; charset=utf-8',mjs:'text/javascript; charset=utf-8',css:'text/css; charset=utf-8'};
   const server=http.createServer(async(req,res)=>{
     const host=req.headers.host||'';
     if(!/^(127\.0\.0\.1|localhost):4173$/.test(host)){res.writeHead(403);res.end('Local access only');return;}
@@ -88,5 +88,5 @@ if(process.argv.includes('--export-snapshot')){
       res.writeHead(200,{...headers,'Content-Type':mime[path.split('.').at(-1)]});res.end(data);
     }catch{res.writeHead(500,{...headers,'Content-Type':'application/json'});res.end(JSON.stringify({error:'Could not load the local snapshot. Run npm run check for details.'}));}
   });
-  server.listen(4173,'127.0.0.1',()=>console.log('Shohoku dashboard: http://127.0.0.1:4173'));
+  server.listen(4173,'127.0.0.1',()=>console.log('REAL BALLIGGAS: http://127.0.0.1:4173'));
 }
