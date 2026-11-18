@@ -1,0 +1,41 @@
+.trade-tool {max-width:1240px}
+.trade-title {display:flex;align-items:baseline;gap:18px;margin-bottom:20px}
+.trade-title a {white-space:nowrap;text-decoration:underline}
+.trade-title h1 {margin:0;font-size:clamp(35px,6vw,64px)}
+#trade-settings {max-width:710px}
+#trade-settings h2 {font-size:32px}
+.scoring-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin:20px 0}
+.scoring-grid label {display:grid;gap:6px}
+.scoring-grid input {width:100%}
+.scoring-grid input[readonly] {opacity:.55}
+.split-toggle {display:flex;align-items:center;gap:10px}
+.split-fields {grid-template-columns:repeat(2,minmax(0,1fr))}
+.split-fields .sub {grid-column:1/-1}
+#trade-settings [type=submit] {margin-top:12px}
+.trade-toolbar,.picker-controls,.picker-head {display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+.trade-sides {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.trade-side {display:flex;flex-direction:column;min-height:270px}
+.trade-side-head {display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:13px 18px;background:var(--red);color:#fff}
+.trade-side:nth-child(2) .trade-side-head {background:#171412}
+.trade-players {padding:0 14px;flex:1}
+.trade-empty {padding:14px 4px}
+.trade-add {margin:14px}
+.trade-card {display:grid;grid-template-columns:1fr auto;gap:5px 10px;padding:13px 0;border-bottom:1px solid var(--line)}
+.trade-card h3 {margin:0;overflow-wrap:anywhere}
+.trade-card .trade-stats {grid-column:1/-1;display:flex;gap:7px 12px;flex-wrap:wrap}
+.trade-card .trade-stats span {white-space:nowrap}
+.trade-delta {border-left:4px solid var(--red);padding-left:10px}
+.picker {width:min(780px,calc(100% - 24px));max-height:85dvh;color:var(--ink)}
+.picker-controls input {flex:1;min-width:0}
+.picker-results {max-height:55dvh;overflow:auto}
+.picker-row {display:grid;grid-template-columns:3.2rem minmax(0,1fr) auto;gap:10px;width:100%;padding:12px;text-align:left;border-width:0 0 1px}
+.picker-row:hover:not(:disabled) {background:var(--paper)}
+.picker-row:disabled {opacity:.45;cursor:default}
+.picker-row .sub {display:block}
+[hidden] {display:none !important}
+@media(max-width:620px){
+ .trade-sides {grid-template-columns:1fr}
+ .trade-side {min-height:185px}
+ .picker {padding:15px}
+ .picker-controls {flex-wrap:wrap}
+}

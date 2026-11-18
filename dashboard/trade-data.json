@@ -1,0 +1,3742 @@
+{
+  "rankUrl": "https://www.rotowire.com/basketball/article/2026-27-fantasy-basketball-cheat-sheet-points-leagues-printable-excel-142162",
+  "statsUrl": "https://www.rotowire.com/basketball/stats.php",
+  "rankDate": "Oct 19, 2026",
+  "updatedAt": "2026-11-18T10:53:50.144Z",
+  "players": [
+    {
+      "id": "nikolajokic",
+      "name": "Nikola Jokic",
+      "nba": "DEN",
+      "position": "C",
+      "rank": 1,
+      "profile": "https://www.rotowire.com/basketball/player/nikola-jokic-3612",
+      "games": 12,
+      "stats": {
+        "pts": 24.100000000000005,
+        "reb": 10.9,
+        "oreb": 2.5,
+        "dreb": 8.4,
+        "ast": 8.9,
+        "st": 1.8,
+        "blk": 1.1,
+        "to": 3.4
+      }
+    },
+    {
+      "id": "victorwembanyama",
+      "name": "Victor Wembanyama",
+      "nba": "SAS",
+      "position": "C",
+      "rank": 2,
+      "profile": "https://www.rotowire.com/basketball/player/victor-wembanyama-5809",
+      "games": 15,
+      "stats": {
+        "pts": 28.4,
+        "reb": 12,
+        "oreb": 2.6,
+        "dreb": 9.4,
+        "ast": 3.3,
+        "st": 1.1,
+        "blk": 4.1,
+        "to": 2.1
+      }
+    },
+    {
+      "id": "shaigilgeousalexander",
+      "name": "Shai Gilgeous-Alexander",
+      "nba": "OKC",
+      "position": "G",
+      "rank": 3,
+      "profile": "https://www.rotowire.com/basketball/player/shai-gilgeous-alexander-4387",
+      "games": 14,
+      "stats": {
+        "pts": 30.9,
+        "reb": 4.1,
+        "oreb": 0.9,
+        "dreb": 3.2,
+        "ast": 4.4,
+        "st": 0.9,
+        "blk": 0.9,
+        "to": 2.1
+      }
+    },
+    {
+      "id": "giannisantetokounmpo",
+      "name": "Giannis Antetokounmpo",
+      "nba": "MIA",
+      "position": "F",
+      "rank": 4,
+      "profile": "https://www.rotowire.com/basketball/player/giannis-antetokounmpo-3456",
+      "games": 14,
+      "stats": {
+        "pts": 28.3,
+        "reb": 12.5,
+        "oreb": 3.3,
+        "dreb": 9.2,
+        "ast": 5.2,
+        "st": 0.9,
+        "blk": 1.3,
+        "to": 3.2
+      }
+    },
+    {
+      "id": "lukadoncic",
+      "name": "Luka Doncic",
+      "nba": "LAL",
+      "position": "G",
+      "rank": 5,
+      "profile": "https://www.rotowire.com/basketball/player/luka-doncic-4396",
+      "games": 13,
+      "stats": {
+        "pts": 38.8,
+        "reb": 7.1,
+        "oreb": 0.3,
+        "dreb": 6.799999999999999,
+        "ast": 7.700000000000001,
+        "st": 1.8000000000000003,
+        "blk": 0.7,
+        "to": 4.8
+      }
+    },
+    {
+      "id": "cadecunningham",
+      "name": "Cade Cunningham",
+      "nba": "DET",
+      "position": "G",
+      "rank": 6,
+      "profile": "https://www.rotowire.com/basketball/player/cade-cunningham-5336",
+      "games": 13,
+      "stats": {
+        "pts": 25.800000000000004,
+        "reb": 5.200000000000001,
+        "oreb": 0.5,
+        "dreb": 4.6,
+        "ast": 7.799999999999999,
+        "st": 1.4,
+        "blk": 0.9000000000000001,
+        "to": 3.1000000000000005
+      }
+    },
+    {
+      "id": "cooperflagg",
+      "name": "Cooper Flagg",
+      "nba": "DAL",
+      "position": "F",
+      "rank": 7,
+      "profile": "https://www.rotowire.com/basketball/player/cooper-flagg-6548",
+      "games": 13,
+      "stats": {
+        "pts": 23.5,
+        "reb": 6.700000000000001,
+        "oreb": 1,
+        "dreb": 5.700000000000001,
+        "ast": 6.200000000000001,
+        "st": 1.9,
+        "blk": 0.8,
+        "to": 2.8999999999999995
+      }
+    },
+    {
+      "id": "anthonyedwards",
+      "name": "Anthony Edwards",
+      "nba": "MIN",
+      "position": "G",
+      "rank": 8,
+      "profile": "https://www.rotowire.com/basketball/player/anthony-edwards-5110",
+      "games": 4,
+      "stats": {
+        "pts": 33.3,
+        "reb": 4.8,
+        "oreb": 0.5,
+        "dreb": 4.3,
+        "ast": 3.5,
+        "st": 2,
+        "blk": 0.8,
+        "to": 3.5
+      }
+    },
+    {
+      "id": "alperensengun",
+      "name": "Alperen Sengun",
+      "nba": "HOU",
+      "position": "C",
+      "rank": 9,
+      "profile": "https://www.rotowire.com/basketball/player/alperen-sengun-5404",
+      "games": 13,
+      "stats": {
+        "pts": 22.800000000000004,
+        "reb": 9.3,
+        "oreb": 3.2,
+        "dreb": 6.200000000000001,
+        "ast": 7.200000000000001,
+        "st": 1.2,
+        "blk": 0.9000000000000001,
+        "to": 2.7
+      }
+    },
+    {
+      "id": "jalenjohnson",
+      "name": "Jalen Johnson",
+      "nba": "ATL",
+      "position": "F",
+      "rank": 10,
+      "profile": "https://www.rotowire.com/basketball/player/jalen-johnson-5329",
+      "games": 11,
+      "stats": {
+        "pts": 19.5,
+        "reb": 9,
+        "oreb": 1.4,
+        "dreb": 7.6,
+        "ast": 7.3,
+        "st": 0.9,
+        "blk": 0.5,
+        "to": 3.5
+      }
+    },
+    {
+      "id": "jaysontatum",
+      "name": "Jayson Tatum",
+      "nba": "BOS",
+      "position": "F",
+      "rank": 11,
+      "profile": "https://www.rotowire.com/basketball/player/jayson-tatum-4108",
+      "games": 13,
+      "stats": {
+        "pts": 26.5,
+        "reb": 6.5,
+        "oreb": 0.8,
+        "dreb": 5.700000000000001,
+        "ast": 7.1,
+        "st": 0.7,
+        "blk": 0.8,
+        "to": 2.8999999999999995
+      }
+    },
+    {
+      "id": "domantassabonis",
+      "name": "Domantas Sabonis",
+      "nba": "SAC",
+      "position": "C",
+      "rank": 12,
+      "profile": "https://www.rotowire.com/basketball/player/domantas-sabonis-3865",
+      "games": 12,
+      "stats": {
+        "pts": 14.199999999999998,
+        "reb": 13.199999999999998,
+        "oreb": 3.7000000000000006,
+        "dreb": 9.5,
+        "ast": 5.599999999999999,
+        "st": 0.6999999999999998,
+        "blk": 0.10000000000000002,
+        "to": 2.7999999999999994
+      }
+    },
+    {
+      "id": "karlanthonytowns",
+      "name": "Karl-Anthony Towns",
+      "nba": "NYK",
+      "position": "C",
+      "rank": 13,
+      "profile": "https://www.rotowire.com/basketball/player/karl-anthony-towns-3741",
+      "games": 14,
+      "stats": {
+        "pts": 21.2,
+        "reb": 14.1,
+        "oreb": 3.4,
+        "dreb": 10.7,
+        "ast": 3.9,
+        "st": 0.9,
+        "blk": 0.4,
+        "to": 3.1
+      }
+    },
+    {
+      "id": "paolobanchero",
+      "name": "Paolo Banchero",
+      "nba": "ORL",
+      "position": "F",
+      "rank": 14,
+      "profile": "https://www.rotowire.com/basketball/player/paolo-banchero-5700",
+      "games": 2,
+      "stats": {
+        "pts": 24.5,
+        "reb": 6.5,
+        "oreb": 0.5,
+        "dreb": 6,
+        "ast": 7.5,
+        "st": 1,
+        "blk": 0,
+        "to": 4
+      }
+    },
+    {
+      "id": "tyresemaxey",
+      "name": "Tyrese Maxey",
+      "nba": "PHI",
+      "position": "G",
+      "rank": 15,
+      "profile": "https://www.rotowire.com/basketball/player/tyrese-maxey-5158",
+      "games": 15,
+      "stats": {
+        "pts": 26.5,
+        "reb": 3.3,
+        "oreb": 0.2,
+        "dreb": 3.1,
+        "ast": 5.8,
+        "st": 1.3,
+        "blk": 0.5,
+        "to": 2
+      }
+    },
+    {
+      "id": "scottiebarnes",
+      "name": "Scottie Barnes",
+      "nba": "TOR",
+      "position": "F",
+      "rank": 16,
+      "profile": "https://www.rotowire.com/basketball/player/scottie-barnes-5390",
+      "games": 10,
+      "stats": {
+        "pts": 23.8,
+        "reb": 7.4,
+        "oreb": 2.5,
+        "dreb": 4.9,
+        "ast": 4.7,
+        "st": 1.9,
+        "blk": 0.9,
+        "to": 3.2
+      }
+    },
+    {
+      "id": "bamadebayo",
+      "name": "Bam Adebayo",
+      "nba": "MIA",
+      "position": "C",
+      "rank": 17,
+      "profile": "https://www.rotowire.com/basketball/player/bam-adebayo-4153",
+      "games": 14,
+      "stats": {
+        "pts": 18.4,
+        "reb": 8,
+        "oreb": 2.6,
+        "dreb": 5.4,
+        "ast": 3.2,
+        "st": 2.1,
+        "blk": 0.7,
+        "to": 1.4
+      }
+    },
+    {
+      "id": "amenthompson",
+      "name": "Amen Thompson",
+      "nba": "HOU",
+      "position": "G",
+      "rank": 18,
+      "profile": "https://www.rotowire.com/basketball/player/amen-thompson-5931",
+      "games": 14,
+      "stats": {
+        "pts": 15.8,
+        "reb": 7,
+        "oreb": 3,
+        "dreb": 4,
+        "ast": 3.4,
+        "st": 1.1,
+        "blk": 0.7,
+        "to": 1.8
+      }
+    },
+    {
+      "id": "donovanmitchell",
+      "name": "Donovan Mitchell",
+      "nba": "CLE",
+      "position": "G",
+      "rank": 19,
+      "profile": "https://www.rotowire.com/basketball/player/donovan-mitchell-4166",
+      "games": 14,
+      "stats": {
+        "pts": 24.1,
+        "reb": 4.9,
+        "oreb": 0.4,
+        "dreb": 4.5,
+        "ast": 5.5,
+        "st": 1.4,
+        "blk": 0.4,
+        "to": 3.1
+      }
+    },
+    {
+      "id": "jalenbrunson",
+      "name": "Jalen Brunson",
+      "nba": "NYK",
+      "position": "G",
+      "rank": 20,
+      "profile": "https://www.rotowire.com/basketball/player/jalen-brunson-4405",
+      "games": 14,
+      "stats": {
+        "pts": 27,
+        "reb": 2.9,
+        "oreb": 0.6,
+        "dreb": 2.4,
+        "ast": 5.9,
+        "st": 0.7,
+        "blk": 0.4,
+        "to": 1.9
+      }
+    },
+    {
+      "id": "devinbooker",
+      "name": "Devin Booker",
+      "nba": "PHX",
+      "position": "G",
+      "rank": 21,
+      "profile": "https://www.rotowire.com/basketball/player/devin-booker-3711",
+      "games": 13,
+      "stats": {
+        "pts": 24.5,
+        "reb": 2.8,
+        "oreb": 0.6,
+        "dreb": 2.2,
+        "ast": 5.4,
+        "st": 1.2,
+        "blk": 0.3,
+        "to": 2.3
+      }
+    },
+    {
+      "id": "joshgiddey",
+      "name": "Josh Giddey",
+      "nba": "CHI",
+      "position": "G",
+      "rank": 22,
+      "profile": "https://www.rotowire.com/basketball/player/josh-giddey-5366",
+      "games": 13,
+      "stats": {
+        "pts": 9.900000000000002,
+        "reb": 5.200000000000001,
+        "oreb": 0.8,
+        "dreb": 4.5,
+        "ast": 8.5,
+        "st": 0.4,
+        "blk": 0.6,
+        "to": 3.3
+      }
+    },
+    {
+      "id": "evanmobley",
+      "name": "Evan Mobley",
+      "nba": "CLE",
+      "position": "F",
+      "rank": 23,
+      "profile": "https://www.rotowire.com/basketball/player/evan-mobley-5355",
+      "games": 12,
+      "stats": {
+        "pts": 16.9,
+        "reb": 7.3,
+        "oreb": 2.1,
+        "dreb": 5.3,
+        "ast": 3.6,
+        "st": 0.6,
+        "blk": 1.1,
+        "to": 1.5
+      }
+    },
+    {
+      "id": "jamalmurray",
+      "name": "Jamal Murray",
+      "nba": "DEN",
+      "position": "G",
+      "rank": 24,
+      "profile": "https://www.rotowire.com/basketball/player/jamal-murray-3882",
+      "games": 12,
+      "stats": {
+        "pts": 26.100000000000005,
+        "reb": 5.1,
+        "oreb": 0.8000000000000002,
+        "dreb": 4.3,
+        "ast": 6,
+        "st": 0.9,
+        "blk": 0.9,
+        "to": 2.5
+      }
+    },
+    {
+      "id": "austinreaves",
+      "name": "Austin Reaves",
+      "nba": "LAL",
+      "position": "G",
+      "rank": 25,
+      "profile": "https://www.rotowire.com/basketball/player/austin-reaves-5334",
+      "games": 12,
+      "stats": {
+        "pts": 24.7,
+        "reb": 3.2999999999999994,
+        "oreb": 0.8000000000000002,
+        "dreb": 2.6,
+        "ast": 4.7,
+        "st": 1.2,
+        "blk": 0.3,
+        "to": 3.4
+      }
+    },
+    {
+      "id": "jalenduren",
+      "name": "Jalen Duren",
+      "nba": "DET",
+      "position": "C",
+      "rank": 26,
+      "profile": "https://www.rotowire.com/basketball/player/jalen-duren-5703",
+      "games": 2,
+      "stats": {
+        "pts": 13,
+        "reb": 7.5,
+        "oreb": 2,
+        "dreb": 5.5,
+        "ast": 2,
+        "st": 1,
+        "blk": 1,
+        "to": 1
+      }
+    },
+    {
+      "id": "deniavdija",
+      "name": "Deni Avdija",
+      "nba": "POR",
+      "position": "F",
+      "rank": 27,
+      "profile": "https://www.rotowire.com/basketball/player/deni-avdija-5152",
+      "games": 13,
+      "stats": {
+        "pts": 24.199999999999996,
+        "reb": 6.200000000000001,
+        "oreb": 0.8,
+        "dreb": 5.4,
+        "ast": 6.1,
+        "st": 1.1,
+        "blk": 0.4,
+        "to": 3.3
+      }
+    },
+    {
+      "id": "traeyoung",
+      "name": "Trae Young",
+      "nba": "WAS",
+      "position": "G",
+      "rank": 28,
+      "profile": "https://www.rotowire.com/basketball/player/trae-young-4369",
+      "games": 15,
+      "stats": {
+        "pts": 17.9,
+        "reb": 2.9,
+        "oreb": 0.2,
+        "dreb": 2.7,
+        "ast": 8.9,
+        "st": 1.2,
+        "blk": 0.1,
+        "to": 3.1
+      }
+    },
+    {
+      "id": "kevindurant",
+      "name": "Kevin Durant",
+      "nba": "HOU",
+      "position": "F",
+      "rank": 29,
+      "profile": "https://www.rotowire.com/basketball/player/kevin-durant-2811",
+      "games": 15,
+      "stats": {
+        "pts": 21.3,
+        "reb": 5.5,
+        "oreb": 0.3,
+        "dreb": 5.1,
+        "ast": 3.8,
+        "st": 0.5,
+        "blk": 1.1,
+        "to": 2.9
+      }
+    },
+    {
+      "id": "matasbuzelis",
+      "name": "Matas Buzelis",
+      "nba": "CHI",
+      "position": "F",
+      "rank": 30,
+      "profile": "https://www.rotowire.com/basketball/player/matas-buzelis-5938",
+      "games": 13,
+      "stats": {
+        "pts": 14.400000000000002,
+        "reb": 4.7,
+        "oreb": 0.7,
+        "dreb": 4,
+        "ast": 1.8000000000000003,
+        "st": 0.5,
+        "blk": 0.8,
+        "to": 2.6000000000000005
+      }
+    },
+    {
+      "id": "donovanclingan",
+      "name": "Donovan Clingan",
+      "nba": "POR",
+      "position": "C",
+      "rank": 31,
+      "profile": "https://www.rotowire.com/basketball/player/donovan-clingan-6254",
+      "games": 14,
+      "stats": {
+        "pts": 11,
+        "reb": 10.6,
+        "oreb": 3.6,
+        "dreb": 6.9,
+        "ast": 1.8,
+        "st": 0.6,
+        "blk": 2.3,
+        "to": 1.4
+      }
+    },
+    {
+      "id": "stephoncastle",
+      "name": "Stephon Castle",
+      "nba": "SAS",
+      "position": "G",
+      "rank": 32,
+      "profile": "https://www.rotowire.com/basketball/player/stephon-castle-6250",
+      "games": 15,
+      "stats": {
+        "pts": 15.3,
+        "reb": 5.2,
+        "oreb": 1.4,
+        "dreb": 3.8,
+        "ast": 5.5,
+        "st": 1,
+        "blk": 0.3,
+        "to": 2.1
+      }
+    },
+    {
+      "id": "jaylenbrown",
+      "name": "Jaylen Brown",
+      "nba": "PHI",
+      "position": "F",
+      "rank": 33,
+      "profile": "https://www.rotowire.com/basketball/player/jaylen-brown-3894",
+      "games": 14,
+      "stats": {
+        "pts": 22.6,
+        "reb": 6.6,
+        "oreb": 1.7,
+        "dreb": 4.9,
+        "ast": 3.6,
+        "st": 1.3,
+        "blk": 0.5,
+        "to": 2.6
+      }
+    },
+    {
+      "id": "anthonydavis",
+      "name": "Anthony Davis",
+      "nba": "WAS",
+      "position": "C",
+      "rank": 34,
+      "profile": "https://www.rotowire.com/basketball/player/anthony-davis-3297",
+      "games": 13,
+      "stats": {
+        "pts": 24.5,
+        "reb": 9.8,
+        "oreb": 2.5,
+        "dreb": 7.299999999999999,
+        "ast": 2.1,
+        "st": 1.2,
+        "blk": 1.2,
+        "to": 1.9
+      }
+    },
+    {
+      "id": "jamesharden",
+      "name": "James Harden",
+      "nba": "CLE",
+      "position": "G",
+      "rank": 35,
+      "profile": "https://www.rotowire.com/basketball/player/james-harden-3018",
+      "games": 14,
+      "stats": {
+        "pts": 16.4,
+        "reb": 4.6,
+        "oreb": 0.2,
+        "dreb": 4.4,
+        "ast": 6.1,
+        "st": 1,
+        "blk": 0.5,
+        "to": 2.8
+      }
+    },
+    {
+      "id": "walkerkessler",
+      "name": "Walker Kessler",
+      "nba": "LAL",
+      "position": "C",
+      "rank": 36,
+      "profile": "https://www.rotowire.com/basketball/player/walker-kessler-5644",
+      "games": 14,
+      "stats": {
+        "pts": 14.5,
+        "reb": 10.9,
+        "oreb": 3.7,
+        "dreb": 7.2,
+        "ast": 1.9,
+        "st": 1.2,
+        "blk": 2.2,
+        "to": 1.7
+      }
+    },
+    {
+      "id": "tyresehaliburton",
+      "name": "Tyrese Haliburton",
+      "nba": "IND",
+      "position": "G",
+      "rank": 37,
+      "profile": "https://www.rotowire.com/basketball/player/tyrese-haliburton-5114",
+      "games": 4,
+      "stats": {
+        "pts": 21.8,
+        "reb": 4.5,
+        "oreb": 0.5,
+        "dreb": 4,
+        "ast": 9.5,
+        "st": 1.3,
+        "blk": 0.8,
+        "to": 2.3
+      }
+    },
+    {
+      "id": "stephencurry",
+      "name": "Stephen Curry",
+      "nba": "GSW",
+      "position": "G",
+      "rank": 38,
+      "profile": "https://www.rotowire.com/basketball/player/stephen-curry-3014",
+      "games": 10,
+      "stats": {
+        "pts": 27.8,
+        "reb": 3.7,
+        "oreb": 0.3,
+        "dreb": 3.4,
+        "ast": 3.9,
+        "st": 0.9,
+        "blk": 0.1,
+        "to": 1.7
+      }
+    },
+    {
+      "id": "chetholmgren",
+      "name": "Chet Holmgren",
+      "nba": "OKC",
+      "position": "C",
+      "rank": 39,
+      "profile": "https://www.rotowire.com/basketball/player/chet-holmgren-5697",
+      "games": 3,
+      "stats": {
+        "pts": 12,
+        "reb": 9.3,
+        "oreb": 4.7,
+        "dreb": 4.7,
+        "ast": 1.3,
+        "st": 0.6999999999999998,
+        "blk": 3,
+        "to": 1.7
+      }
+    },
+    {
+      "id": "laurimarkkanen",
+      "name": "Lauri Markkanen",
+      "nba": "UTA",
+      "position": "F",
+      "rank": 40,
+      "profile": "https://www.rotowire.com/basketball/player/lauri-markkanen-4119",
+      "games": 8,
+      "stats": {
+        "pts": 18,
+        "reb": 6.8,
+        "oreb": 1.5,
+        "dreb": 5.3,
+        "ast": 2,
+        "st": 0.6,
+        "blk": 0.6,
+        "to": 1.5
+      }
+    },
+    {
+      "id": "pascalsiakam",
+      "name": "Pascal Siakam",
+      "nba": "IND",
+      "position": "F",
+      "rank": 41,
+      "profile": "https://www.rotowire.com/basketball/player/pascal-siakam-3922",
+      "games": 13,
+      "stats": {
+        "pts": 23.1,
+        "reb": 6.200000000000001,
+        "oreb": 1.2,
+        "dreb": 5.1,
+        "ast": 4,
+        "st": 0.9000000000000001,
+        "blk": 0.1,
+        "to": 2.1
+      }
+    },
+    {
+      "id": "juliusrandle",
+      "name": "Julius Randle",
+      "nba": "BKN",
+      "position": "F",
+      "rank": 42,
+      "profile": "https://www.rotowire.com/basketball/player/julius-randle-3574",
+      "games": 13,
+      "stats": {
+        "pts": 20.9,
+        "reb": 6.200000000000001,
+        "oreb": 1.6999999999999997,
+        "dreb": 4.5,
+        "ast": 4.7,
+        "st": 1,
+        "blk": 0.2,
+        "to": 3.6000000000000005
+      }
+    },
+    {
+      "id": "jalenwilliams",
+      "name": "Jalen Williams",
+      "nba": "OKC",
+      "position": "F",
+      "rank": 43,
+      "profile": "https://www.rotowire.com/basketball/player/jalen-williams-5687",
+      "games": 3,
+      "stats": {
+        "pts": 13.699999999999998,
+        "reb": 4.7,
+        "oreb": 0,
+        "dreb": 4.7,
+        "ast": 3.2999999999999994,
+        "st": 1.3,
+        "blk": 0.6999999999999998,
+        "to": 1.3
+      }
+    },
+    {
+      "id": "cameronboozer",
+      "name": "Cameron Boozer",
+      "nba": "MEM",
+      "position": "F",
+      "rank": 44,
+      "profile": "https://www.rotowire.com/basketball/player/cameron-boozer-6923",
+      "games": 14,
+      "stats": {
+        "pts": 16.5,
+        "reb": 9.5,
+        "oreb": 2.1,
+        "dreb": 7.4,
+        "ast": 5.4,
+        "st": 0.6,
+        "blk": 0.7,
+        "to": 3.2
+      }
+    },
+    {
+      "id": "ivicazubac",
+      "name": "Ivica Zubac",
+      "nba": "IND",
+      "position": "C",
+      "rank": 45,
+      "profile": "https://www.rotowire.com/basketball/player/ivica-zubac-3888",
+      "games": 9,
+      "stats": {
+        "pts": 10.4,
+        "reb": 8.4,
+        "oreb": 3.3,
+        "dreb": 5.1,
+        "ast": 1.7,
+        "st": 0,
+        "blk": 0.7,
+        "to": 1.6
+      }
+    },
+    {
+      "id": "brandonmiller",
+      "name": "Brandon Miller",
+      "nba": "CHA",
+      "position": "F",
+      "rank": 46,
+      "profile": "https://www.rotowire.com/basketball/player/brandon-miller-5896",
+      "games": 12,
+      "stats": {
+        "pts": 19.9,
+        "reb": 4.5,
+        "oreb": 1.3,
+        "dreb": 3.2999999999999994,
+        "ast": 2.5,
+        "st": 1,
+        "blk": 0.6999999999999998,
+        "to": 2.4
+      }
+    },
+    {
+      "id": "derrickwhite",
+      "name": "Derrick White",
+      "nba": "BOS",
+      "position": "G",
+      "rank": 47,
+      "profile": "https://www.rotowire.com/basketball/player/derrick-white-4195",
+      "games": 14,
+      "stats": {
+        "pts": 12.7,
+        "reb": 3,
+        "oreb": 1.1,
+        "dreb": 1.9,
+        "ast": 4.8,
+        "st": 1.2,
+        "blk": 0.6,
+        "to": 1.9
+      }
+    },
+    {
+      "id": "nickeilalexanderwalker",
+      "name": "Nickeil Alexander-Walker",
+      "nba": "ATL",
+      "position": "G",
+      "rank": 48,
+      "profile": "https://www.rotowire.com/basketball/player/nickeil-alexander-walker-4765",
+      "games": 14,
+      "stats": {
+        "pts": 21.4,
+        "reb": 3.6,
+        "oreb": 1.4,
+        "dreb": 2.1,
+        "ast": 2.7,
+        "st": 1.5,
+        "blk": 0.4,
+        "to": 2.1
+      }
+    },
+    {
+      "id": "dariusgarland",
+      "name": "Darius Garland",
+      "nba": "LAC",
+      "position": "G",
+      "rank": 49,
+      "profile": "https://www.rotowire.com/basketball/player/darius-garland-4749",
+      "games": 13,
+      "stats": {
+        "pts": 21.199999999999996,
+        "reb": 2.4,
+        "oreb": 0.2,
+        "dreb": 2.2,
+        "ast": 6.9,
+        "st": 0.6,
+        "blk": 0.2,
+        "to": 4.6
+      }
+    },
+    {
+      "id": "lameloball",
+      "name": "LaMelo Ball",
+      "nba": "MIN",
+      "position": "G",
+      "rank": 50,
+      "profile": "https://www.rotowire.com/basketball/player/lamelo-ball-5151",
+      "games": 15,
+      "stats": {
+        "pts": 17.7,
+        "reb": 4.1,
+        "oreb": 0.7,
+        "dreb": 3.4,
+        "ast": 5.5,
+        "st": 1.9,
+        "blk": 0.1,
+        "to": 3.7
+      }
+    },
+    {
+      "id": "franzwagner",
+      "name": "Franz Wagner",
+      "nba": "ORL",
+      "position": "F",
+      "rank": 51,
+      "profile": "https://www.rotowire.com/basketball/player/franz-wagner-5370",
+      "games": 13,
+      "stats": {
+        "pts": 24.199999999999996,
+        "reb": 6.799999999999999,
+        "oreb": 1.1,
+        "dreb": 5.799999999999999,
+        "ast": 8.3,
+        "st": 1.2,
+        "blk": 0.2,
+        "to": 4.2
+      }
+    },
+    {
+      "id": "zionwilliamson",
+      "name": "Zion Williamson",
+      "nba": "NOP",
+      "position": "F",
+      "rank": 52,
+      "profile": "https://www.rotowire.com/basketball/player/zion-williamson-4777",
+      "games": 14,
+      "stats": {
+        "pts": 21.5,
+        "reb": 5.3,
+        "oreb": 1.9,
+        "dreb": 3.4,
+        "ast": 2.6,
+        "st": 1.9,
+        "blk": 0.6,
+        "to": 1.8
+      }
+    },
+    {
+      "id": "tylerherro",
+      "name": "Tyler Herro",
+      "nba": "MIL",
+      "position": "G",
+      "rank": 53,
+      "profile": "https://www.rotowire.com/basketball/player/tyler-herro-4780",
+      "games": 13,
+      "stats": {
+        "pts": 20.300000000000004,
+        "reb": 4.2,
+        "oreb": 0.8,
+        "dreb": 3.3,
+        "ast": 4.2,
+        "st": 0.9000000000000001,
+        "blk": 0.2,
+        "to": 2.3
+      }
+    },
+    {
+      "id": "lebronjames",
+      "name": "LeBron James",
+      "nba": "PHI",
+      "position": "F",
+      "rank": 54,
+      "profile": "https://www.rotowire.com/basketball/player/lebron-james-2344",
+      "games": 11,
+      "stats": {
+        "pts": 15.1,
+        "reb": 7.2,
+        "oreb": 0.5,
+        "dreb": 6.7,
+        "ast": 6.9,
+        "st": 1.2,
+        "blk": 0.7,
+        "to": 2.6
+      }
+    },
+    {
+      "id": "onyekaokongwu",
+      "name": "Onyeka Okongwu",
+      "nba": "ATL",
+      "position": "C",
+      "rank": 55,
+      "profile": "https://www.rotowire.com/basketball/player/onyeka-okongwu-5118",
+      "games": 14,
+      "stats": {
+        "pts": 14.1,
+        "reb": 8.1,
+        "oreb": 2.4,
+        "dreb": 5.8,
+        "ast": 2.5,
+        "st": 1.1,
+        "blk": 0.9,
+        "to": 1.1
+      }
+    },
+    {
+      "id": "paytonpritchard",
+      "name": "Payton Pritchard",
+      "nba": "BOS",
+      "position": "G",
+      "rank": 56,
+      "profile": "https://www.rotowire.com/basketball/player/payton-pritchard-5131",
+      "games": 14,
+      "stats": {
+        "pts": 13.6,
+        "reb": 3.2,
+        "oreb": 1,
+        "dreb": 2.2,
+        "ast": 3.9,
+        "st": 0.6,
+        "blk": 0.1,
+        "to": 1.3
+      }
+    },
+    {
+      "id": "kawhileonard",
+      "name": "Kawhi Leonard",
+      "nba": "TOR",
+      "position": "F",
+      "rank": 57,
+      "profile": "https://www.rotowire.com/basketball/player/kawhi-leonard-3195",
+      "games": 2,
+      "stats": {
+        "pts": 19.5,
+        "reb": 7.5,
+        "oreb": 2.5,
+        "dreb": 5,
+        "ast": 1.5,
+        "st": 3.5,
+        "blk": 0.5,
+        "to": 2
+      }
+    },
+    {
+      "id": "derikqueen",
+      "name": "Derik Queen",
+      "nba": "NOP",
+      "position": "C",
+      "rank": 58,
+      "profile": "https://www.rotowire.com/basketball/player/derik-queen-6541",
+      "games": 15,
+      "stats": {
+        "pts": 12.2,
+        "reb": 6.5,
+        "oreb": 1.3,
+        "dreb": 5.2,
+        "ast": 2.3,
+        "st": 0.9,
+        "blk": 0.8,
+        "to": 2.3
+      }
+    },
+    {
+      "id": "treymurphy",
+      "name": "Trey Murphy",
+      "nba": "NOP",
+      "position": "F",
+      "rank": 59,
+      "profile": "https://www.rotowire.com/basketball/player/trey-murphy-5401",
+      "games": 9,
+      "stats": {
+        "pts": 15.600000000000001,
+        "reb": 4.8,
+        "oreb": 1,
+        "dreb": 3.7999999999999994,
+        "ast": 3.5999999999999996,
+        "st": 1,
+        "blk": 0.2,
+        "to": 1.7
+      }
+    },
+    {
+      "id": "dejountemurray",
+      "name": "Dejounte Murray",
+      "nba": "NOP",
+      "position": "G",
+      "rank": 60,
+      "profile": "https://www.rotowire.com/basketball/player/dejounte-murray-3856",
+      "games": 9,
+      "stats": {
+        "pts": 13.4,
+        "reb": 4.6,
+        "oreb": 0.8,
+        "dreb": 3.7999999999999994,
+        "ast": 4.4,
+        "st": 1.6,
+        "blk": 0.6,
+        "to": 2.3
+      }
+    },
+    {
+      "id": "cobywhite",
+      "name": "Coby White",
+      "nba": "CHA",
+      "position": "G",
+      "rank": 61,
+      "profile": "https://www.rotowire.com/basketball/player/coby-white-4801",
+      "games": 7,
+      "stats": {
+        "pts": 12.7,
+        "reb": 2,
+        "oreb": 0.4,
+        "dreb": 1.6,
+        "ast": 3.3,
+        "st": 0.4,
+        "blk": 0.1,
+        "to": 2.9
+      }
+    },
+    {
+      "id": "calebwilson",
+      "name": "Caleb Wilson",
+      "nba": "CHI",
+      "position": "F",
+      "rank": 62,
+      "profile": "https://www.rotowire.com/basketball/player/caleb-wilson-6926",
+      "games": 10,
+      "stats": {
+        "pts": 18.9,
+        "reb": 6.2,
+        "oreb": 1.7,
+        "dreb": 4.5,
+        "ast": 1.9,
+        "st": 1.8,
+        "blk": 0.9,
+        "to": 2.7
+      }
+    },
+    {
+      "id": "desmondbane",
+      "name": "Desmond Bane",
+      "nba": "ORL",
+      "position": "G",
+      "rank": 63,
+      "profile": "https://www.rotowire.com/basketball/player/desmond-bane-5159",
+      "games": 12,
+      "stats": {
+        "pts": 18.8,
+        "reb": 4.4,
+        "oreb": 0.8000000000000002,
+        "dreb": 3.7000000000000006,
+        "ast": 2.7000000000000006,
+        "st": 0.9,
+        "blk": 0.5,
+        "to": 2.1
+      }
+    },
+    {
+      "id": "keyontegeorge",
+      "name": "Keyonte George",
+      "nba": "UTA",
+      "position": "G",
+      "rank": 64,
+      "profile": "https://www.rotowire.com/basketball/player/keyonte-george-5899",
+      "games": 14,
+      "stats": {
+        "pts": 21,
+        "reb": 4.3,
+        "oreb": 0.3,
+        "dreb": 4,
+        "ast": 6.9,
+        "st": 0.8,
+        "blk": 0.3,
+        "to": 3.5
+      }
+    },
+    {
+      "id": "ryanrollins",
+      "name": "Ryan Rollins",
+      "nba": "MIL",
+      "position": "G",
+      "rank": 65,
+      "profile": "https://www.rotowire.com/basketball/player/ryan-rollins-5668",
+      "games": 13,
+      "stats": {
+        "pts": 10.5,
+        "reb": 5,
+        "oreb": 1.2,
+        "dreb": 3.8,
+        "ast": 3.8999999999999995,
+        "st": 0.8,
+        "blk": 0.3,
+        "to": 2.3
+      }
+    },
+    {
+      "id": "michaelporter",
+      "name": "Michael Porter",
+      "nba": "BKN",
+      "position": "F",
+      "rank": 66,
+      "profile": "https://www.rotowire.com/basketball/player/michael-porter-4375",
+      "games": 12,
+      "stats": {
+        "pts": 21.8,
+        "reb": 7.400000000000001,
+        "oreb": 0.8000000000000002,
+        "dreb": 6.599999999999999,
+        "ast": 1.3,
+        "st": 1.2,
+        "blk": 0.5,
+        "to": 2
+      }
+    },
+    {
+      "id": "ajdybantsa",
+      "name": "AJ Dybantsa",
+      "nba": "WAS",
+      "position": "F",
+      "rank": 67,
+      "profile": "https://www.rotowire.com/basketball/player/aj-dybantsa-6925",
+      "games": 11,
+      "stats": {
+        "pts": 15.6,
+        "reb": 6.1,
+        "oreb": 1.5,
+        "dreb": 4.5,
+        "ast": 2.3,
+        "st": 1.3,
+        "blk": 0.4,
+        "to": 2.3
+      }
+    },
+    {
+      "id": "dysondaniels",
+      "name": "Dyson Daniels",
+      "nba": "ATL",
+      "position": "G",
+      "rank": 68,
+      "profile": "https://www.rotowire.com/basketball/player/dyson-daniels-5385",
+      "games": 14,
+      "stats": {
+        "pts": 9.5,
+        "reb": 7.4,
+        "oreb": 3.3,
+        "dreb": 4.1,
+        "ast": 5.6,
+        "st": 2.9,
+        "blk": 0.3,
+        "to": 1.3
+      }
+    },
+    {
+      "id": "nazreid",
+      "name": "Naz Reid",
+      "nba": "CHA",
+      "position": "C",
+      "rank": 69,
+      "profile": "https://www.rotowire.com/basketball/player/naz-reid-4806",
+      "games": 14,
+      "stats": {
+        "pts": 17.6,
+        "reb": 8.4,
+        "oreb": 1.1,
+        "dreb": 7.2,
+        "ast": 2.4,
+        "st": 0.9,
+        "blk": 0.6,
+        "to": 2.5
+      }
+    },
+    {
+      "id": "jarenjackson",
+      "name": "Jaren Jackson",
+      "nba": "UTA",
+      "position": "F",
+      "rank": 70,
+      "profile": "https://www.rotowire.com/basketball/player/jaren-jackson-4384",
+      "games": 4,
+      "stats": {
+        "pts": 16.3,
+        "reb": 5,
+        "oreb": 1,
+        "dreb": 4,
+        "ast": 2,
+        "st": 0.3,
+        "blk": 1.3,
+        "to": 3
+      }
+    },
+    {
+      "id": "damianlillard",
+      "name": "Damian Lillard",
+      "nba": "POR",
+      "position": "G",
+      "rank": 71,
+      "profile": "https://www.rotowire.com/basketball/player/damian-lillard-3304",
+      "games": 14,
+      "stats": {
+        "pts": 20.1,
+        "reb": 3,
+        "oreb": 0.3,
+        "dreb": 2.7,
+        "ast": 4.4,
+        "st": 0.7,
+        "blk": 0.1,
+        "to": 2.2
+      }
+    },
+    {
+      "id": "dylanharper",
+      "name": "Dylan Harper",
+      "nba": "SAS",
+      "position": "G",
+      "rank": 72,
+      "profile": "https://www.rotowire.com/basketball/player/dylan-harper-6549",
+      "games": 15,
+      "stats": {
+        "pts": 18.4,
+        "reb": 5.4,
+        "oreb": 1.1,
+        "dreb": 4.3,
+        "ast": 4.5,
+        "st": 0.9,
+        "blk": 0.1,
+        "to": 1.4
+      }
+    },
+    {
+      "id": "deaaronfox",
+      "name": "De'Aaron Fox",
+      "nba": "SAS",
+      "position": "G",
+      "rank": 73,
+      "profile": "https://www.rotowire.com/basketball/player/deaaron-fox-4116",
+      "games": 14,
+      "stats": {
+        "pts": 13.1,
+        "reb": 4.2,
+        "oreb": 0.5,
+        "dreb": 3.7,
+        "ast": 5.5,
+        "st": 1.4,
+        "blk": 0.4,
+        "to": 2.4
+      }
+    },
+    {
+      "id": "konknueppel",
+      "name": "Kon Knueppel",
+      "nba": "CHA",
+      "position": "F",
+      "rank": 74,
+      "profile": "https://www.rotowire.com/basketball/player/kon-knueppel-6540",
+      "games": 1,
+      "stats": {
+        "pts": 3,
+        "reb": 0,
+        "oreb": 0,
+        "dreb": 0,
+        "ast": 0,
+        "st": 0,
+        "blk": 0,
+        "to": 2
+      }
+    },
+    {
+      "id": "rudygobert",
+      "name": "Rudy Gobert",
+      "nba": "MIN",
+      "position": "C",
+      "rank": 75,
+      "profile": "https://www.rotowire.com/basketball/player/rudy-gobert-3440",
+      "games": 14,
+      "stats": {
+        "pts": 7.6,
+        "reb": 11.1,
+        "oreb": 3.6,
+        "dreb": 7.6,
+        "ast": 1.7,
+        "st": 0.3,
+        "blk": 1,
+        "to": 1.4
+      }
+    },
+    {
+      "id": "kyrieirving",
+      "name": "Kyrie Irving",
+      "nba": "DAL",
+      "position": "G",
+      "rank": 76,
+      "profile": "https://www.rotowire.com/basketball/player/kyrie-irving-3186",
+      "games": 11,
+      "stats": {
+        "pts": 22.7,
+        "reb": 3.5,
+        "oreb": 0.9,
+        "dreb": 2.5,
+        "ast": 4.4,
+        "st": 1.3,
+        "blk": 0.5,
+        "to": 1.7
+      }
+    },
+    {
+      "id": "cedriccoward",
+      "name": "Cedric Coward",
+      "nba": "MEM",
+      "position": "G",
+      "rank": 77,
+      "profile": "https://www.rotowire.com/basketball/player/cedric-coward-6592",
+      "games": 13,
+      "stats": {
+        "pts": 14.099999999999998,
+        "reb": 8.8,
+        "oreb": 1.6999999999999997,
+        "dreb": 7.1,
+        "ast": 3.3,
+        "st": 1.5,
+        "blk": 0.4,
+        "to": 1.5
+      }
+    },
+    {
+      "id": "milesbridges",
+      "name": "Miles Bridges",
+      "nba": "PHX",
+      "position": "F",
+      "rank": 78,
+      "profile": "https://www.rotowire.com/basketball/player/miles-bridges-4383",
+      "games": 13,
+      "stats": {
+        "pts": 14.7,
+        "reb": 7,
+        "oreb": 1.4,
+        "dreb": 5.6,
+        "ast": 3,
+        "st": 1,
+        "blk": 0.7,
+        "to": 0.6
+      }
+    },
+    {
+      "id": "mikalbridges",
+      "name": "Mikal Bridges",
+      "nba": "NYK",
+      "position": "F",
+      "rank": 79,
+      "profile": "https://www.rotowire.com/basketball/player/mikal-bridges-4386",
+      "games": 14,
+      "stats": {
+        "pts": 7.5,
+        "reb": 3.6,
+        "oreb": 1.1,
+        "dreb": 2.4,
+        "ast": 2.1,
+        "st": 1,
+        "blk": 0.5,
+        "to": 1.1
+      }
+    },
+    {
+      "id": "jalengreen",
+      "name": "Jalen Green",
+      "nba": "PHX",
+      "position": "G",
+      "rank": 80,
+      "profile": "https://www.rotowire.com/basketball/player/jalen-green-5230",
+      "games": 13,
+      "stats": {
+        "pts": 11.900000000000002,
+        "reb": 3.3999999999999995,
+        "oreb": 0.5,
+        "dreb": 2.8999999999999995,
+        "ast": 2.8999999999999995,
+        "st": 0.9000000000000001,
+        "blk": 0.5,
+        "to": 2.5
+      }
+    },
+    {
+      "id": "vjedgecombe",
+      "name": "VJ Edgecombe",
+      "nba": "PHI",
+      "position": "G",
+      "rank": 81,
+      "profile": "https://www.rotowire.com/basketball/player/vj-edgecombe-6550",
+      "games": 14,
+      "stats": {
+        "pts": 12.9,
+        "reb": 6.4,
+        "oreb": 1.3,
+        "dreb": 5.1,
+        "ast": 3.7,
+        "st": 1.6,
+        "blk": 0.4,
+        "to": 1.1
+      }
+    },
+    {
+      "id": "kelelware",
+      "name": "Kel'el Ware",
+      "nba": "MIL",
+      "position": "C",
+      "rank": 82,
+      "profile": "https://www.rotowire.com/basketball/player/kelel-ware-6275",
+      "games": 14,
+      "stats": {
+        "pts": 8.6,
+        "reb": 6.8,
+        "oreb": 2.7,
+        "dreb": 4.1,
+        "ast": 0.9,
+        "st": 0.5,
+        "blk": 1.2,
+        "to": 1.4
+      }
+    },
+    {
+      "id": "immanuelquickley",
+      "name": "Immanuel Quickley",
+      "nba": "TOR",
+      "position": "G",
+      "rank": 83,
+      "profile": "https://www.rotowire.com/basketball/player/immanuel-quickley-5201",
+      "games": 12,
+      "stats": {
+        "pts": 17.3,
+        "reb": 3.6,
+        "oreb": 0.6,
+        "dreb": 3,
+        "ast": 5.8,
+        "st": 1.1,
+        "blk": 0.10000000000000002,
+        "to": 1.1
+      }
+    },
+    {
+      "id": "jadenmcdaniels",
+      "name": "Jaden McDaniels",
+      "nba": "MIN",
+      "position": "F",
+      "rank": 84,
+      "profile": "https://www.rotowire.com/basketball/player/jaden-mcdaniels-5221",
+      "games": 15,
+      "stats": {
+        "pts": 17.1,
+        "reb": 6.1,
+        "oreb": 1.9,
+        "dreb": 4.2,
+        "ast": 3.7,
+        "st": 1.1,
+        "blk": 0.9,
+        "to": 2.1
+      }
+    },
+    {
+      "id": "dariusacuff",
+      "name": "Darius Acuff",
+      "nba": "SAC",
+      "position": "G",
+      "rank": 85,
+      "profile": "https://www.rotowire.com/basketball/player/darius-acuff-6931",
+      "games": 13,
+      "stats": {
+        "pts": 25.5,
+        "reb": 3.5,
+        "oreb": 0.3,
+        "dreb": 3.2,
+        "ast": 7.1,
+        "st": 1,
+        "blk": 0.1,
+        "to": 4.1
+      }
+    },
+    {
+      "id": "darrynpeterson",
+      "name": "Darryn Peterson",
+      "nba": "UTA",
+      "position": "G",
+      "rank": 86,
+      "profile": "https://www.rotowire.com/basketball/player/darryn-peterson-6924",
+      "games": 15,
+      "stats": {
+        "pts": 16.9,
+        "reb": 4.3,
+        "oreb": 1.2,
+        "dreb": 3.1,
+        "ast": 3.7,
+        "st": 1.2,
+        "blk": 0.7,
+        "to": 1.9
+      }
+    },
+    {
+      "id": "zachedey",
+      "name": "Zach Edey",
+      "nba": "MEM",
+      "position": "C",
+      "rank": 87,
+      "profile": "https://www.rotowire.com/basketball/player/zach-edey-6263",
+      "games": 11,
+      "stats": {
+        "pts": 9,
+        "reb": 7.9,
+        "oreb": 2.8,
+        "dreb": 5.1,
+        "ast": 0.9,
+        "st": 0.1,
+        "blk": 1.3,
+        "to": 1.5
+      }
+    },
+    {
+      "id": "nicclaxton",
+      "name": "Nic Claxton",
+      "nba": "CHI",
+      "position": "C",
+      "rank": 88,
+      "profile": "https://www.rotowire.com/basketball/player/nic-claxton-4827",
+      "games": 4,
+      "stats": {
+        "pts": 7.8,
+        "reb": 4.5,
+        "oreb": 1.5,
+        "dreb": 3,
+        "ast": 2,
+        "st": 0.3,
+        "blk": 1,
+        "to": 0.8
+      }
+    },
+    {
+      "id": "cjmccollum",
+      "name": "CJ McCollum",
+      "nba": "ATL",
+      "position": "G",
+      "rank": 89,
+      "profile": "https://www.rotowire.com/basketball/player/cj-mccollum-3437",
+      "games": 14,
+      "stats": {
+        "pts": 14.5,
+        "reb": 3.1,
+        "oreb": 0.7,
+        "dreb": 2.4,
+        "ast": 3.9,
+        "st": 1.1,
+        "blk": 0.5,
+        "to": 1.9
+      }
+    },
+    {
+      "id": "alexsarr",
+      "name": "Alex Sarr",
+      "nba": "WAS",
+      "position": "C",
+      "rank": 90,
+      "profile": "https://www.rotowire.com/basketball/player/alex-sarr-6240",
+      "games": 14,
+      "stats": {
+        "pts": 11.8,
+        "reb": 7.3,
+        "oreb": 1.9,
+        "dreb": 5.4,
+        "ast": 1.6,
+        "st": 0.9,
+        "blk": 1.1,
+        "to": 1.4
+      }
+    },
+    {
+      "id": "brandinpodziemski",
+      "name": "Brandin Podziemski",
+      "nba": "GSW",
+      "position": "G",
+      "rank": 91,
+      "profile": "https://www.rotowire.com/basketball/player/brandin-podziemski-5889",
+      "games": 12,
+      "stats": {
+        "pts": 16.3,
+        "reb": 5,
+        "oreb": 1.2,
+        "dreb": 3.7999999999999994,
+        "ast": 3.7999999999999994,
+        "st": 1.2,
+        "blk": 0.6,
+        "to": 1.5
+      }
+    },
+    {
+      "id": "jarrettallen",
+      "name": "Jarrett Allen",
+      "nba": "CLE",
+      "position": "C",
+      "rank": 92,
+      "profile": "https://www.rotowire.com/basketball/player/jarrett-allen-4122",
+      "games": 12,
+      "stats": {
+        "pts": 12.6,
+        "reb": 8.8,
+        "oreb": 2.7000000000000006,
+        "dreb": 6.099999999999999,
+        "ast": 1.5,
+        "st": 0.6999999999999998,
+        "blk": 1.3,
+        "to": 1.1
+      }
+    },
+    {
+      "id": "joshhart",
+      "name": "Josh Hart",
+      "nba": "NYK",
+      "position": "F",
+      "rank": 93,
+      "profile": "https://www.rotowire.com/basketball/player/josh-hart-4136",
+      "games": 11,
+      "stats": {
+        "pts": 6.5,
+        "reb": 6.3,
+        "oreb": 1,
+        "dreb": 5.3,
+        "ast": 3.5,
+        "st": 1.6,
+        "blk": 0.3,
+        "to": 1.4
+      }
+    },
+    {
+      "id": "jaimejaquez",
+      "name": "Jaime Jaquez",
+      "nba": "MIL",
+      "position": "F",
+      "rank": 94,
+      "profile": "https://www.rotowire.com/basketball/player/jaime-jaquez-5960",
+      "games": 14,
+      "stats": {
+        "pts": 15.8,
+        "reb": 5.6,
+        "oreb": 1.8,
+        "dreb": 3.9,
+        "ast": 2.9,
+        "st": 0.7,
+        "blk": 0.1,
+        "to": 2.1
+      }
+    },
+    {
+      "id": "dayronsharpe",
+      "name": "Day'Ron Sharpe",
+      "nba": "BKN",
+      "position": "C",
+      "rank": 95,
+      "profile": "https://www.rotowire.com/basketball/player/dayron-sharpe-5418",
+      "games": 13,
+      "stats": {
+        "pts": 8.6,
+        "reb": 7.299999999999999,
+        "oreb": 3.3999999999999995,
+        "dreb": 3.8999999999999995,
+        "ast": 4.2,
+        "st": 0.8,
+        "blk": 1.2,
+        "to": 1.9
+      }
+    },
+    {
+      "id": "jeremiahfears",
+      "name": "Jeremiah Fears",
+      "nba": "NOP",
+      "position": "G",
+      "rank": 96,
+      "profile": "https://www.rotowire.com/basketball/player/jeremiah-fears-6546",
+      "games": 15,
+      "stats": {
+        "pts": 15.5,
+        "reb": 4.9,
+        "oreb": 1,
+        "dreb": 3.9,
+        "ast": 5.5,
+        "st": 1,
+        "blk": 0.5,
+        "to": 2.8
+      }
+    },
+    {
+      "id": "jabarismith",
+      "name": "Jabari Smith",
+      "nba": "HOU",
+      "position": "F",
+      "rank": 97,
+      "profile": "https://www.rotowire.com/basketball/player/jabari-smith-5643",
+      "games": 15,
+      "stats": {
+        "pts": 15.2,
+        "reb": 6.5,
+        "oreb": 1.7,
+        "dreb": 4.9,
+        "ast": 2.1,
+        "st": 0.7,
+        "blk": 1,
+        "to": 0.9
+      }
+    },
+    {
+      "id": "ausarthompson",
+      "name": "Ausar Thompson",
+      "nba": "DET",
+      "position": "F",
+      "rank": 98,
+      "profile": "https://www.rotowire.com/basketball/player/ausar-thompson-5932",
+      "games": 12,
+      "stats": {
+        "pts": 10.4,
+        "reb": 8.7,
+        "oreb": 2.3,
+        "dreb": 6.3,
+        "ast": 5.7,
+        "st": 1.7,
+        "blk": 0.8000000000000002,
+        "to": 2.5
+      }
+    },
+    {
+      "id": "joelembiid",
+      "name": "Joel Embiid",
+      "nba": "PHI",
+      "position": "C",
+      "rank": 99,
+      "profile": "https://www.rotowire.com/basketball/player/joel-embiid-3572",
+      "games": 12,
+      "stats": {
+        "pts": 19.5,
+        "reb": 8.5,
+        "oreb": 2.2,
+        "dreb": 6.3,
+        "ast": 3.5,
+        "st": 0.8000000000000002,
+        "blk": 0.8000000000000002,
+        "to": 2.9
+      }
+    },
+    {
+      "id": "tyjerome",
+      "name": "Ty Jerome",
+      "nba": "MEM",
+      "position": "G",
+      "rank": 100,
+      "profile": "https://www.rotowire.com/basketball/player/ty-jerome-4774",
+      "games": 11,
+      "stats": {
+        "pts": 25.4,
+        "reb": 3.4,
+        "oreb": 0.6,
+        "dreb": 2.7,
+        "ast": 5.3,
+        "st": 0.7,
+        "blk": 0.2,
+        "to": 2.5
+      }
+    },
+    {
+      "id": "oganunoby",
+      "name": "OG Anunoby",
+      "nba": "NYK",
+      "position": "F",
+      "rank": 101,
+      "profile": "https://www.rotowire.com/basketball/player/og-anunoby-4121",
+      "games": 14,
+      "stats": {
+        "pts": 16.4,
+        "reb": 5.3,
+        "oreb": 1.5,
+        "dreb": 3.8,
+        "ast": 2,
+        "st": 1.1,
+        "blk": 0.8,
+        "to": 2.1
+      }
+    },
+    {
+      "id": "davionmitchell",
+      "name": "Davion Mitchell",
+      "nba": "MIA",
+      "position": "G",
+      "rank": 102,
+      "profile": "https://www.rotowire.com/basketball/player/davion-mitchell-5354",
+      "games": 14,
+      "stats": {
+        "pts": 16.7,
+        "reb": 2.4,
+        "oreb": 0.4,
+        "dreb": 2.1,
+        "ast": 9.2,
+        "st": 1.4,
+        "blk": 0.6,
+        "to": 2.4
+      }
+    },
+    {
+      "id": "ayodosunmu",
+      "name": "Ayo Dosunmu",
+      "nba": "MIN",
+      "position": "G",
+      "rank": 103,
+      "profile": "https://www.rotowire.com/basketball/player/ayo-dosunmu-5337",
+      "games": 15,
+      "stats": {
+        "pts": 18.6,
+        "reb": 4.6,
+        "oreb": 1,
+        "dreb": 3.6,
+        "ast": 3.5,
+        "st": 1.3,
+        "blk": 0.4,
+        "to": 2.2
+      }
+    },
+    {
+      "id": "andrewwiggins",
+      "name": "Andrew Wiggins",
+      "nba": "MIA",
+      "position": "F",
+      "rank": 104,
+      "profile": "https://www.rotowire.com/basketball/player/andrew-wiggins-3571",
+      "games": 14,
+      "stats": {
+        "pts": 9.4,
+        "reb": 2.9,
+        "oreb": 1.1,
+        "dreb": 1.8,
+        "ast": 1.6,
+        "st": 0.5,
+        "blk": 0.9,
+        "to": 0.9
+      }
+    },
+    {
+      "id": "isaiahhartenstein",
+      "name": "Isaiah Hartenstein",
+      "nba": "OKC",
+      "position": "C",
+      "rank": 105,
+      "profile": "https://www.rotowire.com/basketball/player/isaiah-hartenstein-4147",
+      "games": 14,
+      "stats": {
+        "pts": 8.6,
+        "reb": 10.6,
+        "oreb": 2.9,
+        "dreb": 7.7,
+        "ast": 3.7,
+        "st": 1.1,
+        "blk": 0.3,
+        "to": 1.7
+      }
+    },
+    {
+      "id": "zachlavine",
+      "name": "Zach LaVine",
+      "nba": "SAC",
+      "position": "F",
+      "rank": 106,
+      "profile": "https://www.rotowire.com/basketball/player/zach-lavine-3597",
+      "games": 12,
+      "stats": {
+        "pts": 21.399999999999995,
+        "reb": 3.2999999999999994,
+        "oreb": 0.4000000000000001,
+        "dreb": 2.7999999999999994,
+        "ast": 2.7999999999999994,
+        "st": 1,
+        "blk": 0.4000000000000001,
+        "to": 2.9
+      }
+    },
+    {
+      "id": "keeganmurray",
+      "name": "Keegan Murray",
+      "nba": "SAC",
+      "position": "F",
+      "rank": 107,
+      "profile": "https://www.rotowire.com/basketball/player/keegan-murray-5699",
+      "games": 6,
+      "stats": {
+        "pts": 9.5,
+        "reb": 2.7999999999999994,
+        "oreb": 0.6999999999999998,
+        "dreb": 2.2,
+        "ast": 1.3,
+        "st": 1,
+        "blk": 1,
+        "to": 0.6999999999999998
+      }
+    },
+    {
+      "id": "ruihachimura",
+      "name": "Rui Hachimura",
+      "nba": "LAC",
+      "position": "F",
+      "rank": 108,
+      "profile": "https://www.rotowire.com/basketball/player/rui-hachimura-4778",
+      "games": 11,
+      "stats": {
+        "pts": 13.3,
+        "reb": 5.9,
+        "oreb": 0.7,
+        "dreb": 5.2,
+        "ast": 1.5,
+        "st": 1,
+        "blk": 0.2,
+        "to": 1.7
+      }
+    },
+    {
+      "id": "anthonyblack",
+      "name": "Anthony Black",
+      "nba": "ORL",
+      "position": "G",
+      "rank": 109,
+      "profile": "https://www.rotowire.com/basketball/player/anthony-black-5910",
+      "games": 10,
+      "stats": {
+        "pts": 16.7,
+        "reb": 5.2,
+        "oreb": 1.2,
+        "dreb": 4,
+        "ast": 5.6,
+        "st": 1.9,
+        "blk": 0.8,
+        "to": 3.2
+      }
+    },
+    {
+      "id": "normanpowell",
+      "name": "Norman Powell",
+      "nba": "CHI",
+      "position": "G",
+      "rank": 110,
+      "profile": "https://www.rotowire.com/basketball/player/norman-powell-3726",
+      "games": 11,
+      "stats": {
+        "pts": 21.6,
+        "reb": 2.9,
+        "oreb": 0.4,
+        "dreb": 2.5,
+        "ast": 2.2,
+        "st": 1.5,
+        "blk": 0.2,
+        "to": 2.3
+      }
+    },
+    {
+      "id": "egordemin",
+      "name": "Egor Demin",
+      "nba": "BKN",
+      "position": "G",
+      "rank": 111,
+      "profile": "https://www.rotowire.com/basketball/player/egor-demin-6559",
+      "games": 7,
+      "stats": {
+        "pts": 10.4,
+        "reb": 2,
+        "oreb": 0.6,
+        "dreb": 1.4,
+        "ast": 2.6,
+        "st": 0.7,
+        "blk": 0.1,
+        "to": 2.4
+      }
+    },
+    {
+      "id": "christianbraun",
+      "name": "Christian Braun",
+      "nba": "DEN",
+      "position": "G",
+      "rank": 112,
+      "profile": "https://www.rotowire.com/basketball/player/christian-braun-5710",
+      "games": 12,
+      "stats": {
+        "pts": 12.6,
+        "reb": 4.3,
+        "oreb": 1.1,
+        "dreb": 3.2000000000000006,
+        "ast": 2.3,
+        "st": 2.2,
+        "blk": 0.3,
+        "to": 1.2
+      }
+    },
+    {
+      "id": "khamanmaluach",
+      "name": "Khaman Maluach",
+      "nba": "PHX",
+      "position": "C",
+      "rank": 113,
+      "profile": "https://www.rotowire.com/basketball/player/khaman-maluach-6542",
+      "games": 13,
+      "stats": {
+        "pts": 7.4,
+        "reb": 5.799999999999999,
+        "oreb": 1.9,
+        "dreb": 3.8999999999999995,
+        "ast": 1.2,
+        "st": 0.5,
+        "blk": 0.8,
+        "to": 1.1
+      }
+    },
+    {
+      "id": "demarderozan",
+      "name": "DeMar DeRozan",
+      "nba": "DEN",
+      "position": "F",
+      "rank": 114,
+      "profile": "https://www.rotowire.com/basketball/player/demar-derozan-3019",
+      "games": 11,
+      "stats": {
+        "pts": 9.2,
+        "reb": 2,
+        "oreb": 0.5,
+        "dreb": 1.5,
+        "ast": 2.7,
+        "st": 0.5,
+        "blk": 0.2,
+        "to": 1.1
+      }
+    },
+    {
+      "id": "saddiqbey",
+      "name": "Saddiq Bey",
+      "nba": "NOP",
+      "position": "F",
+      "rank": 115,
+      "profile": "https://www.rotowire.com/basketball/player/saddiq-bey-5182",
+      "games": 15,
+      "stats": {
+        "pts": 16.9,
+        "reb": 4.2,
+        "oreb": 1.1,
+        "dreb": 3.1,
+        "ast": 2.3,
+        "st": 0.8,
+        "blk": 0.3,
+        "to": 0.8
+      }
+    },
+    {
+      "id": "yaxellendeborg",
+      "name": "Yaxel Lendeborg",
+      "nba": "GSW",
+      "position": "F",
+      "rank": 116,
+      "profile": "https://www.rotowire.com/basketball/player/yaxel-lendeborg-6562",
+      "games": 14,
+      "stats": {
+        "pts": 20.8,
+        "reb": 7.4,
+        "oreb": 2.5,
+        "dreb": 4.9,
+        "ast": 3.4,
+        "st": 1,
+        "blk": 0.8,
+        "to": 3.3
+      }
+    },
+    {
+      "id": "sandromamukelashvili",
+      "name": "Sandro Mamukelashvili",
+      "nba": "LAL",
+      "position": "C",
+      "rank": 117,
+      "profile": "https://www.rotowire.com/basketball/player/sandro-mamukelashvili-5341",
+      "games": 15,
+      "stats": {
+        "pts": 9.9,
+        "reb": 4.2,
+        "oreb": 1,
+        "dreb": 3.2,
+        "ast": 1.7,
+        "st": 0.8,
+        "blk": 0.5,
+        "to": 0.9
+      }
+    },
+    {
+      "id": "quentingrimes",
+      "name": "Quentin Grimes",
+      "nba": "LAL",
+      "position": "G",
+      "rank": 118,
+      "profile": "https://www.rotowire.com/basketball/player/quentin-grimes-5391",
+      "games": 13,
+      "stats": {
+        "pts": 12.099999999999998,
+        "reb": 3.1000000000000005,
+        "oreb": 0.6,
+        "dreb": 2.5,
+        "ast": 2.5,
+        "st": 1,
+        "blk": 0.2,
+        "to": 1.6
+      }
+    },
+    {
+      "id": "ajaymitchell",
+      "name": "Ajay Mitchell",
+      "nba": "OKC",
+      "position": "G",
+      "rank": 119,
+      "profile": "https://www.rotowire.com/basketball/player/ajay-mitchell-6289",
+      "games": 12,
+      "stats": {
+        "pts": 18.1,
+        "reb": 3.6,
+        "oreb": 0.6,
+        "dreb": 3,
+        "ast": 3.4,
+        "st": 1.3,
+        "blk": 0.3,
+        "to": 1.5
+      }
+    },
+    {
+      "id": "kyshawngeorge",
+      "name": "Kyshawn George",
+      "nba": "WAS",
+      "position": "G",
+      "rank": 120,
+      "profile": "https://www.rotowire.com/basketball/player/kyshawn-george-6269",
+      "games": 15,
+      "stats": {
+        "pts": 17.7,
+        "reb": 4.4,
+        "oreb": 0.6,
+        "dreb": 3.8,
+        "ast": 4.5,
+        "st": 0.7,
+        "blk": 1.2,
+        "to": 2.9
+      }
+    },
+    {
+      "id": "collinsexton",
+      "name": "Collin Sexton",
+      "nba": "LAL",
+      "position": "G",
+      "rank": 121,
+      "profile": "https://www.rotowire.com/basketball/player/collin-sexton-4412",
+      "games": 14,
+      "stats": {
+        "pts": 10.6,
+        "reb": 1.9,
+        "oreb": 0.6,
+        "dreb": 1.3,
+        "ast": 2.6,
+        "st": 0.5,
+        "blk": 0.2,
+        "to": 1.4
+      }
+    },
+    {
+      "id": "rjbarrett",
+      "name": "RJ Barrett",
+      "nba": "TOR",
+      "position": "F",
+      "rank": 122,
+      "profile": "https://www.rotowire.com/basketball/player/rj-barrett-4767",
+      "games": 14,
+      "stats": {
+        "pts": 20.9,
+        "reb": 6.4,
+        "oreb": 1.7,
+        "dreb": 4.7,
+        "ast": 4.3,
+        "st": 0.4,
+        "blk": 0.5,
+        "to": 1.9
+      }
+    },
+    {
+      "id": "brandoningram",
+      "name": "Brandon Ingram",
+      "nba": "LAC",
+      "position": "G",
+      "rank": 123,
+      "profile": "https://www.rotowire.com/basketball/player/brandon-ingram-3861"
+    },
+    {
+      "id": "johncollins",
+      "name": "John Collins",
+      "nba": "DET",
+      "position": "F",
+      "rank": 124,
+      "profile": "https://www.rotowire.com/basketball/player/john-collins-4159",
+      "games": 13,
+      "stats": {
+        "pts": 10.5,
+        "reb": 5.6,
+        "oreb": 1.6,
+        "dreb": 4,
+        "ast": 0.6,
+        "st": 0.5,
+        "blk": 0.9000000000000001,
+        "to": 1
+      }
+    },
+    {
+      "id": "jonathankuminga",
+      "name": "Jonathan Kuminga",
+      "nba": "MIN",
+      "position": "F",
+      "rank": 125,
+      "profile": "https://www.rotowire.com/basketball/player/jonathan-kuminga-5287",
+      "games": 14,
+      "stats": {
+        "pts": 12.4,
+        "reb": 5.7,
+        "oreb": 1.3,
+        "dreb": 4.4,
+        "ast": 2.8,
+        "st": 1.1,
+        "blk": 0.6,
+        "to": 1.2
+      }
+    },
+    {
+      "id": "mikelbrown",
+      "name": "Mikel Brown",
+      "nba": "BKN",
+      "position": "G",
+      "rank": 126,
+      "profile": "https://www.rotowire.com/basketball/player/mikel-brown-6929",
+      "games": 9,
+      "stats": {
+        "pts": 11,
+        "reb": 1.8999999999999997,
+        "oreb": 0.1,
+        "dreb": 1.7999999999999998,
+        "ast": 3.7999999999999994,
+        "st": 0.8,
+        "blk": 0.1,
+        "to": 1.8999999999999997
+      }
+    },
+    {
+      "id": "andrewnembhard",
+      "name": "Andrew Nembhard",
+      "nba": "IND",
+      "position": "G",
+      "rank": 127,
+      "profile": "https://www.rotowire.com/basketball/player/andrew-nembhard-5679",
+      "games": 11,
+      "stats": {
+        "pts": 16.6,
+        "reb": 2.3,
+        "oreb": 0.2,
+        "dreb": 2.1,
+        "ast": 7.6,
+        "st": 0.5,
+        "blk": 0.2,
+        "to": 2.5
+      }
+    },
+    {
+      "id": "peytonwatson",
+      "name": "Peyton Watson",
+      "nba": "CLE",
+      "position": "F",
+      "rank": 128,
+      "profile": "https://www.rotowire.com/basketball/player/peyton-watson-5722",
+      "games": 12,
+      "stats": {
+        "pts": 10.699999999999998,
+        "reb": 4.5,
+        "oreb": 1.3,
+        "dreb": 3.2000000000000006,
+        "ast": 2.5,
+        "st": 0.6999999999999998,
+        "blk": 1.5,
+        "to": 1.8
+      }
+    },
+    {
+      "id": "toumanicamara",
+      "name": "Toumani Camara",
+      "nba": "POR",
+      "position": "F",
+      "rank": 129,
+      "profile": "https://www.rotowire.com/basketball/player/toumani-camara-5987",
+      "games": 14,
+      "stats": {
+        "pts": 12.2,
+        "reb": 3.4,
+        "oreb": 1,
+        "dreb": 2.4,
+        "ast": 1.3,
+        "st": 0.9,
+        "blk": 0.4,
+        "to": 1.1
+      }
+    },
+    {
+      "id": "jamorant",
+      "name": "Ja Morant",
+      "nba": "POR",
+      "position": "G",
+      "rank": 130,
+      "profile": "https://www.rotowire.com/basketball/player/ja-morant-4761",
+      "games": 4,
+      "stats": {
+        "pts": 15.8,
+        "reb": 2.5,
+        "oreb": 0.8,
+        "dreb": 1.8,
+        "ast": 5.5,
+        "st": 1,
+        "blk": 0,
+        "to": 1.3
+      }
+    },
+    {
+      "id": "aarongordon",
+      "name": "Aaron Gordon",
+      "nba": "DEN",
+      "position": "F",
+      "rank": 131,
+      "profile": "https://www.rotowire.com/basketball/player/aaron-gordon-3577",
+      "games": 12,
+      "stats": {
+        "pts": 11,
+        "reb": 4.7,
+        "oreb": 0.9,
+        "dreb": 3.7999999999999994,
+        "ast": 1.8999999999999997,
+        "st": 0.9,
+        "blk": 0.5,
+        "to": 1.3
+      }
+    },
+    {
+      "id": "collinmurrayboyles",
+      "name": "Collin Murray-Boyles",
+      "nba": "TOR",
+      "position": "F",
+      "rank": 132,
+      "profile": "https://www.rotowire.com/basketball/player/collin-murray-boyles-6585",
+      "games": 13,
+      "stats": {
+        "pts": 9.900000000000002,
+        "reb": 4.8,
+        "oreb": 1.8000000000000003,
+        "dreb": 3.1000000000000005,
+        "ast": 1.8000000000000003,
+        "st": 1.1,
+        "blk": 1.2,
+        "to": 1.8000000000000003
+      }
+    },
+    {
+      "id": "mylesturner",
+      "name": "Myles Turner",
+      "nba": "MIL",
+      "position": "C",
+      "rank": 133,
+      "profile": "https://www.rotowire.com/basketball/player/myles-turner-3725",
+      "games": 13,
+      "stats": {
+        "pts": 7.4,
+        "reb": 6.1,
+        "oreb": 1.6999999999999997,
+        "dreb": 4.4,
+        "ast": 2.6000000000000005,
+        "st": 0.6,
+        "blk": 2.1,
+        "to": 2
+      }
+    },
+    {
+      "id": "jalensuggs",
+      "name": "Jalen Suggs",
+      "nba": "ORL",
+      "position": "G",
+      "rank": 134,
+      "profile": "https://www.rotowire.com/basketball/player/jalen-suggs-5379",
+      "games": 5,
+      "stats": {
+        "pts": 7.8,
+        "reb": 4.6,
+        "oreb": 1.2,
+        "dreb": 3.4,
+        "ast": 4.8,
+        "st": 1.2,
+        "blk": 0.6,
+        "to": 2.2
+      }
+    },
+    {
+      "id": "kevinporter",
+      "name": "Kevin Porter",
+      "nba": "MIL",
+      "position": "G",
+      "rank": 135,
+      "profile": "https://www.rotowire.com/basketball/player/kevin-porter-4773"
+    },
+    {
+      "id": "acebailey",
+      "name": "Ace Bailey",
+      "nba": "UTA",
+      "position": "F",
+      "rank": 136,
+      "profile": "https://www.rotowire.com/basketball/player/ace-bailey-6551",
+      "games": 15,
+      "stats": {
+        "pts": 12.9,
+        "reb": 6.1,
+        "oreb": 1.8,
+        "dreb": 4.3,
+        "ast": 2.1,
+        "st": 0.8,
+        "blk": 1.1,
+        "to": 1.7
+      }
+    },
+    {
+      "id": "keldonjohnson",
+      "name": "Keldon Johnson",
+      "nba": "SAS",
+      "position": "F",
+      "rank": 137,
+      "profile": "https://www.rotowire.com/basketball/player/keldon-johnson-4782",
+      "games": 15,
+      "stats": {
+        "pts": 8.6,
+        "reb": 5.6,
+        "oreb": 2.3,
+        "dreb": 3.3,
+        "ast": 2.3,
+        "st": 0.7,
+        "blk": 0,
+        "to": 1.2
+      }
+    },
+    {
+      "id": "casonwallace",
+      "name": "Cason Wallace",
+      "nba": "OKC",
+      "position": "G",
+      "rank": 138,
+      "profile": "https://www.rotowire.com/basketball/player/cason-wallace-5898",
+      "games": 3,
+      "stats": {
+        "pts": 6.3,
+        "reb": 2.7000000000000006,
+        "oreb": 0.3,
+        "dreb": 2.3,
+        "ast": 1.3,
+        "st": 2.3,
+        "blk": 0,
+        "to": 1
+      }
+    },
+    {
+      "id": "collingillespie",
+      "name": "Collin Gillespie",
+      "nba": "PHX",
+      "position": "G",
+      "rank": 139,
+      "profile": "https://www.rotowire.com/basketball/player/collin-gillespie-5732",
+      "games": 13,
+      "stats": {
+        "pts": 9.3,
+        "reb": 2.4,
+        "oreb": 0.6,
+        "dreb": 1.8000000000000003,
+        "ast": 4,
+        "st": 1.8000000000000003,
+        "blk": 0.1,
+        "to": 1.4
+      }
+    },
+    {
+      "id": "isaiahstewart",
+      "name": "Isaiah Stewart",
+      "nba": "MEM",
+      "position": "C",
+      "rank": 140,
+      "profile": "https://www.rotowire.com/basketball/player/isaiah-stewart-5137",
+      "games": 10,
+      "stats": {
+        "pts": 10.9,
+        "reb": 3.3,
+        "oreb": 1.1,
+        "dreb": 2.2,
+        "ast": 0.9,
+        "st": 0.1,
+        "blk": 0.9,
+        "to": 1
+      }
+    },
+    {
+      "id": "pjwashington",
+      "name": "P.J. Washington",
+      "nba": "DAL",
+      "position": "F",
+      "rank": 141,
+      "profile": "https://www.rotowire.com/basketball/player/pj-washington-4781",
+      "games": 14,
+      "stats": {
+        "pts": 13.5,
+        "reb": 6.8,
+        "oreb": 1.5,
+        "dreb": 5.3,
+        "ast": 1.3,
+        "st": 0.6,
+        "blk": 0.9,
+        "to": 1.7
+      }
+    },
+    {
+      "id": "devinvassell",
+      "name": "Devin Vassell",
+      "nba": "SAS",
+      "position": "F",
+      "rank": 142,
+      "profile": "https://www.rotowire.com/basketball/player/devin-vassell-5113",
+      "games": 13,
+      "stats": {
+        "pts": 11.099999999999998,
+        "reb": 3.8999999999999995,
+        "oreb": 0.7,
+        "dreb": 3.2,
+        "ast": 2.8999999999999995,
+        "st": 1.6,
+        "blk": 0.2,
+        "to": 0.8
+      }
+    },
+    {
+      "id": "braydenburries",
+      "name": "Brayden Burries",
+      "nba": "MIL",
+      "position": "G",
+      "rank": 143,
+      "profile": "https://www.rotowire.com/basketball/player/brayden-burries-6967",
+      "games": 14,
+      "stats": {
+        "pts": 9.4,
+        "reb": 5.4,
+        "oreb": 2.3,
+        "dreb": 3.1,
+        "ast": 2.4,
+        "st": 0.6,
+        "blk": 0.1,
+        "to": 1.1
+      }
+    },
+    {
+      "id": "wendellcarter",
+      "name": "Wendell Carter",
+      "nba": "ORL",
+      "position": "C",
+      "rank": 144,
+      "profile": "https://www.rotowire.com/basketball/player/wendell-carter-4407",
+      "games": 13,
+      "stats": {
+        "pts": 13.2,
+        "reb": 8.8,
+        "oreb": 2.7,
+        "dreb": 6.200000000000001,
+        "ast": 1.1,
+        "st": 0.9000000000000001,
+        "blk": 0.8,
+        "to": 1.6
+      }
+    },
+    {
+      "id": "neemiasqueta",
+      "name": "Neemias Queta",
+      "nba": "BOS",
+      "position": "C",
+      "rank": 145,
+      "profile": "https://www.rotowire.com/basketball/player/neemias-queta-5333",
+      "games": 13,
+      "stats": {
+        "pts": 9.1,
+        "reb": 6.6,
+        "oreb": 2.2,
+        "dreb": 4.4,
+        "ast": 1.8000000000000003,
+        "st": 0.2,
+        "blk": 1.3000000000000003,
+        "to": 1.2
+      }
+    },
+    {
+      "id": "keatonwagler",
+      "name": "Keaton Wagler",
+      "nba": "LAC",
+      "position": "G",
+      "rank": 146,
+      "profile": "https://www.rotowire.com/basketball/player/keaton-wagler-6928",
+      "games": 13,
+      "stats": {
+        "pts": 12.5,
+        "reb": 3.3,
+        "oreb": 0.5,
+        "dreb": 2.8,
+        "ast": 3.1000000000000005,
+        "st": 0.8,
+        "blk": 0.2,
+        "to": 1.8000000000000003
+      }
+    },
+    {
+      "id": "kylefilipowski",
+      "name": "Kyle Filipowski",
+      "nba": "UTA",
+      "position": "C",
+      "rank": 147,
+      "profile": "https://www.rotowire.com/basketball/player/kyle-filipowski-6264",
+      "games": 9,
+      "stats": {
+        "pts": 3,
+        "reb": 1.6,
+        "oreb": 0.3,
+        "dreb": 1.2,
+        "ast": 0.3,
+        "st": 0.3,
+        "blk": 0,
+        "to": 0.8999999999999999
+      }
+    },
+    {
+      "id": "reedsheppard",
+      "name": "Reed Sheppard",
+      "nba": "HOU",
+      "position": "G",
+      "rank": 148,
+      "profile": "https://www.rotowire.com/basketball/player/reed-sheppard-6257",
+      "games": 12,
+      "stats": {
+        "pts": 8.9,
+        "reb": 1.5,
+        "oreb": 0.3,
+        "dreb": 1.2,
+        "ast": 2.7999999999999994,
+        "st": 1.3,
+        "blk": 0.20000000000000004,
+        "to": 1
+      }
+    },
+    {
+      "id": "dillonbrooks",
+      "name": "Dillon Brooks",
+      "nba": "PHX",
+      "position": "F",
+      "rank": 149,
+      "profile": "https://www.rotowire.com/basketball/player/dillon-brooks-4125",
+      "games": 13,
+      "stats": {
+        "pts": 13.8,
+        "reb": 3.7,
+        "oreb": 1,
+        "dreb": 2.7,
+        "ast": 2.1,
+        "st": 0.7,
+        "blk": 0.2,
+        "to": 1.8000000000000003
+      }
+    },
+    {
+      "id": "paulgeorge",
+      "name": "Paul George",
+      "nba": "BOS",
+      "position": "F",
+      "rank": 150,
+      "profile": "https://www.rotowire.com/basketball/player/paul-george-3114",
+      "games": 12,
+      "stats": {
+        "pts": 20.8,
+        "reb": 5.599999999999999,
+        "oreb": 0.9,
+        "dreb": 4.7,
+        "ast": 3.9,
+        "st": 2,
+        "blk": 0.3,
+        "to": 2.7000000000000006
+      }
+    },
+    {
+      "id": "graysonallen",
+      "name": "Grayson Allen",
+      "nba": "CHA",
+      "position": "G",
+      "rank": 151,
+      "profile": "https://www.rotowire.com/basketball/player/grayson-allen-4454",
+      "games": 13,
+      "stats": {
+        "pts": 14.900000000000002,
+        "reb": 3.1000000000000005,
+        "oreb": 0.7,
+        "dreb": 2.4,
+        "ast": 3.3,
+        "st": 0.8,
+        "blk": 0.3,
+        "to": 2.6000000000000005
+      }
+    },
+    {
+      "id": "jrueholiday",
+      "name": "Jrue Holiday",
+      "nba": "POR",
+      "position": "G",
+      "rank": 152,
+      "profile": "https://www.rotowire.com/basketball/player/jrue-holiday-3029",
+      "games": 14,
+      "stats": {
+        "pts": 13.3,
+        "reb": 3.6,
+        "oreb": 0.8,
+        "dreb": 2.8,
+        "ast": 4.1,
+        "st": 1,
+        "blk": 0.2,
+        "to": 1.8
+      }
+    },
+    {
+      "id": "yvesmissi",
+      "name": "Yves Missi",
+      "nba": "NOP",
+      "position": "C",
+      "rank": 153,
+      "profile": "https://www.rotowire.com/basketball/player/yves-missi-6268",
+      "games": 4,
+      "stats": {
+        "pts": 7,
+        "reb": 9.3,
+        "oreb": 4.5,
+        "dreb": 4.8,
+        "ast": 1.8,
+        "st": 1.3,
+        "blk": 2.3,
+        "to": 1
+      }
+    },
+    {
+      "id": "najimarshall",
+      "name": "Naji Marshall",
+      "nba": "DAL",
+      "position": "F",
+      "rank": 154,
+      "profile": "https://www.rotowire.com/basketball/player/naji-marshall-5204",
+      "games": 11,
+      "stats": {
+        "pts": 11.5,
+        "reb": 2.7,
+        "oreb": 1,
+        "dreb": 1.7,
+        "ast": 4.3,
+        "st": 1.3,
+        "blk": 0.2,
+        "to": 2.1
+      }
+    },
+    {
+      "id": "scoothenderson",
+      "name": "Scoot Henderson",
+      "nba": "POR",
+      "position": "G",
+      "rank": 155,
+      "profile": "https://www.rotowire.com/basketball/player/scoot-henderson-5377",
+      "games": 14,
+      "stats": {
+        "pts": 8.7,
+        "reb": 1.8,
+        "oreb": 0.5,
+        "dreb": 1.3,
+        "ast": 1.4,
+        "st": 0.5,
+        "blk": 0.1,
+        "to": 2
+      }
+    },
+    {
+      "id": "kristapsporzingis",
+      "name": "Kristaps Porzingis",
+      "nba": "GSW",
+      "position": "C",
+      "rank": 156,
+      "profile": "https://www.rotowire.com/basketball/player/kristaps-porzingis-3669"
+    },
+    {
+      "id": "bobbyportis",
+      "name": "Bobby Portis",
+      "nba": "MIA",
+      "position": "F",
+      "rank": 157,
+      "profile": "https://www.rotowire.com/basketball/player/bobby-portis-3705",
+      "games": 14,
+      "stats": {
+        "pts": 7.4,
+        "reb": 5.5,
+        "oreb": 0.9,
+        "dreb": 4.6,
+        "ast": 1.6,
+        "st": 0.8,
+        "blk": 0.4,
+        "to": 0.8
+      }
+    },
+    {
+      "id": "fredvanvleet",
+      "name": "Fred VanVleet",
+      "nba": "HOU",
+      "position": "G",
+      "rank": 158,
+      "profile": "https://www.rotowire.com/basketball/player/fred-vanvleet-3935",
+      "games": 12,
+      "stats": {
+        "pts": 13.5,
+        "reb": 3.1,
+        "oreb": 0.3,
+        "dreb": 2.7999999999999994,
+        "ast": 5.400000000000001,
+        "st": 1.2,
+        "blk": 0.3,
+        "to": 1
+      }
+    },
+    {
+      "id": "trejones",
+      "name": "Tre Jones",
+      "nba": "CHI",
+      "position": "G",
+      "rank": 159,
+      "profile": "https://www.rotowire.com/basketball/player/tre-jones-5111",
+      "games": 13,
+      "stats": {
+        "pts": 10.900000000000002,
+        "reb": 2.2,
+        "oreb": 0.7,
+        "dreb": 1.5,
+        "ast": 3.2,
+        "st": 1.2,
+        "blk": 0.3,
+        "to": 1.3000000000000003
+      }
+    },
+    {
+      "id": "jamalshead",
+      "name": "Jamal Shead",
+      "nba": "TOR",
+      "position": "G",
+      "rank": 160,
+      "profile": "https://www.rotowire.com/basketball/player/jamal-shead-6296",
+      "games": 14,
+      "stats": {
+        "pts": 7.7,
+        "reb": 2,
+        "oreb": 0.4,
+        "dreb": 1.6,
+        "ast": 6.5,
+        "st": 1.2,
+        "blk": 0.1,
+        "to": 2
+      }
+    },
+    {
+      "id": "tobiasharris",
+      "name": "Tobias Harris",
+      "nba": "SAS",
+      "position": "F",
+      "rank": 161,
+      "profile": "https://www.rotowire.com/basketball/player/tobias-harris-3211"
+    },
+    {
+      "id": "draymondgreen",
+      "name": "Draymond Green",
+      "nba": "GSW",
+      "position": "C",
+      "rank": 162,
+      "profile": "https://www.rotowire.com/basketball/player/draymond-green-3299",
+      "games": 12,
+      "stats": {
+        "pts": 3.2000000000000006,
+        "reb": 5,
+        "oreb": 1.1,
+        "dreb": 3.9,
+        "ast": 6.900000000000001,
+        "st": 0.9,
+        "blk": 0.8000000000000002,
+        "to": 2.6
+      }
+    },
+    {
+      "id": "santialdama",
+      "name": "Santi Aldama",
+      "nba": "DAL",
+      "position": "F",
+      "rank": 163,
+      "profile": "https://www.rotowire.com/basketball/player/santi-aldama-5428",
+      "games": 5,
+      "stats": {
+        "pts": 8,
+        "reb": 3.6,
+        "oreb": 1.6,
+        "dreb": 2,
+        "ast": 0.8,
+        "st": 0.6,
+        "blk": 0.2,
+        "to": 1.6
+      }
+    },
+    {
+      "id": "julianchampagnie",
+      "name": "Julian Champagnie",
+      "nba": "SAS",
+      "position": "F",
+      "rank": 164,
+      "profile": "https://www.rotowire.com/basketball/player/julian-champagnie-5728",
+      "games": 15,
+      "stats": {
+        "pts": 9.9,
+        "reb": 4.2,
+        "oreb": 0.6,
+        "dreb": 3.6,
+        "ast": 1.4,
+        "st": 0.8,
+        "blk": 0.6,
+        "to": 0.6
+      }
+    },
+    {
+      "id": "jakobpoeltl",
+      "name": "Jakob Poeltl",
+      "nba": "TOR",
+      "position": "C",
+      "rank": 165,
+      "profile": "https://www.rotowire.com/basketball/player/jakob-poeltl-3870",
+      "games": 12,
+      "stats": {
+        "pts": 8.1,
+        "reb": 6.400000000000001,
+        "oreb": 2.1,
+        "dreb": 4.3,
+        "ast": 1.3,
+        "st": 0.8000000000000002,
+        "blk": 0.6999999999999998,
+        "to": 0.9
+      }
+    },
+    {
+      "id": "guisantos",
+      "name": "Gui Santos",
+      "nba": "GSW",
+      "position": "F",
+      "rank": 166,
+      "profile": "https://www.rotowire.com/basketball/player/gui-santos-5738",
+      "games": 11,
+      "stats": {
+        "pts": 6.2,
+        "reb": 4.2,
+        "oreb": 1.3,
+        "dreb": 2.9,
+        "ast": 1.5,
+        "st": 0.4,
+        "blk": 0.5,
+        "to": 1.1
+      }
+    },
+    {
+      "id": "kingstonflemings",
+      "name": "Kingston Flemings",
+      "nba": "ATL",
+      "position": "G",
+      "rank": 167,
+      "profile": "https://www.rotowire.com/basketball/player/kingston-flemings-6927",
+      "games": 12,
+      "stats": {
+        "pts": 7.8,
+        "reb": 2.5,
+        "oreb": 0.8000000000000002,
+        "dreb": 1.7,
+        "ast": 4.1,
+        "st": 0.6999999999999998,
+        "blk": 0.3,
+        "to": 2.2
+      }
+    },
+    {
+      "id": "pellelarsson",
+      "name": "Pelle Larsson",
+      "nba": "MIA",
+      "position": "F",
+      "rank": 168,
+      "profile": "https://www.rotowire.com/basketball/player/pelle-larsson-6013",
+      "games": 11,
+      "stats": {
+        "pts": 11.4,
+        "reb": 3.5,
+        "oreb": 1,
+        "dreb": 2.5,
+        "ast": 3.5,
+        "st": 1.3,
+        "blk": 0.1,
+        "to": 1.9
+      }
+    },
+    {
+      "id": "kellyoubre",
+      "name": "Kelly Oubre",
+      "nba": "IND",
+      "position": "F",
+      "rank": 169,
+      "profile": "https://www.rotowire.com/basketball/player/kelly-oubre-3721",
+      "games": 12,
+      "stats": {
+        "pts": 10.699999999999998,
+        "reb": 3,
+        "oreb": 0.8000000000000002,
+        "dreb": 2.2,
+        "ast": 1.3,
+        "st": 0.8000000000000002,
+        "blk": 0.8000000000000002,
+        "to": 0.8000000000000002
+      }
+    },
+    {
+      "id": "jeramigrant",
+      "name": "Jerami Grant",
+      "nba": "MEM",
+      "position": "F",
+      "rank": 170,
+      "profile": "https://www.rotowire.com/basketball/player/jerami-grant-3588",
+      "games": 13,
+      "stats": {
+        "pts": 11.400000000000002,
+        "reb": 2,
+        "oreb": 0.8,
+        "dreb": 1.2,
+        "ast": 2,
+        "st": 0.5,
+        "blk": 0.9000000000000001,
+        "to": 1.2
+      }
+    },
+    {
+      "id": "deanthonymelton",
+      "name": "De'Anthony Melton",
+      "nba": "GSW",
+      "position": "G",
+      "rank": 171,
+      "profile": "https://www.rotowire.com/basketball/player/deanthony-melton-4368",
+      "games": 14,
+      "stats": {
+        "pts": 9.8,
+        "reb": 4.1,
+        "oreb": 0.9,
+        "dreb": 3.2,
+        "ast": 2.3,
+        "st": 1.2,
+        "blk": 0.4,
+        "to": 1.4
+      }
+    },
+    {
+      "id": "niqueclifford",
+      "name": "Nique Clifford",
+      "nba": "SAC",
+      "position": "G",
+      "rank": 172,
+      "profile": "https://www.rotowire.com/basketball/player/nique-clifford-6547",
+      "games": 24,
+      "stats": {
+        "pts": 2.5833333333333335,
+        "reb": 1.4166666666666667,
+        "oreb": 0.08333333333333333,
+        "dreb": 1.3333333333333333,
+        "ast": 0.8166666666666668,
+        "st": 0.3,
+        "blk": 0,
+        "to": 0.5
+      }
+    },
+    {
+      "id": "morezjohnson",
+      "name": "Morez Johnson",
+      "nba": "DAL",
+      "position": "F",
+      "rank": 173,
+      "profile": "https://www.rotowire.com/basketball/player/morez-johnson-6971",
+      "games": 13,
+      "stats": {
+        "pts": 6.299999999999999,
+        "reb": 4.7,
+        "oreb": 2.1,
+        "dreb": 2.6000000000000005,
+        "ast": 1.3000000000000003,
+        "st": 0.5,
+        "blk": 0.2,
+        "to": 1.2
+      }
+    },
+    {
+      "id": "royceoneale",
+      "name": "Royce O'Neale",
+      "nba": "CHA",
+      "position": "F",
+      "rank": 174,
+      "profile": "https://www.rotowire.com/basketball/player/royce-oneale-3977",
+      "games": 14,
+      "stats": {
+        "pts": 5.7,
+        "reb": 3.2,
+        "oreb": 0.6,
+        "dreb": 2.6,
+        "ast": 0.7,
+        "st": 0.6,
+        "blk": 0.1,
+        "to": 0.6
+      }
+    },
+    {
+      "id": "preciousachiuwa",
+      "name": "Precious Achiuwa",
+      "nba": "SAC",
+      "position": "F",
+      "rank": 175,
+      "profile": "https://www.rotowire.com/basketball/player/precious-achiuwa-5249",
+      "games": 11,
+      "stats": {
+        "pts": 10.4,
+        "reb": 6.4,
+        "oreb": 1.9,
+        "dreb": 4.5,
+        "ast": 1.1,
+        "st": 1.3,
+        "blk": 1.1,
+        "to": 1.2
+      }
+    },
+    {
+      "id": "paulreed",
+      "name": "Paul Reed",
+      "nba": "DET",
+      "position": "C",
+      "rank": 176,
+      "profile": "https://www.rotowire.com/basketball/player/paul-reed-5124",
+      "games": 13,
+      "stats": {
+        "pts": 11.2,
+        "reb": 7.700000000000001,
+        "oreb": 3.2,
+        "dreb": 4.5,
+        "ast": 2.3,
+        "st": 1.2,
+        "blk": 0.8,
+        "to": 1.6999999999999997
+      }
+    },
+    {
+      "id": "jusufnurkic",
+      "name": "Jusuf Nurkic",
+      "nba": "UTA",
+      "position": "C",
+      "rank": 177,
+      "profile": "https://www.rotowire.com/basketball/player/jusuf-nurkic-3580"
+    },
+    {
+      "id": "ronaldholland",
+      "name": "Ronald Holland",
+      "nba": "DET",
+      "position": "F",
+      "rank": 178,
+      "profile": "https://www.rotowire.com/basketball/player/ronald-holland-5939",
+      "games": 12,
+      "stats": {
+        "pts": 4.9,
+        "reb": 3.7999999999999994,
+        "oreb": 1.3,
+        "dreb": 2.5,
+        "ast": 1.8,
+        "st": 0.6,
+        "blk": 0.8000000000000002,
+        "to": 0.9
+      }
+    },
+    {
+      "id": "kylekuzma",
+      "name": "Kyle Kuzma",
+      "nba": "MIL",
+      "position": "F",
+      "rank": 179,
+      "profile": "https://www.rotowire.com/basketball/player/kyle-kuzma-4167",
+      "games": 14,
+      "stats": {
+        "pts": 11.3,
+        "reb": 5.3,
+        "oreb": 1.1,
+        "dreb": 4.1,
+        "ast": 2.5,
+        "st": 1,
+        "blk": 0.3,
+        "to": 1.9
+      }
+    },
+    {
+      "id": "maxchristie",
+      "name": "Max Christie",
+      "nba": "DAL",
+      "position": "G",
+      "rank": 180,
+      "profile": "https://www.rotowire.com/basketball/player/max-christie-5723",
+      "games": 11,
+      "stats": {
+        "pts": 5.3,
+        "reb": 2.9,
+        "oreb": 0.1,
+        "dreb": 2.8,
+        "ast": 1.2,
+        "st": 0.5,
+        "blk": 0.3,
+        "to": 1.1
+      }
+    },
+    {
+      "id": "herbertjones",
+      "name": "Herbert Jones",
+      "nba": "NOP",
+      "position": "F",
+      "rank": 181,
+      "profile": "https://www.rotowire.com/basketball/player/herbert-jones-5414",
+      "games": 15,
+      "stats": {
+        "pts": 6.3,
+        "reb": 2.8,
+        "oreb": 0.8,
+        "dreb": 2,
+        "ast": 1.3,
+        "st": 1,
+        "blk": 0.4,
+        "to": 1.2
+      }
+    },
+    {
+      "id": "nateament",
+      "name": "Nate Ament",
+      "nba": "MIL",
+      "position": "F",
+      "rank": 182,
+      "profile": "https://www.rotowire.com/basketball/player/nate-ament-6965",
+      "games": 12,
+      "stats": {
+        "pts": 7.3,
+        "reb": 2.6,
+        "oreb": 0.8000000000000002,
+        "dreb": 1.8,
+        "ast": 0.6,
+        "st": 0.6,
+        "blk": 0.3,
+        "to": 0.8000000000000002
+      }
+    },
+    {
+      "id": "camspencer",
+      "name": "Cam Spencer",
+      "nba": "MEM",
+      "position": "G",
+      "rank": 183,
+      "profile": "https://www.rotowire.com/basketball/player/cam-spencer-6297",
+      "games": 14,
+      "stats": {
+        "pts": 10.4,
+        "reb": 3.2,
+        "oreb": 0.7,
+        "dreb": 2.5,
+        "ast": 5.4,
+        "st": 0.8,
+        "blk": 0.1,
+        "to": 1.6
+      }
+    },
+    {
+      "id": "scottypippen",
+      "name": "Scotty Pippen",
+      "nba": "MEM",
+      "position": "G",
+      "rank": 184,
+      "profile": "https://www.rotowire.com/basketball/player/scotty-pippen-5685",
+      "games": 5,
+      "stats": {
+        "pts": 6.4,
+        "reb": 2.2,
+        "oreb": 1.2,
+        "dreb": 1,
+        "ast": 2.2,
+        "st": 1,
+        "blk": 0.2,
+        "to": 2
+      }
+    },
+    {
+      "id": "aaronnesmith",
+      "name": "Aaron Nesmith",
+      "nba": "IND",
+      "position": "F",
+      "rank": 185,
+      "profile": "https://www.rotowire.com/basketball/player/aaron-nesmith-5120",
+      "games": 12,
+      "stats": {
+        "pts": 12.300000000000002,
+        "reb": 2.7999999999999994,
+        "oreb": 0.6,
+        "dreb": 2.2,
+        "ast": 1.8,
+        "st": 0.6999999999999998,
+        "blk": 0.3,
+        "to": 1.3999999999999997
+      }
+    },
+    {
+      "id": "jaracewalker",
+      "name": "Jarace Walker",
+      "nba": "IND",
+      "position": "F",
+      "rank": 186,
+      "profile": "https://www.rotowire.com/basketball/player/jarace-walker-5933",
+      "games": 13,
+      "stats": {
+        "pts": 6.5,
+        "reb": 5.299999999999999,
+        "oreb": 1,
+        "dreb": 4.3,
+        "ast": 1.6999999999999997,
+        "st": 0.5,
+        "blk": 0.5,
+        "to": 1.3000000000000003
+      }
+    },
+    {
+      "id": "dailynswain",
+      "name": "Dailyn Swain",
+      "nba": "CHI",
+      "position": "F",
+      "rank": 187,
+      "profile": "https://www.rotowire.com/basketball/player/dailyn-swain-6986",
+      "games": 3,
+      "stats": {
+        "pts": 1.7,
+        "reb": 1.3,
+        "oreb": 0.3,
+        "dreb": 1,
+        "ast": 1,
+        "st": 0.6999999999999998,
+        "blk": 0,
+        "to": 1.3
+      }
+    },
+    {
+      "id": "jaylenwells",
+      "name": "Jaylen Wells",
+      "nba": "MEM",
+      "position": "F",
+      "rank": 188,
+      "profile": "https://www.rotowire.com/basketball/player/jaylen-wells-6305",
+      "games": 14,
+      "stats": {
+        "pts": 11.1,
+        "reb": 2.9,
+        "oreb": 0.9,
+        "dreb": 2,
+        "ast": 1.4,
+        "st": 0.9,
+        "blk": 0.1,
+        "to": 0.7
+      }
+    },
+    {
+      "id": "anferneesimons",
+      "name": "Anfernee Simons",
+      "nba": "PHI",
+      "position": "G",
+      "rank": 189,
+      "profile": "https://www.rotowire.com/basketball/player/anfernee-simons-4373",
+      "games": 15,
+      "stats": {
+        "pts": 10.3,
+        "reb": 2,
+        "oreb": 0.4,
+        "dreb": 1.6,
+        "ast": 1.2,
+        "st": 0.5,
+        "blk": 0.1,
+        "to": 0.5
+      }
+    },
+    {
+      "id": "moussadiabate",
+      "name": "Moussa Diabate",
+      "nba": "CHA",
+      "position": "C",
+      "rank": 190,
+      "profile": "https://www.rotowire.com/basketball/player/moussa-diabate-5708",
+      "games": 12,
+      "stats": {
+        "pts": 8.7,
+        "reb": 10.3,
+        "oreb": 5.3,
+        "dreb": 4.9,
+        "ast": 2,
+        "st": 1.2,
+        "blk": 1.1,
+        "to": 2
+      }
+    },
+    {
+      "id": "aaronwiggins",
+      "name": "Aaron Wiggins",
+      "nba": "ATL",
+      "position": "F",
+      "rank": 191,
+      "profile": "https://www.rotowire.com/basketball/player/aaron-wiggins-5412",
+      "games": 14,
+      "stats": {
+        "pts": 13.9,
+        "reb": 3.6,
+        "oreb": 0.6,
+        "dreb": 3.1,
+        "ast": 2.5,
+        "st": 0.9,
+        "blk": 0.3,
+        "to": 1.5
+      }
+    },
+    {
+      "id": "danissjenkins",
+      "name": "Daniss Jenkins",
+      "nba": "DET",
+      "position": "G",
+      "rank": 192,
+      "profile": "https://www.rotowire.com/basketball/player/daniss-jenkins-6336",
+      "games": 13,
+      "stats": {
+        "pts": 14.099999999999998,
+        "reb": 3.7,
+        "oreb": 1.2,
+        "dreb": 2.5,
+        "ast": 4.4,
+        "st": 1,
+        "blk": 0.1,
+        "to": 1.4
+      }
+    },
+    {
+      "id": "tristandasilva",
+      "name": "Tristan da Silva",
+      "nba": "ORL",
+      "position": "F",
+      "rank": 193,
+      "profile": "https://www.rotowire.com/basketball/player/tristan-da-silva-6267",
+      "games": 11,
+      "stats": {
+        "pts": 14.6,
+        "reb": 4.1,
+        "oreb": 1.4,
+        "dreb": 2.7,
+        "ast": 1.8,
+        "st": 0.5,
+        "blk": 0.3,
+        "to": 1.5
+      }
+    },
+    {
+      "id": "russellwestbrook",
+      "name": "Russell Westbrook",
+      "nba": "FA",
+      "position": "G",
+      "rank": 194,
+      "profile": "https://www.rotowire.com/basketball/player/russell-westbrook-2932"
+    },
+    {
+      "id": "tarieason",
+      "name": "Tari Eason",
+      "nba": "HOU",
+      "position": "F",
+      "rank": 195,
+      "profile": "https://www.rotowire.com/basketball/player/tari-eason-5704",
+      "games": 15,
+      "stats": {
+        "pts": 10.5,
+        "reb": 6.3,
+        "oreb": 2,
+        "dreb": 4.3,
+        "ast": 1.4,
+        "st": 0.9,
+        "blk": 0.9,
+        "to": 1.3
+      }
+    },
+    {
+      "id": "deandreayton",
+      "name": "Deandre Ayton",
+      "nba": "WAS",
+      "position": "C",
+      "rank": 196,
+      "profile": "https://www.rotowire.com/basketball/player/deandre-ayton-4372",
+      "games": 15,
+      "stats": {
+        "pts": 4.3,
+        "reb": 4.2,
+        "oreb": 1.9,
+        "dreb": 2.3,
+        "ast": 0.7,
+        "st": 0.2,
+        "blk": 0.3,
+        "to": 0.5
+      }
+    },
+    {
+      "id": "bubcarrington",
+      "name": "Bub Carrington",
+      "nba": "WAS",
+      "position": "G",
+      "rank": 197,
+      "profile": "https://www.rotowire.com/basketball/player/bub-carrington-6270",
+      "games": 15,
+      "stats": {
+        "pts": 4.9,
+        "reb": 1.4,
+        "oreb": 0.3,
+        "dreb": 1.1,
+        "ast": 2,
+        "st": 0.5,
+        "blk": 0.1,
+        "to": 0.5
+      }
+    },
+    {
+      "id": "maxstrus",
+      "name": "Max Strus",
+      "nba": "LAC",
+      "position": "F",
+      "rank": 198,
+      "profile": "https://www.rotowire.com/basketball/player/max-strus-4947",
+      "games": 7,
+      "stats": {
+        "pts": 8.4,
+        "reb": 3.3,
+        "oreb": 0.9,
+        "dreb": 2.4,
+        "ast": 3.4,
+        "st": 1.3,
+        "blk": 0,
+        "to": 0.4
+      }
+    },
+    {
+      "id": "zaccharierisacher",
+      "name": "Zaccharie Risacher",
+      "nba": "DAL",
+      "position": "F",
+      "rank": 199,
+      "profile": "https://www.rotowire.com/basketball/player/zaccharie-risacher-6249",
+      "games": 14,
+      "stats": {
+        "pts": 8.8,
+        "reb": 4.8,
+        "oreb": 1.9,
+        "dreb": 2.9,
+        "ast": 1.3,
+        "st": 1.2,
+        "blk": 0.9,
+        "to": 1
+      }
+    },
+    {
+      "id": "dylancardwell",
+      "name": "Dylan Cardwell",
+      "nba": "SAC",
+      "position": "C",
+      "rank": 200,
+      "profile": "https://www.rotowire.com/basketball/player/dylan-cardwell-6638",
+      "games": 6,
+      "stats": {
+        "pts": 5.7,
+        "reb": 6.2,
+        "oreb": 2,
+        "dreb": 4.2,
+        "ast": 2,
+        "st": 0.6999999999999998,
+        "blk": 1,
+        "to": 1.3
+      }
+    }
+  ]
+}

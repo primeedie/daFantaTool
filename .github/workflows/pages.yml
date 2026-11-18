@@ -36,6 +36,10 @@ jobs:
       - name: Refresh ESPN
         run: node public-feed.mjs
         continue-on-error: true
+      - name: Refresh RotoWire season averages
+        if: github.event.schedule == '0 7 * * *' || github.event_name == 'workflow_dispatch'
+        run: node refresh-trade-data.mjs .feed-cache/trade-data.json
+        continue-on-error: true
       - name: Build with latest available cache
         run: node build-pages.mjs
       - uses: actions/cache/save@v4

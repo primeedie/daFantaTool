@@ -7,19 +7,70 @@
  <link rel="icon" href="./player-logo.png">
  <link rel="stylesheet" href="./style.css">
  <link rel="stylesheet" href="./font.css">
+ <link rel="stylesheet" href="./trading.css">
  <script type="module" src="./theme.mjs"></script>
+ <script type="module" src="./trading.mjs"></script>
 </head>
 <body>
  <header class="site-header"><div class="masthead">
   <a class="logo" href="./"><img class="player-logo" src="./player-logo.png" alt="" width="64" height="64"><span>REAL BALLIGGAS</span></a>
   <button class="button theme-toggle" type="button" data-theme-toggle>Dark mode</button>
  </div></header>
- <main class="entry">
-  <section class="panel panel-body">
-   <h1>Trading Tool</h1>
-   <p>Coming soon.</p>
-   <a class="button" href="./">Back</a>
+ <main class="trade-tool" id="trade-tool">
+  <div class="trade-title"><a href="./">← Back</a><h1>Trading Tool</h1></div>
+  <section id="trade-settings" class="panel panel-body">
+   <h2>League scoring</h2>
+   <p class="sub">Fantasy points per stat</p>
+   <form id="scoring-form">
+    <div class="scoring-grid">
+     <label>PTS <input name="pts" type="number" step="any" placeholder="—" required></label>
+     <label>REB <input name="reb" type="number" step="any" placeholder="—" required aria-describedby="reb-note"></label>
+     <label>AST <input name="ast" type="number" step="any" placeholder="—" required></label>
+     <label>STL <input name="st" type="number" step="any" placeholder="—" required></label>
+     <label>BLK <input name="blk" type="number" step="any" placeholder="—" required></label>
+     <label>TOV <input name="to" type="number" step="any" placeholder="—" required></label>
+    </div>
+    <label class="split-toggle"><input type="checkbox" name="split"> Score offensive and defensive rebounds separately</label>
+    <div id="split-rebounds" class="scoring-grid split-fields" hidden>
+     <label>OREB <input name="oreb" type="number" step="any" placeholder="—" disabled></label>
+     <label>DREB <input name="dreb" type="number" step="any" placeholder="—" disabled></label>
+     <p class="sub" id="reb-note">Total REB is display only in split mode.</p>
+    </div>
+    <p class="sub">Turnovers always subtract points.</p>
+    <button class="button primary" type="submit">Continue to player picker</button>
+   </form>
+  </section>
+  <section id="trade-board" hidden>
+   <div class="trade-toolbar">
+    <button class="button" id="edit-scoring" type="button">Edit scoring</button>
+    <button class="button" id="clear-trade" type="button">Clear trade</button>
+   </div>
+   <div class="trade-sides">
+    <section class="trade-side panel" aria-labelledby="trade-a-title">
+     <div class="trade-side-head"><h2 id="trade-a-title">Side A</h2><span id="trade-a-total"></span></div>
+     <div id="trade-a-players" class="trade-players"></div>
+     <button class="button trade-add" type="button" data-pick="a">+ Add player</button>
+    </section>
+    <section class="trade-side panel" aria-labelledby="trade-b-title">
+     <div class="trade-side-head"><h2 id="trade-b-title">Side B</h2><span id="trade-b-total"></span></div>
+     <div id="trade-b-players" class="trade-players"></div>
+     <button class="button trade-add" type="button" data-pick="b">+ Add player</button>
+    </section>
+   </div>
+   <p id="trade-delta" class="trade-delta" aria-live="polite"></p>
+   <p id="trade-sources" class="sub"></p>
   </section>
  </main>
+ <dialog id="player-picker" class="picker" aria-labelledby="picker-title">
+  <div class="picker-head"><h2 id="picker-title">Add player</h2><form method="dialog"><button class="button" aria-label="Close player picker">×</button></form></div>
+  <div class="picker-controls">
+   <label class="sr-only" for="picker-search">Search name or NBA team</label>
+   <input type="search" id="picker-search" placeholder="Search player or NBA team">
+   <label class="sr-only" for="picker-sort">Sort players</label>
+   <select id="picker-sort"><option value="rank">RotoWire rank</option><option value="fpts">FP / game</option><option value="name">Name</option></select>
+  </div>
+  <p id="picker-status" class="sub" role="status"></p>
+  <div id="picker-results" class="picker-results"></div>
+ </dialog>
 </body>
 </html>
