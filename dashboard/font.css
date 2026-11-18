@@ -12,10 +12,11 @@ h2{font-family:SlamDunk,Impact,sans-serif;font-size:20px;font-weight:400;letter-
 
 :root {
   --brand-black:#131924;
-  --brand-strong:#244e83;
-  --brand-hot:#b8555d;
-  --brand-blush:#e8eef7;
-  --brand-light:#a9c9f4;
+  --brand-strong:#182f50;
+  --brand-hot:#bc5060;
+  --brand-blush:#e6edf7;
+  --brand-light:#afc4e4;
+  --brand-dark:#1a2639;
   --paper:#f2f4f7;
   --surface:#fff;
   --typeface:SlamDunk,system-ui,"Segoe UI",sans-serif;
@@ -26,10 +27,41 @@ h2{font-family:SlamDunk,Impact,sans-serif;font-size:20px;font-weight:400;letter-
   --green:#215743;
   --gold:var(--brand-strong);
 }
-:root[data-palette="lakers"] {--brand-strong:#553579;--brand-hot:#edb73f;--brand-blush:#f1eafa;--brand-light:#d7baf6}
-:root[data-palette="sixers"] {--brand-strong:#28568d;--brand-hot:#c85e65;--brand-blush:#e8effa;--brand-light:#b3d0f8}
-:root[data-palette="spurs"] {--brand-strong:#344253;--brand-hot:#bbc3cd;--brand-blush:#e9edf1;--brand-light:#cdd7e3}
-:root[data-palette="celtics"] {--brand-strong:#216247;--brand-hot:#98c3a5;--brand-blush:#e7f1ea;--brand-light:#addabb}
+:root[data-palette="lakers"] {
+ --brand-strong:#603981;
+ --brand-hot:#e8a731;
+ --brand-blush:#efe7f7;
+ --brand-light:#dcc2f2;
+ --brand-dark:#2b1f3c;
+}
+:root[data-palette="sixers"] {
+ --brand-strong:#9c2943;
+ --brand-hot:#4778c7;
+ --brand-blush:#f7e8eb;
+ --brand-light:#f3b6c6;
+ --brand-dark:#371f2b;
+}
+:root[data-palette="spurs"] {
+ --brand-strong:#0c625d;
+ --brand-hot:#f1a78b;
+ --brand-blush:#e5f4ee;
+ --brand-light:#a2ddd3;
+ --brand-dark:#192e2d;
+}
+:root[data-palette="celtics"] {
+ --brand-strong:#22563b;
+ --brand-hot:#afd09a;
+ --brand-blush:#eaf0df;
+ --brand-light:#c2d7a7;
+ --brand-dark:#212e23;
+}
+:root[data-palette="warriors"] {
+ --brand-strong:#2852aa;
+ --brand-hot:#ffd364;
+ --brand-blush:#e7edff;
+ --brand-light:#bacdff;
+ --brand-dark:#1f2a48;
+}
 body {font-size:16px;line-height:1.65;letter-spacing:.025em}
 button,input,select {letter-spacing:inherit}
 :root[data-palette]:not([data-theme="dark"]) {--paper:color-mix(in srgb,#f7f8fa 68%,var(--brand-blush))}
@@ -120,7 +152,7 @@ dialog {max-width:780px;font-family:var(--typeface)}
  --paper:color-mix(in srgb,#171b22 94%,var(--brand-strong));
  --surface:color-mix(in srgb,#222934 90%,var(--brand-strong));
 }
-[data-theme="dark"] .site-header {background:#1b222e;border-top-color:var(--brand-strong)}
+[data-theme="dark"] .site-header {background:var(--brand-dark);border-top-color:var(--brand-strong)}
 [data-theme="dark"] .site-header nav a.active {color:var(--ink)}
 [data-theme="dark"] .player-logo {background:#e5e9f1}
 [data-theme="dark"] .panel-head,[data-theme="dark"] .metric-row div,

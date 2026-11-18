@@ -1,6 +1,6 @@
 const preferenceKey='real-balliggas-theme';
 const paletteKey='real-balliggas-palette';
-const palettes={nba:'NBA',lakers:'Lakers',sixers:'Sixers',spurs:'Spurs',celtics:'Celtics'};
+const palettes={nba:'NBA',lakers:'Lakers',sixers:'Sixers',spurs:'Spurs',celtics:'Celtics',warriors:'Warriors'};
 const root=document.documentElement;
 const toggles=document.querySelectorAll('[data-theme-toggle]');
 let theme,palette;
