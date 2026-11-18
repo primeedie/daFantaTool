@@ -1,12 +1,12 @@
 const preferenceKey='real-balliggas-theme';
 const paletteKey='real-balliggas-palette';
 const palettes={
- nba:'NBA',bucks:'Bucks',bulls:'Bulls',cavs:'Cavs',celtics:'Celtics',
+ nba:'NBA',bucks:'Bucks Cream City',bulls:'Bulls',cavs:'Cavs',celtics:'Celtics',
  clippers:'Clippers',grizzlies:'Grizzlies',hawks:'Hawks',hornets:'Hornets',jazz:'Jazz',kings:'Kings',
  knicks:'Knicks',lakers:'Lakers',magic:'Magic',mavs:'Mavs',heat:'Miami Vice',nets:'Nets',
  nuggets:'Nuggets',pacers:'Pacers',pelicans:'Pelicans',pistons:'Pistons',raptors:'Raptors',
- rockets:'Rockets',sixers:'Sixers',spurs:'Spurs Fiesta',suns:'Suns',thunder:'Thunder',blazers:'Trail Blazers',
- warriors:'Warriors',wizards:'Wizards',wolves:'Wolves'
+ rockets:'Rockets Classic',sixers:'Sixers',spurs:'Spurs Fiesta',suns:'Suns',thunder:'Thunder',blazers:'Trail Blazers',
+ warriors:'Warriors',wizards:'Wizards Cherry Blossom',wolves:'Wolves'
 };
 const root=document.documentElement;
 const toggles=document.querySelectorAll('[data-theme-toggle]');
