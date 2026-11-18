@@ -1,0 +1,8 @@
+.env
+.env.*
+!.env.example
+credentials/
+tokens/
+node_modules/
+.DS_Store
+Thumbs.db
