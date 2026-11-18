@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {scoringWeights,tradePoints,seasonRanks} from '../dashboard/trade-model.mjs';
+import {scoringWeights,tradePoints,seasonRanks,tradeBalance} from '../dashboard/trade-model.mjs';
 
 const base={pts:'1',reb:'1.2',ast:'1.5',st:'3',blk:'3',to:'1.5'};
 const box={pts:20,reb:10,oreb:3,dreb:7,ast:5,st:1,blk:1,to:4};
@@ -25,4 +25,14 @@ test('season ranks follow scored averages rather than draft order',()=>{
  ];
  assert.deepEqual([...seasonRanks(players,{pts:1})],[['better-scorer',1],['tied',1],['draft-first',3]]);
  assert.equal(seasonRanks(players,{reb:2}).get('draft-first'),1);
+});
+
+test('trade balance is symmetric, includes the fair threshold and rejects missing scores',()=>{
+ assert.deepEqual(tradeBalance(100,90),{gap:10,percentage:10,level:'fair',leader:'A',position:45});
+ assert.equal(tradeBalance(85,100).position,57.5);
+ assert.equal(tradeBalance(85,100).level,'edge');
+ assert.equal(tradeBalance(100,65).level,'lopsided');
+ assert.equal(tradeBalance(0,0).leader,null);
+ assert.equal(tradeBalance(-3,3).position,100);
+ assert.equal(tradeBalance(null,40),null);
 });

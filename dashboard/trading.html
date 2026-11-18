@@ -57,7 +57,15 @@
      <button class="button trade-add" type="button" data-pick="b">+ Add player</button>
     </section>
    </div>
-   <p id="trade-delta" class="trade-delta" aria-live="polite"></p>
+   <section id="trade-balance" class="panel panel-body trade-balance" aria-labelledby="trade-balance-title" hidden>
+    <div class="balance-heading"><h2 id="trade-balance-title">Trade balance</h2><strong id="trade-verdict" aria-live="polite"></strong></div>
+    <div class="balance-scale" id="trade-scale" role="img" aria-label="Trade balance scale">
+     <div class="balance-labels" aria-hidden="true"><span>Side A</span><span>Even</span><span>Side B</span></div>
+     <div class="balance-track"><span id="balance-marker"></span></div>
+    </div>
+    <p id="trade-delta" class="trade-delta"></p>
+    <p class="sub">Fair within 10%. Based on the gap in FP per game relative to the larger total. Roster spots and injury risk are separate.</p>
+   </section>
    <p id="trade-sources" class="sub"></p>
   </section>
  </main>

@@ -1,5 +1,5 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
-import {boxFields,scoringWeights,tradePoints,seasonRanks} from './trade-model.mjs';
+import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance} from './trade-model.mjs';
 
 const $=selector=>document.querySelector(selector);
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -94,12 +94,26 @@ function renderTrade(){
    return `<article class="trade-card"><h3>${nbaBadge(player.nba,player.name)}</h3><button class="button" type="button" data-remove="${esc(player.id)}" data-side="${key}" aria-label="Remove ${esc(player.name)}">×</button><span class="sub">${esc(player.position)} · ${rankSummary(player)}${profile}</span><strong>${points===null?'No score':`${format(points)} FP / game`}</strong><div class="trade-stats sub">${playerStats(player)}</div></article>`;
   }).join(''):'<p class="trade-empty sub">No players selected.</p>';
  }
- const delta=$('#trade-delta');
- delta.hidden=!picks.a.length||!picks.b.length;
- if(delta.hidden)return;
- const difference=totals.a-totals.b;
- delta.textContent=totals.a===null||totals.b===null?'A comparison needs stats for every selected player.':
-  Math.abs(difference)<0.005?'Even on FP per game.':`Side ${difference>0?'A':'B'} leads by ${format(Math.abs(difference))} FP / game.`;
+ renderBalance(totals);
+}
+
+function renderBalance(totals){
+ const panel=$('#trade-balance');
+ panel.hidden=!picks.a.length||!picks.b.length;
+ if(panel.hidden)return;
+ const scale=$('#trade-scale'),verdict=$('#trade-verdict'),delta=$('#trade-delta');
+ const balance=tradeBalance(totals.a,totals.b);
+ scale.hidden=!balance;
+ if(!balance){
+  verdict.textContent='Not enough stats';
+  delta.textContent='A comparison needs stats for every selected player.';
+  return;
+ }
+ const {gap,percentage,level,leader,position}=balance;
+ verdict.textContent=level==='fair'?'Fair on FP / game':level==='edge'?`Side ${leader} has the edge`:`Lopsided toward Side ${leader}`;
+ delta.textContent=leader?`Side ${leader} leads by ${format(gap)} FP / game (${format(percentage)}%).`:'Both sides have the same FP / game.';
+ scale.setAttribute('aria-label',`${verdict.textContent}. ${delta.textContent}`);
+ $('#balance-marker').style.left=`${position}%`;
 }
 
 async function loadPlayers(){

@@ -38,3 +38,18 @@ export function seasonRanks(players,weights){
  }
  return ranks;
 }
+
+export function tradeBalance(sideA,sideB){
+ if(!Number.isFinite(sideA)||!Number.isFinite(sideB))return null;
+ const gap=Number((sideA-sideB).toFixed(2));
+ const magnitude=Math.max(Math.abs(sideA),Math.abs(sideB));
+ const percentage=magnitude?100*Math.abs(gap)/magnitude:0;
+ const level=percentage<=10?'fair':percentage<=20?'edge':'lopsided';
+ return {
+  gap:Math.abs(gap),
+  percentage,
+  level,
+  leader:gap>0?'A':gap<0?'B':null,
+  position:50-0.5*Math.sign(gap)*Math.min(100,percentage)
+ };
+}

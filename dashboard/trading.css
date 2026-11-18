@@ -24,7 +24,31 @@
 .trade-card h3 {margin:0;overflow-wrap:anywhere}
 .trade-card .trade-stats {grid-column:1/-1;display:flex;gap:7px 12px;flex-wrap:wrap}
 .trade-card .trade-stats span {white-space:nowrap}
-.trade-delta {border-left:4px solid var(--red);padding-left:10px}
+.trade-balance {margin-top:16px}
+.balance-heading,.balance-labels {display:flex;justify-content:space-between;align-items:center;gap:12px}
+.balance-heading strong {text-align:right}
+.balance-scale {padding:12px 5px 4px}
+.balance-labels {font-size:13px;color:var(--muted);margin-bottom:8px}
+.balance-track {
+ position:relative;
+ height:12px;
+ border:1px solid var(--line);
+ border-radius:10px;
+ background:linear-gradient(to right,#8d141d 0 40%,#c47d39 40% 45%,#537c61 45% 55%,#c47d39 55% 60%,#8d141d 60% 100%);
+}
+#balance-marker {
+ position:absolute;
+ left:50%;
+ top:50%;
+ width:17px;
+ height:17px;
+ transform:translate(-50%,-50%);
+ border:2px solid #000;
+ border-radius:50%;
+ background:#f8f4e9;
+ box-shadow:0 0 0 1px #f8f4e9;
+}
+.trade-delta {margin:12px 0 4px}
 .picker {width:min(780px,calc(100% - 24px));max-height:85dvh;color:var(--ink)}
 .picker-controls input {flex:1;min-width:0}
 .picker-results {max-height:55dvh;overflow:auto}
