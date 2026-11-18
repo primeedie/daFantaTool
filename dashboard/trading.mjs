@@ -153,7 +153,11 @@ function renderContext(selected,totals){
  const risks={a:tradeContext(incoming.a,injuryData?.players,weights),b:tradeContext(incoming.b,injuryData?.players,weights)};
  const scenarios=a&&b?{a:packageScenarios(incoming.a,weights),b:packageScenarios(incoming.b,weights)}:null;
  chatTrade={incoming,selected,risks,scenarios,totals};
- $('#trade-scenarios').innerHTML=a&&b?scenarioTable(scenarios,totals):'';
+ const scenarioPanel=$('#trade-scenarios');
+ scenarioPanel.innerHTML=a&&b?scenarioTable(scenarios,totals):'';
+ for(const marker of scenarioPanel.querySelectorAll('[data-position]')){
+  marker.style.left=`${marker.dataset.position}%`;
+ }
  $('#trade-analysis').innerHTML=a&&b?analysisNotes(selected,totals,risks):'';
  $('#trade-risk-sides').innerHTML=['a','b'].filter(key=>incoming[key].length).map(key=>{
   const context=risks[key];
@@ -178,14 +182,20 @@ function renderContext(selected,totals){
 }
 
 function scenarioTable(scenarios,totals){
- const rows=[['Floor · 25th percentile','floor'],['Season average','average'],['Ceiling · 75th percentile','ceiling']];
- return `<section class="trade-subsection"><h3>Scoring range</h3><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Scenario</th><th class="num">Manager A receives</th><th class="num">Manager B receives</th><th>Balance</th></tr></thead><tbody>${rows.map(([label,key])=>{
+ const rows=[['Floor','floor'],['Season average','average'],['Ceiling','ceiling']];
+ const table=rows.map(([label,key])=>{
   const a=key==='average'?totals.b:scenarios.a?.[key]??null;
   const b=key==='average'?totals.a:scenarios.b?.[key]??null;
-  const balance=tradeBalance(a,b);
-  const edge=balance?.leader?`${manager(balance.leader)} +${format(balance.gap)} FP`:'Even';
-  return `<tr><th scope="row">${label}</th><td class="num">${format(a)}</td><td class="num">${format(b)}</td><td>${balance?edge:'Not enough games'}</td></tr>`;
- }).join('')}</tbody></table></div><p class="sub">FP per game. Floor and ceiling add each player’s 25th or 75th percentile from this season’s game logs. Each player needs five complete games. These are low and high scenarios for the package, with no adjustment for missed games or synchronized schedules.</p></section>`;
+  return `<tr><th scope="row">${label}</th><td class="num">${format(a)}</td><td class="num">${format(b)}</td></tr>`;
+ }).join('');
+ const scales=[['Floor','floor'],['Ceiling','ceiling']].map(([label,key])=>scenarioScale(label,tradeBalance(scenarios.a?.[key],scenarios.b?.[key]))).join('');
+ return `<section class="trade-subsection"><h3>Scoring range</h3><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Scenario</th><th class="num">Manager A receives</th><th class="num">Manager B receives</th></tr></thead><tbody>${table}</tbody></table></div><div class="scenario-scales">${scales}</div><p class="sub">FP per game. Floor and ceiling add up each player’s low or high game-log estimates. At least five complete games per player are needed.</p></section>`;
+}
+
+function scenarioScale(label,balance){
+ if(!balance)return `<section class="scenario-scale"><h4>${label} balance</h4><p class="sub">Not enough games to compare.</p></section>`;
+ const edge=balance.leader?`${manager(balance.leader)} +${format(balance.gap)} FP / game (${format(balance.percentage)}%)`:'Even';
+ return `<section class="scenario-scale"><h4>${label} balance</h4><div class="balance-scale" aria-hidden="true"><div class="balance-labels"><span class="manager-a-text">Manager A</span><span>Even</span><span class="manager-b-text">Manager B</span></div><div class="balance-track"><span class="balance-marker" data-position="${balance.position}"></span></div></div><p class="sub">${edge}</p></section>`;
 }
 
 function gamesPlayedTable(selected){

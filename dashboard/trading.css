@@ -110,7 +110,7 @@
  border-radius:10px;
  background:linear-gradient(to right,var(--manager-a) 0 40%,var(--brand-light) 40% 45%,var(--brand-blush) 45% 55%,var(--line) 55% 60%,var(--manager-b) 60% 100%);
 }
-#balance-marker {
+.balance-marker {
  position:absolute;
  left:50%;
  top:50%;
@@ -143,6 +143,11 @@
 .trade-insight p {margin:8px 0 0;max-width:65ch}
 .trade-scenario-table td,.trade-scenario-table th {padding:13px 14px}
 .trade-scenario-table td {font-variant-numeric:tabular-nums}
+.scenario-scales {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
+.scenario-scale {padding:14px;background:var(--paper);border:1px solid var(--line);border-radius:9px}
+.scenario-scale h4 {margin:0 0 5px;font-size:17px}
+.scenario-scale .balance-scale {padding-top:4px}
+.scenario-scale .sub {margin:8px 0 0}
 .question-chips {display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
 .question-chips .button {padding:6px 10px;font-size:14px}
 .trade-chat-log:not(:empty) {display:grid;gap:10px;max-height:400px;overflow:auto;margin:16px 0}
@@ -167,7 +172,7 @@
 .picker-row .sub {display:block}
 [hidden] {display:none !important}
 @media(max-width:620px){
- .trade-sides,.trade-risk-sides {grid-template-columns:1fr}
+ .trade-sides,.trade-risk-sides,.scenario-scales {grid-template-columns:1fr}
  .trade-side {min-height:185px}
  .trade-sides {gap:16px}
  .trade-exchange {display:none}
