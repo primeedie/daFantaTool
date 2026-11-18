@@ -17,7 +17,7 @@
   <button class="button theme-toggle" type="button" data-theme-toggle>Dark mode</button>
  </div></header>
  <main class="trade-tool" id="trade-tool">
-  <div class="trade-title"><a href="./">← Back</a><h1>Trading Tool</h1></div>
+  <div class="trade-title"><a class="button trade-back" href="./"><span aria-hidden="true">←</span> Back</a><h1>Trading Tool</h1></div>
   <section id="trade-settings" class="panel panel-body">
    <h2>League scoring</h2>
    <p class="sub">Fantasy points per stat</p>
@@ -42,20 +42,21 @@
   </section>
   <section id="trade-board" hidden>
    <div class="trade-toolbar">
-    <button class="button" id="edit-scoring" type="button">Edit scoring</button>
-    <button class="button" id="clear-trade" type="button">Clear trade</button>
+    <button class="button trade-command" id="edit-scoring" type="button"><span aria-hidden="true">≡</span> Edit scoring</button>
+    <button class="button trade-command" id="clear-trade" type="button"><span aria-hidden="true">↺</span> Clear trade</button>
    </div>
    <div class="trade-sides">
     <section class="trade-side panel" aria-labelledby="trade-a-title">
      <div class="trade-side-head"><div><h2 id="trade-a-title">Manager A</h2><span>Trades away</span></div><span id="trade-a-total"></span></div>
      <div id="trade-a-players" class="trade-players"></div>
-     <button class="button trade-add" type="button" data-pick="a">+ Add player</button>
+     <button class="button primary trade-add" type="button" data-pick="a"><span class="trade-add-icon" aria-hidden="true">+</span> Add player</button>
     </section>
     <section class="trade-side panel" aria-labelledby="trade-b-title">
      <div class="trade-side-head"><div><h2 id="trade-b-title">Manager B</h2><span>Trades away</span></div><span id="trade-b-total"></span></div>
      <div id="trade-b-players" class="trade-players"></div>
-     <button class="button trade-add" type="button" data-pick="b">+ Add player</button>
+     <button class="button primary trade-add" type="button" data-pick="b"><span class="trade-add-icon" aria-hidden="true">+</span> Add player</button>
     </section>
+    <span class="trade-exchange" aria-hidden="true">⇄</span>
    </div>
    <section id="trade-balance" class="panel panel-body trade-balance" aria-labelledby="trade-balance-title" hidden>
     <div class="balance-heading"><h2 id="trade-balance-title">Trade balance</h2><strong id="trade-verdict" aria-live="polite"></strong></div>
