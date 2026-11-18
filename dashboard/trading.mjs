@@ -1,5 +1,5 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
-import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,historicalAvailability,parseSharedTrade} from './trade-model.mjs';
+import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash} from './trade-model.mjs?v=trade-brief';
 
 const $=selector=>document.querySelector(selector);
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -132,7 +132,9 @@ shareButton.addEventListener('click',async()=>{
  const url=new URL(location.href);
  const values={...weights};
  if(input('split').checked&&totalRebound!==''&&Number.isFinite(Number(totalRebound)))values.reb=Number(totalRebound);
- url.hash='trade='+encodeURIComponent(JSON.stringify([1,values,input('split').checked,[managerNames.a,managerNames.b],picks.a,picks.b]));
+ const refs=new Map(dataset.players.map(player=>[player.id,sharedPlayerRef(player)]));
+ url.search='';
+ url.hash=compactTradeHash({scoring:values,split:input('split').checked,names:[managerNames.a,managerNames.b],a:picks.a.map(id=>refs.get(id)),b:picks.b.map(id=>refs.get(id))});
  try {
   await navigator.clipboard.writeText(url.href);
   shareUrl.hidden=true;
@@ -320,17 +322,27 @@ function outlookTable(players){
  return `<section class="trade-subsection">${title}${blocks}<p class="sub">Defense uses recent regular-season finals from <a href="https://www.espn.com/nba/scoreboard" target="_blank" rel="noopener noreferrer">ESPN</a>. The per-100 figure uses estimated possessions and needs at least five box scores. Last meeting uses available RotoWire regular-season logs and your scoring settings.</p></section>`;
 }
 
-function renderSummary(balance,risks){
+function renderSummary(balance,risks,scenarios,incoming){
  const result=$('#trade-summary-result');
  if(!balance)result.textContent='Season FP edge unavailable.';
  else if(!balance.leader)result.textContent='Even on season FP per game.';
  else result.innerHTML=`${edgeLabel[balance.level]} ${feedbackManager(balance.leader)} · <strong class="fp-gain">+${format(balance.gap)} FP/game</strong>`;
 
  const flagged=Object.values(risks).flatMap(risk=>risk.entries.filter(entry=>entry.atRisk));
- const watch=$('#trade-summary-flags');
- watch.hidden=!flagged.length;
  const names=flagged.slice(0,2).map(({player,injury})=>`${player.name} (${injury.status})`);
- watch.textContent=flagged.length?`Injury watch · ${names.join(', ')}${flagged.length>2?` +${flagged.length-2} more`:''}`:'';
+ $('#trade-summary-flags').textContent=flagged.length?`${names.join(', ')}${flagged.length>2?` +${flagged.length-2} more`:''}`:injuryData?'No availability flags in the current feed.':'Injury report unavailable.';
+
+ const edge=(comparison,unit)=>comparison?.leader?`${feedbackManager(comparison.leader)} <strong class="fp-gain">+${format(comparison.gap)} ${unit}</strong>`:comparison?'Even':'Unavailable';
+ const floor=tradeBalance(scenarios?.a?.floor,scenarios?.b?.floor);
+ const ceiling=tradeBalance(scenarios?.a?.ceiling,scenarios?.b?.ceiling);
+ $('#trade-summary-range').innerHTML=`<span>Floor · ${edge(floor,'FP/game')}</span><span>Ceiling · ${edge(ceiling,'FP/game')}</span>`;
+ const week=weekComparison(incoming,1);
+ $('#trade-summary-week').innerHTML=week?edge(tradeBalance(week.a.total,week.b.total),'projected FP'):'Unavailable';
+
+ const availability=injuryHistoryData&&[...incoming.a,...incoming.b].map(player=>({player,sample:historicalAvailability(player,injuryHistoryData.players[player.id],injuryHistoryData.currentSeason,weights)}))
+  .filter(({sample})=>sample?.rate!=null).sort((a,b)=>b.sample.missed-a.sample.missed);
+ const highest=availability?.[0];
+ $('#trade-summary-history').textContent=highest?.sample.missed?`${highest.player.name} had ${highest.sample.missed} documented injury absences in the completed seasons covered.`:highest?'No documented injury absences in the samples available.':'Insufficient injury history.';
 }
 
 function renderContext(selected,totals,balance){
@@ -343,8 +355,8 @@ function renderContext(selected,totals,balance){
  if(section.hidden){chatTrade=null;return;}
  const incoming={a:selected.b,b:selected.a};
  const risks={a:tradeContext(incoming.a,injuryData?.players,weights),b:tradeContext(incoming.b,injuryData?.players,weights)};
- if(a&&b)renderSummary(balance,risks);
  const scenarios=a&&b?{a:packageScenarios(incoming.a,weights),b:packageScenarios(incoming.b,weights)}:null;
+ if(a&&b)renderSummary(balance,risks,scenarios,incoming);
  const formRows=a&&b?[5,10,15].map(window=>({
   window,a:packageForm(incoming.a,weights,window),b:packageForm(incoming.b,weights,window)
  })):[];
@@ -635,14 +647,19 @@ if(sharedTrade){
  activateTrade(false);
  loadPlayers().then(data=>{
   if(!data){shareStatus.textContent='Could not load the players in this trade link.';return;}
-  const known=new Set(data.players.map(player=>player.id));
+  const known=new Map(data.players.flatMap(player=>[[player.id,player.id],[sharedPlayerRef(player),player.id]]));
+  const used=new Set();
   for(const key of ['a','b']){
-   const valid=picks[key].filter(id=>known.has(id));
+   const valid=[];
+   for(const ref of picks[key]){
+    const id=known.get(ref);
+    if(id&&!used.has(id)){used.add(id);valid.push(id);}
+   }
    if(valid.length!==picks[key].length)shareStatus.textContent='Some players in this link are unavailable.';
    picks[key]=valid;
   }
   renderTrade();
  });
-}else if(location.hash.startsWith('#trade=')){
+}else if(isTradeHash(location.hash)){
  $('#trade-link-error').hidden=false;
 }

@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,packageForm,compareGamesPlayed,statSwings,packageScenarios,nextOpponents,easternWeek,weeklyPackage,historicalAvailability,parseSharedTrade} from '../dashboard/trade-model.mjs';
+import {scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,packageForm,compareGamesPlayed,statSwings,packageScenarios,nextOpponents,easternWeek,weeklyPackage,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef} from '../dashboard/trade-model.mjs';
 import {injuryHistory} from '../refresh-injury-history.mjs';
 
 const base={pts:'1',reb:'1.2',ast:'1.5',st:'3',blk:'3',to:'1.5'};
@@ -25,6 +25,20 @@ test('versioned links keep split scoring and reject duplicate or unrecognized pi
  assert.equal(parseSharedTrade(link(['jalenbrunson'],['jalenbrunson'])),null);
  assert.equal(parseSharedTrade(link(['<script>'],[])),null);
  assert.equal(parseSharedTrade('#trade=%'),null);
+});
+
+test('short trade links retain names, player references, and custom scoring',()=>{
+ const a=sharedPlayerRef({id:'anthonydavis',profile:'https://www.rotowire.com/basketball/player/anthony-davis-3297'});
+ assert.equal(a,'_2jl');
+ const names=['A & B','Peña 🏀'];
+ const scoring={pts:1,oreb:2,dreb:1,ast:1.5,st:3,blk:3,to:-1.25,reb:1.2};
+ const hash=compactTradeHash({scoring,split:true,names,a:[a],b:['jalenbrunson']});
+ assert.deepEqual(parseSharedTrade(hash),{scoring,split:true,names,a:[a],b:['jalenbrunson']});
+ const defaults=compactTradeHash({scoring:scoringWeights(base,false),split:false,names:['',''],a:[a],b:['_3ed']});
+ assert.equal(defaults,'#t=2~d~_2jl~_3ed');
+ assert.equal(parseSharedTrade(defaults).scoring.reb,1.2);
+ assert.equal(parseSharedTrade('#t=2~d~_2jl~_2jl'),null);
+ assert.equal(parseSharedTrade('#t=2~1,2~_2jl~'),null);
 });
 
 test('injury history counts distinct regular-season game absences and excludes rest',()=>{

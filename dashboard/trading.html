@@ -7,9 +7,9 @@
  <link rel="icon" href="./player-logo.png?v=3">
  <link rel="stylesheet" href="./style.css">
  <link rel="stylesheet" href="./font.css?v=logo-contrast">
- <link rel="stylesheet" href="./trading.css">
+ <link rel="stylesheet" href="./trading.css?v=trade-brief">
  <script type="module" src="./theme.mjs?v=logo-contrast"></script>
- <script type="module" src="./trading.mjs"></script>
+ <script type="module" src="./trading.mjs?v=trade-brief"></script>
 </head>
 <body>
  <header class="site-header"><div class="masthead">
@@ -87,7 +87,12 @@
    <section id="trade-summary" class="panel panel-body trade-balance" aria-labelledby="trade-summary-title" hidden>
     <h2 id="trade-summary-title">TL;DR</h2>
     <p id="trade-summary-result"></p>
-    <p id="trade-summary-flags" class="sub" hidden></p>
+    <dl class="summary-details">
+     <div><dt>Scoring range</dt><dd id="trade-summary-range"></dd></div>
+     <div><dt>Next week</dt><dd id="trade-summary-week"></dd></div>
+     <div><dt>Injury watch</dt><dd id="trade-summary-flags"></dd></div>
+     <div><dt>Injury history</dt><dd id="trade-summary-history"></dd></div>
+    </dl>
    </section>
    <section id="trade-assistant" class="panel panel-body trade-balance" aria-labelledby="assistant-title" hidden>
     <h2 id="assistant-title">Ask the trade desk</h2>

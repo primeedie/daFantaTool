@@ -42,13 +42,53 @@ export function historicalAvailability(player,record,currentSeason,weights){
  return {played,missed,games,rate,adjusted:points!==null&&rate!==null?points*(1-rate):null};
 }
 
+const regularFields=['pts','reb','ast','st','blk','to'];
+const splitFields=['pts','oreb','dreb','ast','st','blk','to','reb'];
+const defaultWeights=[1,1.2,1.5,3,3,-1.5];
+
+export function sharedPlayerRef(player){
+ const profileId=/-([0-9]+)$/.exec(player.profile||'')?.[1];
+ return profileId?`_${Number(profileId).toString(36)}`:player.id;
+}
+
+export function compactTradeHash({scoring,split,names,a,b}){
+ const values=(split?splitFields:regularFields).map(key=>scoring[key]??'');
+ const code=split?'s'+values.join(','):values.every((value,i)=>value===defaultWeights[i])?'d':values.join(',');
+ const fields=['#t=2',code,a.join(','),b.join(',')];
+ if(names.some(Boolean)){
+  const text=new TextEncoder().encode(names.join('\n'));
+  fields.push(btoa(String.fromCharCode(...text)).replaceAll('+','-').replaceAll('/','_').replace(/=+$/,''));
+ }
+ return fields.join('~');
+}
+
+export const isTradeHash=hash=>hash.startsWith('#trade=')||hash.startsWith('#t=');
+
 export function parseSharedTrade(hash){
- if(!hash.startsWith('#trade=')||hash.length>36000)return null;
+ if(!isTradeHash(hash)||hash.length>36000)return null;
  try {
-  const [version,values,split,names,a,b]=JSON.parse(decodeURIComponent(hash.slice(7)));
-  if(version!==1||typeof split!=='boolean'||!Array.isArray(names)||!Array.isArray(a)||!Array.isArray(b))return null;
+  const compact=hash.startsWith('#t=');
+  let values,split,names,a,b;
+  if(compact){
+   const fields=hash.split('~');
+   const [version,code,left,right,encoded='']=fields;
+   if(version!=='#t=2'||fields.length<4||fields.length>5||encoded.length>260||!/^[\w-]*$/.test(encoded))return null;
+   split=code.startsWith('s');
+   const keys=split?splitFields:regularFields;
+   const raw=code==='d'?defaultWeights:(split?code.slice(1):code).split(',');
+   if(raw.length!==keys.length)return null;
+   values=Object.fromEntries(keys.map((key,index)=>[key,raw[index]===''?null:Number(raw[index])]));
+   const text=atob(encoded.replaceAll('-','+').replaceAll('_','/'));
+   names=new TextDecoder('utf-8',{fatal:true}).decode(Uint8Array.from(text,letter=>letter.charCodeAt(0))).split('\n');
+   a=left?left.split(','):[];
+   b=right?right.split(','):[];
+  }else{
+   let version;
+   [version,values,split,names,a,b]=JSON.parse(decodeURIComponent(hash.slice(7)));
+   if(version!==1||typeof split!=='boolean'||!Array.isArray(names)||!Array.isArray(a)||!Array.isArray(b))return null;
+  }
   const ids=[...a,...b];
-  if(!ids.length||ids.length>200||new Set(ids).size!==ids.length||!ids.every(id=>typeof id==='string'&&/^[a-z0-9]{1,48}$/.test(id)))return null;
+  if(!ids.length||ids.length>200||new Set(ids).size!==ids.length||!ids.every(id=>typeof id==='string'&&(/^[a-z0-9]{1,48}$/.test(id)||compact&&/^_[a-z0-9]{1,12}$/.test(id))))return null;
   const scoring=Object.fromEntries(Object.keys(boxFields).map(key=>[key,Number.isFinite(values[key])?values[key]:'']));
   if(!scoringWeights(scoring,split))return null;
   return {scoring,split,names,a,b};
