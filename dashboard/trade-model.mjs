@@ -62,14 +62,20 @@ export function managerChanges(outgoingA,outgoingB){
  };
 }
 
-export function recentPackagePoints(players,weights){
+export function packageForm(players,weights,window){
+ if(!players.length)return null;
  let total=0;
+ let shortest=window;
+ const averages=[];
  for(const player of players){
-  const sample=(player.gameLogs||player.recent||[]).slice(0,5).map(box=>tradePoints(box,weights)).filter(points=>points!==null);
-  if(sample.length<3)return null;
-  total+=sample.reduce((sum,points)=>sum+points,0)/sample.length;
+  const games=(player.gameLogs||player.recent||[]).slice(0,window).filter(box=>tradePoints(box,weights)!==null);
+  if(!games.length)return null;
+  shortest=Math.min(shortest,games.length);
+  const stats=Object.fromEntries(Object.keys(weights).map(stat=>[stat,games.reduce((sum,box)=>sum+(box[stat]??0),0)/games.length]));
+  averages.push({stats});
+  total+=tradePoints(stats,weights);
  }
- return total;
+ return {points:total,shortest,averages};
 }
 
 export function percentile(sorted,fraction){

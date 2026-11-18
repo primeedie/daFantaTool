@@ -143,6 +143,9 @@
 .trade-insight p {margin:8px 0 0;max-width:65ch}
 .trade-scenario-table td,.trade-scenario-table th {padding:13px 14px}
 .trade-scenario-table td {font-variant-numeric:tabular-nums}
+.form-coverage {display:block;white-space:nowrap;font-size:13px}
+.driver-stats {display:flex;flex-wrap:wrap;gap:4px 14px}
+.driver-stats span {white-space:nowrap}
 .scenario-scales {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
 .scenario-scale {padding:14px;background:var(--paper);border:1px solid var(--line);border-radius:9px}
 .scenario-scale h4 {margin:0 0 5px;font-size:17px}

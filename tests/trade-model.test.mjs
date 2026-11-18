@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,recentPackagePoints,compareGamesPlayed,statSwings,packageScenarios} from '../dashboard/trade-model.mjs';
+import {scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,packageForm,compareGamesPlayed,statSwings,packageScenarios} from '../dashboard/trade-model.mjs';
 
 const base={pts:'1',reb:'1.2',ast:'1.5',st:'3',blk:'3',to:'1.5'};
 const box={pts:20,reb:10,oreb:3,dreb:7,ast:5,st:1,blk:1,to:4};
@@ -61,12 +61,13 @@ test('manager net and stat swings are based on who receives the players',()=>{
  assert.deepEqual(statSwings(after,before,weights).map(row=>row.points),[10,-6]);
 });
 
-test('availability compares shared seasons and recent FP requires three valid games',()=>{
+test('availability compares shared seasons and form reports the shortest valid sample',()=>{
  const a={history:{2023:38,2024:41,2025:59},recent:[{pts:6},{pts:10},{pts:14}]};
  const b={history:{2024:70,2025:75},recent:[{pts:10},{pts:20}]};
  assert.deepEqual(compareGamesPlayed(a,b),{gameTotals:[{year:'2024',a:41,b:70},{year:'2025',a:59,b:75}],avgA:50,avgB:72.5});
- assert.equal(recentPackagePoints([a],{pts:2}),20);
- assert.equal(recentPackagePoints([a,b],{pts:2}),null);
+ assert.equal(packageForm([a],{pts:2},2).points,16);
+ assert.deepEqual(packageForm([a,b],{pts:2},10),{points:50,shortest:2,averages:[{stats:{pts:10}},{stats:{pts:15}}]});
+ assert.equal(packageForm([a,{}],{pts:2},15),null);
 });
 
 test('trade floor and ceiling add individual quartiles and require five games per player',()=>{

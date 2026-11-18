@@ -1,5 +1,5 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
-import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,recentPackagePoints,compareGamesPlayed,statSwings,packageScenarios} from './trade-model.mjs';
+import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm} from './trade-model.mjs';
 
 const $=selector=>document.querySelector(selector);
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -152,13 +152,16 @@ function renderContext(selected,totals){
  const incoming={a:selected.b,b:selected.a};
  const risks={a:tradeContext(incoming.a,injuryData?.players,weights),b:tradeContext(incoming.b,injuryData?.players,weights)};
  const scenarios=a&&b?{a:packageScenarios(incoming.a,weights),b:packageScenarios(incoming.b,weights)}:null;
- chatTrade={incoming,selected,risks,scenarios,totals};
+ const formRows=a&&b?[5,10,15].map(window=>({
+  window,a:packageForm(incoming.a,weights,window),b:packageForm(incoming.b,weights,window)
+ })):[];
+ chatTrade={incoming,selected,risks,scenarios,totals,formRows};
  const scenarioPanel=$('#trade-scenarios');
  scenarioPanel.innerHTML=a&&b?scenarioTable(scenarios,totals):'';
  for(const marker of scenarioPanel.querySelectorAll('[data-position]')){
   marker.style.left=`${marker.dataset.position}%`;
  }
- $('#trade-analysis').innerHTML=a&&b?analysisNotes(selected,totals,risks):'';
+ $('#trade-analysis').innerHTML=a&&b?analysisNotes(selected,totals,risks,formRows):'';
  $('#trade-risk-sides').innerHTML=['a','b'].filter(key=>incoming[key].length).map(key=>{
   const context=risks[key];
   const {flagged,flaggedPoints,entries}=context;
@@ -206,30 +209,44 @@ function gamesPlayedTable(selected){
  return `<section class="trade-subsection"><h3>Games played by season</h3><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Player</th><th>Goes to</th>${years.map(year=>`<th class="num">${heading(year)}</th>`).join('')}<th class="num">This season</th></tr></thead><tbody>${rows.map(({key,player})=>`<tr><th scope="row">${esc(player.name)}</th><td class="manager-${key}-text">${manager(key)}</td>${years.map(year=>`<td class="num">${player.history?.[year]??'—'}</td>`).join('')}<td class="num">${player.games??'—'}</td></tr>`).join('')}</tbody></table></div><p class="sub">Games played measures availability. It doesn’t tell us why someone missed time.</p></section>`;
 }
 
-function analysisNotes(selected,totals,risks){
+function formTable(rows){
+ const totalCell=(sample,window)=>sample?`${format(sample.points)}${sample.shortest<window?`<small class="sub form-coverage">Shortest sample: ${sample.shortest}/${window}</small>`:''}`:'—';
+ return `<section class="trade-subsection"><h3>Recent form</h3><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Games</th><th class="num">A receives</th><th class="num">B receives</th><th class="num">A net</th><th class="num">B net</th></tr></thead><tbody>${rows.map(({window,a,b})=>{
+  const changes=managerChanges(b?.points??null,a?.points??null);
+  return `<tr><th scope="row">Last ${window}</th><td class="num">${totalCell(a,window)}</td><td class="num">${totalCell(b,window)}</td><td class="num ${tone(changes.a.net)}">${signed(changes.a.net)}</td><td class="num ${tone(changes.b.net)}">${signed(changes.b.net)}</td></tr>`;
+ }).join('')}</tbody></table></div><p class="sub">FP per game from each player’s latest appearances this season. A shorter sample is labeled. A dash means at least one player had no complete games in the window.</p></section>`;
+}
+
+function driversTable(selected,rows){
+ const windows=[{label:'Season',changes:statSwings(selected.a,selected.b,weights)},...rows.map(({window,a,b})=>({
+  label:`Last ${window}`,
+  partial:!!(a&&b&&(a.shortest<window||b.shortest<window)),
+  changes:a&&b?statSwings(b.averages,a.averages,weights):null
+ }))];
+ const gains=(changes,direction)=>{
+  if(!changes)return '—';
+  const notable=changes.filter(({points})=>points*direction>0).slice(0,3);
+  return notable.length?`<div class="driver-stats">${notable.map(({stat,points})=>`<span>${boxFields[stat]} <b class="fp-gain">${signed(points*direction)}</b></span>`).join('')}</div>`:'—';
+ };
+ return `<section class="trade-subsection"><h3>What moves the score</h3><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Games</th><th>Manager A’s biggest gains</th><th>Manager B’s biggest gains</th></tr></thead><tbody>${windows.map(({label,changes,partial})=>`<tr><th scope="row">${label}${partial?'<small class="sub form-coverage">Partial sample</small>':''}</th><td>${gains(changes,1)}</td><td>${gains(changes,-1)}</td></tr>`).join('')}</tbody></table></div><p class="sub">Each number is the stat’s contribution to FP per game under your rules. A gain for one manager is the other manager’s loss.</p></section>`;
+}
+
+function analysisNotes(selected,totals,risks,formRows){
  const notes=[];
- const recentA=recentPackagePoints(selected.a,weights),recentB=recentPackagePoints(selected.b,weights);
- if(recentA!==null&&recentB!==null){
-  const gap=Number((recentB-recentA).toFixed(2));
-  const before=managerChanges(totals.a,totals.b).a.net;
-  const reversal=before!==null&&gap*before<0?' The recent sample flips the season-average edge.':'';
-  notes.push(['Recent form',`Over each player’s last five games or fewer, Manager A nets <b class="${tone(gap)}">${signed(gap)} FP / game</b> and Manager B nets <b class="${tone(-gap)}">${signed(-gap)} FP / game</b>.${reversal}`]);
- }
  if(Number.isFinite(totals.a)&&Number.isFinite(totals.b)){
-  const changes=statSwings(selected.a,selected.b,weights);
-  const swings=changes.slice(0,3).map(({stat,points})=>`${boxFields[stat]} <b class="${tone(points)}">${signed(points)} FP</b>`).join(' · ');
-  if(swings)notes.push(['What moves the score',`Manager A’s biggest FP changes per game: ${swings}. Manager B gets the opposite changes.`]);
   if((risks.a.flagged||risks.b.flagged)&&risks.a.flaggedPoints!==null&&risks.b.flaggedPoints!==null){
    const a=totals.b-risks.a.flaggedPoints,b=totals.a-risks.b.flaggedPoints;
    notes.push(['If flagged players sit',`Manager A’s package would be worth ${format(a)} FP / game and Manager B’s ${format(b)} before any replacements.`]);
   }
  }
- return gamesPlayedTable(selected)+(notes.length?`<div class="trade-insights">${notes.map(([heading,body])=>`<article class="trade-insight"><h3>${heading}</h3><p>${body}</p></article>`).join('')}</div>`:'');
+ return formTable(formRows)+driversTable(selected,formRows)+gamesPlayedTable(selected)+(notes.length?`<div class="trade-insights">${notes.map(([heading,body])=>`<article class="trade-insight"><h3>${heading}</h3><p>${body}</p></article>`).join('')}</div>`:'');
 }
 
 function tradeAnswer(question){
- const {incoming,totals,risks,scenarios,selected}=chatTrade;
+ const {incoming,totals,risks,scenarios,selected,formRows}=chatTrade;
  const q=question.toLowerCase();
+ const requestedWindow=Number(q.match(/\blast\s+(5|10|15)\b/)?.[1])||null;
+ const recent=formRows.find(row=>row.window===(requestedWindow??5));
  const chosen=[...incoming.a,...incoming.b].filter(player=>playerKey(question).includes(player.id));
  const comparison=(a,b)=>{
   const result=tradeBalance(a,b);
@@ -262,14 +279,15 @@ function tradeAnswer(question){
   if(!history)return 'There are no shared completed seasons in the data for those players. See the games-played table for their available records.';
   return `Over ${history.gameTotals.length} shared completed season(s), ${a.name} averaged ${format(history.avgA)} games played and ${b.name} averaged ${format(history.avgB)}. Games played can reflect injuries, rest, and other absences.`;
  }
- if(/recent|form|last (five|5)|trend/.test(q)){
-  const a=recentPackagePoints(incoming.a,weights),b=recentPackagePoints(incoming.b,weights);
-  if(a===null||b===null)return 'Recent form needs at least three complete box scores for every selected player.';
-  return `Over up to five recent games per player, ${comparison(a,b)} That is a short sample.`;
- }
  if(/stats?|drive|\bwhy\b|categor/.test(q)){
-  const changes=statSwings(selected.a,selected.b,weights).slice(0,3);
-  return changes.length?`Manager A’s biggest changes are ${changes.map(({stat,points})=>`${boxFields[stat]} ${signed(points)} FP`).join(', ')} per game. Manager B gets the opposite changes.`:'No weighted stat difference is available for these packages.';
+  if(requestedWindow&&(!recent.a||!recent.b))return 'At least one player is missing complete game stats for that window.';
+  const changes=(requestedWindow?statSwings(recent.b.averages,recent.a.averages,weights):statSwings(selected.a,selected.b,weights)).slice(0,3);
+  return changes.length?`${requestedWindow?`Last ${requestedWindow} (using available games): `:''}Manager A’s biggest changes are ${changes.map(({stat,points})=>`${boxFields[stat]} ${signed(points)} FP`).join(', ')} per game. Manager B gets the opposite changes.`:'No weighted stat difference is available for these packages.';
+ }
+ if(requestedWindow||/recent|form|last five|trend/.test(q)){
+  if(!recent.a||!recent.b)return 'At least one player is missing complete game stats for that window.';
+  const shortest=Math.min(recent.a.shortest,recent.b.shortest);
+  return `Last ${recent.window}: ${comparison(recent.a.points,recent.b.points)}${shortest<recent.window?` The shortest player sample was ${shortest} games.`:''}`;
  }
  if(/roster|waiver|stream|\bcut\b|\bdrop\b|slot/.test(q)){
   const gap=incoming.a.length-incoming.b.length;
