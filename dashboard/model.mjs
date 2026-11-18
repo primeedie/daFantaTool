@@ -29,6 +29,32 @@ export function scoreBox(log,scoring){
   return score;
 }
 
+export function playersAtTip(snapshot,players,date,games,teamFor=player=>player.nba){
+  const teamId=players[0]?.team_id;
+  const update=(snapshot.rosterUpdates||[]).find(entry=>date<entry.effectiveNbaDate&&entry.previous[teamId]);
+  const roster=update?.previous[teamId]||players;
+  const owned=new Map(roster.map(player=>[player.name,player]));
+  const moves=(snapshot.timedRosterMoves||[]).filter(move=>move.teamId===teamId&&(!update?.previousThrough||move.at<=update.previousThrough))
+    .sort((a,b)=>b.at.localeCompare(a.at));
+  const possible=new Map(owned);
+  for(const {dropped} of moves){
+    if(dropped&&!possible.has(dropped.name))possible.set(dropped.name,dropped);
+  }
+  return [...possible.values()].flatMap(player=>{
+    const nba=teamFor(player);
+    const game=games.get(nba);
+    if(!game)return [];
+    let onRoster=owned.has(player.name);
+    const tip=Date.parse(game.date);
+    for(const move of moves){
+      if(!(Date.parse(move.at)>tip))break;
+      if(move.added===player.name)onRoster=false;
+      if(move.dropped?.name===player.name)onRoster=true;
+    }
+    return onRoster?[{...player,nba,game}]:[];
+  });
+}
+
 export function espnWeek(snapshot,rosters){
   const {nbaDate,scoring,publicFeed:feed}=snapshot;
   if(!feed?.window||!scoring||!Object.keys(scoring).length)return null;
@@ -45,9 +71,8 @@ export function espnWeek(snapshot,rosters){
     day.set(game.away,game);
   }
   const history=snapshot.rosterUpdates||[];
-  const timedMoves=(snapshot.timedRosterMoves||[]).slice().sort((a,b)=>b.at.localeCompare(a.at));
   const priorPlayers=history.flatMap(update=>Object.values(update.previous).flat());
-  const droppedPlayers=timedMoves.flatMap(move=>move.dropped?[move.dropped]:[]);
+  const droppedPlayers=(snapshot.timedRosterMoves||[]).flatMap(move=>move.dropped?[move.dropped]:[]);
   const keys=new Set([...rosters.flat(),...priorPlayers,...droppedPlayers].map(player=>playerKey(player.name)));
   const logsByPlayer=new Map();
   const completedBoxes=new Set();
@@ -65,36 +90,18 @@ export function espnWeek(snapshot,rosters){
     const total={actual:0,actualStarts:0,projected:0,projectedStarts:0,missingStarts:0};
     const starts=[];
     breakdown.push(starts);
-    const teamId=players[0]?.team_id;
-    const teamMoves=timedMoves.filter(move=>move.teamId===teamId);
     for(const [date,games] of gamesByDate){
       const finishedDay=date<feed.nbaDate||([...games.values()].length>0&&[...games.values()].every(game=>game.completed));
-      const nextUpdate=history.find(update=>date<update.effectiveNbaDate&&update.previous[teamId]);
-      const dailyRoster=nextUpdate?.previous[teamId]||players;
-      const owned=new Map(dailyRoster.map(player=>[player.name,player]));
-      const moves=teamMoves.filter(move=>!nextUpdate?.previousThrough||move.at<=nextUpdate.previousThrough);
-      const possiblePlayers=new Map(owned);
-      for(const move of moves){
-        if(move.dropped&&!possiblePlayers.has(move.dropped.name))possiblePlayers.set(move.dropped.name,move.dropped);
-      }
-      const candidates=[...possiblePlayers.values()].flatMap(player=>{
-        const logs=logsByPlayer.get(playerKey(player.name))||[];
-        const dayLog=logs.find(log=>log.gameDate===date);
-        const game=games.get(dayLog?.nba||player.nba);
-        if(!game||player.slot==='IL')return [];
-        let onRoster=owned.has(player.name);
-        const tip=Date.parse(game.date);
-        for(const move of moves){
-          if(!(Date.parse(move.at)>tip))break;
-          if(move.added===player.name)onRoster=false;
-          if(move.dropped?.name===player.name)onRoster=true;
-        }
-        if(!onRoster)return [];
+      const playerLogs=player=>logsByPlayer.get(playerKey(player.name))||[];
+      const slate=playersAtTip(snapshot,players,date,games,player=>playerLogs(player).find(log=>log.gameDate===date)?.nba||player.nba);
+      const candidates=slate.flatMap(player=>{
+        if(player.slot==='IL')return [];
         if(!finishedDay&&['O','NA'].includes(player.status))return [];
+        const logs=playerLogs(player);
         const prior=logs.filter(log=>log.gameDate<date).slice(0,10);
         const average=prior.length?prior.reduce((sum,log)=>sum+log.points,0)/prior.length:player.fpts;
         if(!Number.isFinite(average))return [];
-        return [{...player,status:'',fpts:average,game,logs,gameTeam:dayLog?.nba||player.nba}];
+        return [{...player,status:'',fpts:average,logs}];
       });
       const lineup=optimizeLineup(candidates);
       for(const player of lineup.assignment.filter(Boolean)){
@@ -102,12 +109,12 @@ export function espnWeek(snapshot,rosters){
         if(!game.completed){
           total.projected+=player.fpts;
           total.projectedStarts++;
-        }else if(completedBoxes.has(`${game.id}/${player.gameTeam}`)){
+        }else if(completedBoxes.has(`${game.id}/${player.nba}`)){
           const box=logs.find(log=>log.gameId===game.id);
           const points=box?.points??0;
           total.actual+=points;
           total.actualStarts++;
-          starts.push({date,name:player.name,nba:player.gameTeam,points,box});
+          starts.push({date,name:player.name,nba:player.nba,points,box});
         }else total.missingStarts++;
       }
     }
