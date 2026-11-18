@@ -1,6 +1,6 @@
 # daFantaTool by primeedie
 
-[Open the dashboard](https://primeedie.github.io/shohoku-fantasy-companion/)
+[Open the dashboard](https://primeedie.github.io/daFantaTool/)
 
 Fantasy hoops for our Yahoo league. Pick Trading Tool or Other Thing on the home page.
 
