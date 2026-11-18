@@ -20,7 +20,7 @@ export function optimizeLineup(players,{playingTeams=null,includeQ=true,occupied
 }
 export const playerKey=name=>name.normalize('NFD').replace(/\p{Diacritic}/gu,'').toLowerCase().replace(/\b(jr|iii|ii|iv)\b/g,'').replace(/[^a-z0-9]/g,'');
 
-function scoreBox(log,scoring){
+export function scoreBox(log,scoring){
   let score=0;
   for(const [stat,weight] of Object.entries(scoring)){
     if(!Number.isFinite(log[stat])||!Number.isFinite(weight))return null;
@@ -29,7 +29,7 @@ function scoreBox(log,scoring){
   return score;
 }
 
-export function espnWeek(snapshot,rosters,checkpoint=null){
+export function espnWeek(snapshot,rosters){
   const {nbaDate,scoring,publicFeed:feed}=snapshot;
   if(!feed?.window||!scoring||!Object.keys(scoring).length)return null;
   const monday=new Date(`${nbaDate}T12:00:00Z`);
@@ -58,11 +58,13 @@ export function espnWeek(snapshot,rosters,checkpoint=null){
     logsByPlayer.get(log.key).push({...log,points});
   }
   for(const logs of logsByPlayer.values())logs.sort((a,b)=>b.date.localeCompare(a.date));
-  const totals=rosters.map((players,index)=>{
-    const total={actual:checkpoint?.scores[index]??0,actualStarts:0,projected:0,projectedStarts:0,missingStarts:0};
+  const breakdown=[];
+  const totals=rosters.map(players=>{
+    const total={actual:0,actualStarts:0,projected:0,projectedStarts:0,missingStarts:0};
+    const starts=[];
+    breakdown.push(starts);
     const teamId=players[0]?.team_id;
     for(const [date,games] of gamesByDate){
-      if(checkpoint&&date<=checkpoint.throughNbaDate)continue;
       const finishedDay=date<feed.nbaDate||([...games.values()].length>0&&[...games.values()].every(game=>game.completed));
       const nextUpdate=history.find(update=>date<update.effectiveNbaDate&&update.previous[teamId]);
       const dailyRoster=nextUpdate?.previous[teamId]||players;
@@ -84,15 +86,18 @@ export function espnWeek(snapshot,rosters,checkpoint=null){
           total.projected+=player.fpts;
           total.projectedStarts++;
         }else if(completedBoxes.has(`${game.id}/${player.gameTeam}`)){
-          total.actual+=logs.find(log=>log.gameId===game.id)?.points??0;
+          const box=logs.find(log=>log.gameId===game.id);
+          const points=box?.points??0;
+          total.actual+=points;
           total.actualStarts++;
+          starts.push({date,name:player.name,nba:player.gameTeam,points,box});
         }else total.missingStarts++;
       }
     }
     return total;
   });
-  const missingDates=feed.refreshedDates?dates.filter(date=>(!checkpoint||date>checkpoint.throughNbaDate)&&!feed.refreshedDates.includes(date)):[];
-  return {start:dates[0],end:dates[6],totals,missingDates,updatedAt:feed.updatedAt};
+  const missingDates=feed.refreshedDates?dates.filter(date=>!feed.refreshedDates.includes(date)):[];
+  return {start:dates[0],end:dates[6],totals,breakdown,missingDates,updatedAt:feed.updatedAt};
 }
 
 export function streamEstimate({candidate,drop,games,newGames,adds,remaining}){
