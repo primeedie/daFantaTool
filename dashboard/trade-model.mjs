@@ -53,3 +53,20 @@ export function tradeBalance(sideA,sideB){
   position:50-0.5*Math.sign(gap)*Math.min(100,percentage)
  };
 }
+
+export function tradeContext(players,injuryRecords,weights){
+ const entries=players.map(player=>{
+  const profileId=/-([0-9]+)$/.exec(player.profile||'')?.[1];
+  const injury=injuryRecords?.[profileId]||injuryRecords?.[player.id];
+  const status=injury?.status;
+  const atRisk=!!status&&/\bout\b|doubtful|questionable|day.to.day/i.test(status);
+  const smallSample=!(player.games>=5);
+  return {player,injury,atRisk,smallSample,points:tradePoints(player.stats,weights)};
+ });
+ const flagged=entries.filter(entry=>entry.atRisk);
+ return {
+  entries:entries.filter(entry=>entry.injury||entry.smallSample),
+  flagged:flagged.length,
+  flaggedPoints:flagged.every(entry=>entry.points!==null)?flagged.reduce((sum,entry)=>sum+entry.points,0):null
+ };
+}

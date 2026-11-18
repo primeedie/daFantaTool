@@ -1,5 +1,5 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
-import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance} from './trade-model.mjs';
+import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext} from './trade-model.mjs';
 
 const $=selector=>document.querySelector(selector);
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -16,6 +16,7 @@ const picks={a:[],b:[]};
 const settingsKey='real-balliggas-trade-weights';
 let weights,side='a',dataset,dataRequest;
 let currentRanks=new Map();
+let injuryData,injuryRequest;
 let totalRebound='';
 
 try {
@@ -56,6 +57,7 @@ form.addEventListener('submit',event=>{
  board.hidden=false;
  renderTrade();
  loadPlayers();
+ loadInjuries();
  $('#edit-scoring').focus();
 });
 $('#edit-scoring').addEventListener('click',()=>{
@@ -81,8 +83,10 @@ const occupied=id=>picks.a.includes(id)||picks.b.includes(id);
 
 function renderTrade(){
  const totals={};
+ const selected={};
  for(const key of ['a','b']){
   const players=picks[key].map(id=>dataset?.players.find(player=>player.id===id)).filter(Boolean);
+  selected[key]=players;
   const scores=players.map(fp);
   const complete=scores.every(score=>score!==null);
   totals[key]=complete?scores.reduce((sum,score)=>sum+score,0):null;
@@ -95,6 +99,7 @@ function renderTrade(){
   }).join(''):'<p class="trade-empty sub">No players selected.</p>';
  }
  renderBalance(totals);
+ renderContext(selected);
 }
 
 function renderBalance(totals){
@@ -114,6 +119,43 @@ function renderBalance(totals){
  delta.textContent=leader?`Side ${leader} leads by ${format(gap)} FP / game (${format(percentage)}%).`:'Both sides have the same FP / game.';
  scale.setAttribute('aria-label',`${verdict.textContent}. ${delta.textContent}`);
  $('#balance-marker').style.left=`${position}%`;
+}
+
+async function loadInjuries(){
+ if(injuryRequest)return injuryRequest;
+ injuryRequest=fetch('./trade-injuries.json').then(async response=>{
+  if(!response.ok)throw new Error('Injury report unavailable');
+  injuryData=await response.json();
+  renderTrade();
+ }).catch(()=>{injuryRequest=null;});
+ return injuryRequest;
+}
+
+function renderContext(selected){
+ const section=$('#trade-context');
+ const a=selected.a.length,b=selected.b.length;
+ section.hidden=!a&&!b;
+ if(section.hidden)return;
+ $('#trade-risk-sides').innerHTML=['a','b'].filter(key=>selected[key].length).map(key=>{
+  const context=tradeContext(selected[key],injuryData?.players,weights);
+  const {flagged,flaggedPoints,entries}=context;
+  const summary=flagged?`${flagged} with uncertain availability${flaggedPoints===null?'':` · ${format(flaggedPoints)} FP / game from those players`}`:
+   injuryData?'No out, doubtful, or questionable flags found.':'Injury data unavailable.';
+  const details=entries.map(({player,injury,smallSample})=>{
+   const status=injury?.status?`${esc(injury.status)}${injury.gameDate?` · ${esc(injury.gameDate)} NBA slate`:''}`:'';
+   const note=injury?.noteUrl?`<a href="${esc(injury.noteUrl)}" target="_blank" rel="noopener noreferrer">${esc(injury.noteArea)} update</a> · ${esc(injury.noteDate)}`:
+    injury?.injury?esc(injury.injury):'';
+   const sample=smallSample?(player.games>0?`Only ${player.games} GP`:'No season sample in this data'):'';
+   return `<li><strong>${esc(player.name)}</strong><div class="sub">${[status,note,sample].filter(Boolean).join(' · ')}</div></li>`;
+  }).join('');
+  return `<section class="trade-risk-side"><h3>Side ${key.toUpperCase()}</h3><p class="sub risk-summary">${summary}</p>${details?`<ul>${details}</ul>`:''}</section>`;
+ }).join('');
+ const gap=Math.abs(a-b);
+ $('#trade-roster-note').textContent=a&&b&&gap?
+  `Roster spots: the manager receiving Side ${a>b?'A':'B'} gets ${gap} extra player${gap===1?'':'s'}. If their roster is full, compare the player${gap===1?'':'s'} they’d cut with what the other manager could add off waivers.`:'';
+ const checked=injuryData?new Date(injuryData.updatedAt).toLocaleString('en-PH',{timeZone:'Asia/Manila',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'';
+ $('#trade-injury-source').innerHTML=injuryData?
+  `<a href="${esc(injuryData.lineupsUrl)}" target="_blank" rel="noopener noreferrer">RotoWire lineups</a> and <a href="${esc(injuryData.reportUrl)}" target="_blank" rel="noopener noreferrer">injury reports</a> · checked ${esc(checked)} Manila time. Check the latest report before accepting.`:'';
 }
 
 async function loadPlayers(){

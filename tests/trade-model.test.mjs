@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {scoringWeights,tradePoints,seasonRanks,tradeBalance} from '../dashboard/trade-model.mjs';
+import {scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext} from '../dashboard/trade-model.mjs';
 
 const base={pts:'1',reb:'1.2',ast:'1.5',st:'3',blk:'3',to:'1.5'};
 const box={pts:20,reb:10,oreb:3,dreb:7,ast:5,st:1,blk:1,to:4};
@@ -35,4 +35,19 @@ test('trade balance is symmetric, includes the fair threshold and rejects missin
  assert.equal(tradeBalance(0,0).leader,null);
  assert.equal(tradeBalance(-3,3).position,100);
  assert.equal(tradeBalance(null,40),null);
+});
+
+test('risk context counts uncertain availability and keeps dated injury notes separate',()=>{
+ const players=[
+  {id:'out',profile:'https://www.rotowire.com/basketball/player/out-1',games:10,stats:{pts:25}},
+  {id:'questionable',games:3,stats:{pts:10}},
+  {id:'probable',games:8,stats:{pts:30}},
+  {id:'old-note',games:12,stats:{pts:40}}
+ ];
+ const records={'1':{status:'Out'},questionable:{status:'Questionable'},probable:{status:'Probable'},'old-note':{noteDate:'2026-11-10'}};
+ const context=tradeContext(players,records,{pts:1});
+ assert.equal(context.flagged,2);
+ assert.equal(context.flaggedPoints,35);
+ assert.equal(context.entries.find(entry=>entry.player.id==='questionable').smallSample,true);
+ assert.equal(context.entries.find(entry=>entry.player.id==='old-note').atRisk,false);
 });

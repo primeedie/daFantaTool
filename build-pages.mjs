@@ -11,6 +11,8 @@ await writeFile(resolve(out,'dashboard.html'),html.replace('<html lang="en">','<
 const folder=process.env.FANTASY_DATA_DIR||resolve(root,'../../data/private');
 const tradeData=await readFile(resolve(folder,'trade-data.json'),'utf8').catch(()=>readFile(resolve(root,'dashboard/trade-data.json'),'utf8'));
 await writeFile(resolve(out,'trade-data.json'),tradeData);
+const tradeInjuries=await readFile(resolve(folder,'trade-injuries.json'),'utf8').catch(()=>readFile(resolve(root,'dashboard/trade-injuries.json'),'utf8'));
+await writeFile(resolve(out,'trade-injuries.json'),tradeInjuries);
 const feed=JSON.parse(await readFile(resolve(folder,'public-feed.json'),'utf8'));
 const {source,sourceUrl,updatedAt,nbaDate,window,refreshIntervalMinutes,partial,refreshedDates,games,logs}=feed;
 if(!Array.isArray(games)||!Array.isArray(logs)||!updatedAt)throw new Error('No valid public feed');

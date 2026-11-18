@@ -1,0 +1,517 @@
+{
+  "updatedAt": "2026-11-18T11:45:10.105Z",
+  "lineupsUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+  "reportUrl": "https://www.rotowire.com/basketball/injury-report.php",
+  "players": {
+    "2816": {
+      "status": "Questionable",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "noteDate": "2026-11-17",
+      "noteArea": "Back",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/al-horford-injury-iffy-for-wednesday-539639"
+    },
+    "3014": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "3195": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "noteDate": "2026-11-17",
+      "noteArea": "Knee",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/kawhi-leonard-injury-to-miss-at-least-one-more-week-539641"
+    },
+    "3231": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "3299": {
+      "status": "Questionable",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "noteDate": "2026-11-17",
+      "noteArea": "Elbow",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/draymond-green-injury-questionable-for-wednesday-539683"
+    },
+    "3437": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "3580": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "3587": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "3669": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "3760": {
+      "status": "Probable",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "noteDate": "2026-11-17",
+      "noteArea": "Hamstring",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/tj-mcconnell-injury-probable-for-wednesday-539640"
+    },
+    "3849": {
+      "status": "Out for season",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "3856": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "3858": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "3894": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "4103": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "4119": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "4153": {
+      "status": "Probable",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "injury": "Hip"
+    },
+    "4384": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "4454": {
+      "status": "Out",
+      "statusUrl": "https://www.rotowire.com/basketball/injury-report.php",
+      "injury": "Concussion",
+      "noteDate": "2026-11-17",
+      "noteArea": "Concussion",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/grayson-allen-injury-late-scratch-tuesday-539665"
+    },
+    "4470": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "4562": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "noteDate": "2026-11-17",
+      "noteArea": "Hip",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/jock-landale-injury-out-for-wednesday-539652"
+    },
+    "4771": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "4774": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "4776": {
+      "status": "Questionable",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "noteDate": "2026-11-17",
+      "noteArea": "Hip",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/deandre-hunter-injury-questionable-for-wednesday-539659"
+    },
+    "5114": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5122": {
+      "status": "Probable",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5137": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5152": {
+      "status": "Out",
+      "statusUrl": "https://www.rotowire.com/basketball/injury-report.php",
+      "injury": "Foot",
+      "noteDate": "2026-11-17",
+      "noteArea": "Foot",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/deni-avdija-injury-ruled-out-tuesday-539657"
+    },
+    "5249": {
+      "status": "Questionable",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "injury": "Ankle",
+      "noteDate": "2026-11-17",
+      "noteArea": "Ankle",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/precious-achiuwa-injury-questionable-for-wednesday-539658"
+    },
+    "5254": {
+      "status": "Questionable",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5291": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5334": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5355": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5358": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5371": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5384": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5401": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5428": {
+      "status": "Probable",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "injury": "Ankle",
+      "noteDate": "2026-11-17",
+      "noteArea": "Ankle",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/santi-aldama-injury-probable-for-wednesday-539642"
+    },
+    "5588": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5640": {
+      "status": "Probable",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5644": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "noteDate": "2026-11-17",
+      "noteArea": "Lower Leg",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/walker-kessler-injury-expected-to-play-wednesday-539666"
+    },
+    "5647": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5670": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5679": {
+      "status": "Questionable",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "noteDate": "2026-11-17",
+      "noteArea": "Hip",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/andrew-nembhard-injury-questionable-for-wednesday-539638"
+    },
+    "5685": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5687": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5690": {
+      "status": "Questionable",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "noteDate": "2026-11-17",
+      "noteArea": "Back",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/jaylin-williams-injury-questionable-against-atlanta-539653"
+    },
+    "5695": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5697": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5698": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5700": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5703": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5719": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5722": {
+      "status": "Questionable",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5723": {
+      "status": "Questionable",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "noteDate": "2026-11-17",
+      "noteArea": "Ankle",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/max-christie-injury-questionable-for-wednesdady-539643"
+    },
+    "5778": {
+      "status": "Out for season",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5898": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5904": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "noteDate": "2026-11-17",
+      "noteArea": "Foot",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/dereck-lively-injury-still-sidelined-539647"
+    },
+    "5915": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5931": {
+      "status": "Questionable",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5939": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "5946": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "noteDate": "2026-11-17",
+      "noteArea": "Foot",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/gg-jackson-injury-undergoes-surgery-tuesday-539654"
+    },
+    "5968": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "6000": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "6033": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "6067": {
+      "status": "Questionable",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "6082": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "noteDate": "2026-11-17",
+      "noteArea": "Heel",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/tarik-biberovic-injury-ruled-out-for-wednesday-539645"
+    },
+    "6272": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "6277": {
+      "status": "Doubtful",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "6287": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "6292": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "6311": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "noteDate": "2026-11-17",
+      "noteArea": "Back",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/naeqwan-tomlin-injury-still-out-wednesday-539637"
+    },
+    "6544": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "noteDate": "2026-11-17",
+      "noteArea": "Knee",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/thomas-sorber-injury-undergoes-knee-surgery-539656"
+    },
+    "6549": {
+      "noteDate": "2026-11-17",
+      "noteArea": "Undisclosed",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/dylan-harper-injury-leaves-early-after-awkward-fall-tuesday-539678"
+    },
+    "6552": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "noteDate": "2026-11-17",
+      "noteArea": "Knee",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/maxime-raynaud-injury-still-out-wednesday-539684"
+    },
+    "6561": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "6573": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "6575": {
+      "status": "Probable",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "noteDate": "2026-11-17",
+      "noteArea": "Ankle",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/walter-clayton-injury-likely-to-play-wednesday-539648"
+    },
+    "6577": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "6593": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "noteDate": "2026-11-17",
+      "noteArea": "Knee",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/sergio-de-larrea-injury-continues-to-miss-time-539649"
+    },
+    "6608": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "6926": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "6927": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "noteDate": "2026-11-17",
+      "noteArea": "Back",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/kingston-flemings-injury-wont-play-wednesday-539651"
+    },
+    "6981": {
+      "status": "Doubtful",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php",
+      "noteDate": "2026-11-17",
+      "noteArea": "Groin",
+      "noteUrl": "https://www.rotowire.com/basketball/headlines/tobi-lawal-injury-doubtful-for-wednesday-539646"
+    },
+    "6991": {
+      "status": "Out for season",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "7006": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    },
+    "7008": {
+      "status": "Out",
+      "gameDate": "2026-11-18",
+      "statusUrl": "https://www.rotowire.com/basketball/nba-lineups.php"
+    }
+  }
+}
