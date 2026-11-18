@@ -22,8 +22,8 @@ h2{font-family:SlamDunk,Impact,sans-serif;font-size:20px;font-weight:400;letter-
   --muted:#000;
   --line:#eab2be;
   --red:var(--brand-strong);
-  --green:#25604d;
-  --gold:#8e5d19;
+  --green:#a90c3a;
+  --gold:var(--brand-strong);
 }
 body {font-size:16px;line-height:1.5}
 .site-header {background:var(--red);color:#fff;border-top:5px solid var(--brand-black);border-bottom:3px solid var(--brand-hot)}
@@ -61,13 +61,21 @@ h3,.player-name,.controls,.field label {font-size:16px}
 .eyebrow,.stat label,.panel-link,.snapshot-badge,.slot,.tag {font-size:13px}
 .eyebrow,.kicker,.panel-link,.player-link,.tag,.positive,.negative,.star,.star.selected {color:var(--ink)}
 .stats,.grid {gap:18px}
-.stat,.panel,dialog {border-radius:14px;box-shadow:0 5px 18px #3b182309}
+.stat,.panel,dialog {border-radius:14px;box-shadow:0 5px 18px #0000000d}
 .stat {border-top:3px solid var(--red)}
 .stat strong {font-size:40px}
 .panel {overflow:hidden}
 .panel-head {background:var(--brand-blush)}
 .match-card {background:#ffc6d2}
 .match-card:before {border-color:var(--line)}
+.bar {background:var(--line)}
+.bar span {background:var(--brand-hot)}
+td {border-bottom-color:var(--line)}
+.tag {background:#ffe6eb}
+.tag.red {background:#fcc3d5;color:#920930}
+.tag.green {background:var(--brand-blush)}
+.tag.gold {background:#f9d0dd}
+dialog::backdrop {background:#0009}
 th,.metric-row div {background:#ffe6eb}
 tbody tr:hover,.row-mine {background:#ffe3e8}
 .result-box {background:#ffe6eb;border-color:var(--line)}
@@ -114,8 +122,8 @@ dialog {max-width:780px;font-family:var(--typeface)}
 [data-theme="dark"] th,[data-theme="dark"] .row-mine,[data-theme="dark"] tbody tr:hover {background:#290c1a}
 [data-theme="dark"] .tag {background:#391725;color:var(--ink)}
 [data-theme="dark"] .tag.red {background:#581330;color:var(--brand-blush)}
-[data-theme="dark"] .tag.green {background:#263831;color:#e3f3e8}
-[data-theme="dark"] .tag.gold {background:#42351d;color:#fce7b7}
+[data-theme="dark"] .tag.green {background:#391725;color:var(--ink)}
+[data-theme="dark"] .tag.gold {background:#481629;color:var(--ink)}
 [data-theme="dark"] .button.dark {color:var(--paper)}
 .nba-badge {
   display:inline-block;
