@@ -9,3 +9,5 @@ Thumbs.db
 data/
 private/
 *.log
+dist/
+.feed-cache/
