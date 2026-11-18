@@ -45,20 +45,46 @@ export function historicalAvailability(player,record,currentSeason,weights){
 const regularFields=['pts','reb','ast','st','blk','to'];
 const splitFields=['pts','oreb','dreb','ast','st','blk','to','reb'];
 const defaultWeights=[1,1.2,1.5,3,3,-1.5];
+export const defaultRoster={regular:13,il:3};
+const defaultRosterSide={open:0,ilOut:0,ilIn:0};
+
+export function rosterSpots(outgoing,incoming,settings=defaultRosterSide){
+ const change=incoming-settings.ilIn-(outgoing-settings.ilOut);
+ return {change,cuts:Math.max(change-settings.open,0),pickups:Math.max(-change,0)};
+}
+
+export function rosterAdjustment(baseNet,values,{cuts,pickups}){
+ const remaining=Math.max(0,(cuts||pickups)-values.length);
+ const net=Number.isFinite(baseNet)&&values.every(Number.isFinite)?
+  Number((baseNet+(cuts?-1:1)*values.reduce((total,value)=>total+value,0)).toFixed(2)):null;
+ return {net,remaining,breakEven:pickups&&remaining&&net!==null?Math.max(0,-net):null};
+}
+
+export function rosterSettings(limits,side,outgoing,incoming){
+ const count=(value,fallback,min,max)=>value!==''&&value!=null&&Number.isFinite(Number(value))?
+  Math.max(min,Math.min(max,Math.trunc(Number(value)))):fallback;
+ const regular=count(limits?.regular,defaultRoster.regular,1,99);
+ const il=count(limits?.il,defaultRoster.il,0,99);
+ return {regular,il,open:count(side?.open,0,0,regular),ilOut:count(side?.ilOut,0,0,Math.min(il,outgoing)),ilIn:count(side?.ilIn,0,0,Math.min(il,incoming))};
+}
 
 export function sharedPlayerRef(player){
  const profileId=/-([0-9]+)$/.exec(player.profile||'')?.[1];
  return profileId?`_${Number(profileId).toString(36)}`:player.id;
 }
 
-export function compactTradeHash({scoring,split,names,a,b}){
+export function compactTradeHash({scoring,split,names,a,b,roster}){
  const values=(split?splitFields:regularFields).map(key=>scoring[key]??'');
  const code=split?'s'+values.join(','):values.every((value,i)=>value===defaultWeights[i])?'d':values.join(',');
- const fields=['#t=2',code,a.join(','),b.join(',')];
- if(names.some(Boolean)){
-  const text=new TextEncoder().encode(names.join('\n'));
+ const sideValues=['a','b'].flatMap(key=>['open','ilOut','ilIn'].map(field=>roster?.[key]?.[field]??0));
+ const limits=[roster?.regular??defaultRoster.regular,roster?.il??defaultRoster.il];
+ const adjusted=roster?.a?.players?.length||roster?.b?.players?.length||sideValues.some(Boolean)||limits[0]!==defaultRoster.regular||limits[1]!==defaultRoster.il;
+ const fields=[adjusted?'#t=3':'#t=2',code,a.join(','),b.join(',')];
+ if(adjusted||names.some(Boolean)){
+  const text=new TextEncoder().encode(names.some(Boolean)?names.join('\n'):'');
   fields.push(btoa(String.fromCharCode(...text)).replaceAll('+','-').replaceAll('/','_').replace(/=+$/,''));
  }
+ if(adjusted)fields.push(roster?.a?.players?.join(',')||'',roster?.b?.players?.join(',')||'',[...limits,...sideValues].join(','));
  return fields.join('~');
 }
 
@@ -68,11 +94,12 @@ export function parseSharedTrade(hash){
  if(!isTradeHash(hash)||hash.length>36000)return null;
  try {
   const compact=hash.startsWith('#t=');
-  let values,split,names,a,b;
+  let values,split,names,a,b,roster;
+  const list=value=>value?value.split(','):[];
   if(compact){
    const fields=hash.split('~');
-   const [version,code,left,right,encoded='']=fields;
-   if(version!=='#t=2'||fields.length<4||fields.length>5||encoded.length>260||!/^[\w-]*$/.test(encoded))return null;
+   const [version,code,left,right,encoded='',adjustA,adjustB,rosterCode]=fields;
+   if(!(version==='#t=2'&&fields.length>=4&&fields.length<=5||version==='#t=3'&&fields.length===8)||encoded.length>260||!/^[\w-]*$/.test(encoded))return null;
    split=code.startsWith('s');
    const keys=split?splitFields:regularFields;
    const raw=code==='d'?defaultWeights:(split?code.slice(1):code).split(',');
@@ -80,18 +107,31 @@ export function parseSharedTrade(hash){
    values=Object.fromEntries(keys.map((key,index)=>[key,raw[index]===''?null:Number(raw[index])]));
    const text=atob(encoded.replaceAll('-','+').replaceAll('_','/'));
    names=new TextDecoder('utf-8',{fatal:true}).decode(Uint8Array.from(text,letter=>letter.charCodeAt(0))).split('\n');
-   a=left?left.split(','):[];
-   b=right?right.split(','):[];
+   a=list(left);
+   b=list(right);
+   if(version==='#t=3'){
+    if(!/^\d{1,2}(,\d{1,2}){7}$/.test(rosterCode))return null;
+    const [regular,il,openA,outA,inA,openB,outB,inB]=rosterCode.split(',').map(Number);
+    if(regular<1)return null;
+    const limits={regular,il};
+    roster={...limits,a:{...rosterSettings(limits,{open:openA,ilOut:outA,ilIn:inA},a.length,b.length),players:list(adjustA)},b:{...rosterSettings(limits,{open:openB,ilOut:outB,ilIn:inB},b.length,a.length),players:list(adjustB)}};
+   }
   }else{
    let version;
    [version,values,split,names,a,b]=JSON.parse(decodeURIComponent(hash.slice(7)));
    if(version!==1||typeof split!=='boolean'||!Array.isArray(names)||!Array.isArray(a)||!Array.isArray(b))return null;
   }
   const ids=[...a,...b];
-  if(!ids.length||ids.length>200||new Set(ids).size!==ids.length||!ids.every(id=>typeof id==='string'&&(/^[a-z0-9]{1,48}$/.test(id)||compact&&/^_[a-z0-9]{1,12}$/.test(id))))return null;
+  const validRef=id=>typeof id==='string'&&(/^[a-z0-9]{1,48}$/.test(id)||compact&&/^_[a-z0-9]{1,12}$/.test(id));
+  if(!ids.length||ids.length>200||new Set(ids).size!==ids.length||!ids.every(validRef))return null;
+  if(roster)for(const [key,outgoing,incoming] of [['a',a,b],['b',b,a]]){
+   const {cuts,pickups}=rosterSpots(outgoing.length,incoming.length,roster[key]);
+   const refs=roster[key].players;
+   if(refs.length>(cuts||pickups)||new Set(refs).size!==refs.length||!refs.every(ref=>validRef(ref)&&!ids.includes(ref)))return null;
+  }
   const scoring=Object.fromEntries(Object.keys(boxFields).map(key=>[key,Number.isFinite(values[key])?values[key]:'']));
   if(!scoringWeights(scoring,split))return null;
-  return {scoring,split,names,a,b};
+  return roster?{scoring,split,names,a,b,roster}:{scoring,split,names,a,b};
  } catch {return null;}
 }
 

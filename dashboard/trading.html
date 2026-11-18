@@ -7,9 +7,9 @@
  <link rel="icon" href="./player-logo.png?v=3">
  <link rel="stylesheet" href="./style.css">
  <link rel="stylesheet" href="./font.css?v=logo-contrast">
- <link rel="stylesheet" href="./trading.css?v=trade-tabs">
+ <link rel="stylesheet" href="./trading.css?v=roster-adjustments">
  <script type="module" src="./theme.mjs?v=logo-contrast"></script>
- <script type="module" src="./trading.mjs?v=trade-tabs"></script>
+ <script type="module" src="./trading.mjs?v=roster-adjustments"></script>
 </head>
 <body>
  <header class="site-header"><div class="masthead">
@@ -40,6 +40,7 @@
     <p class="sub">Turnovers always subtract points.</p>
     <button class="button primary" type="submit">Continue to player picker</button>
    </form>
+   <button class="button roster-book-shortcut" id="setup-roster-book" type="button">Saved rosters</button>
   </section>
   <section id="trade-board" hidden>
    <div class="trade-tabs" id="trade-tabs" role="tablist" aria-label="Trade views">
@@ -50,6 +51,7 @@
    <div class="trade-toolbar">
     <button class="button trade-command" id="edit-scoring" type="button"><span aria-hidden="true">≡</span> Edit scoring</button>
     <button class="button trade-command" id="rename-managers" type="button">Rename managers</button>
+    <button class="button trade-command" id="open-roster-book" type="button">Saved rosters</button>
     <button class="button trade-command" id="share-trade" type="button" disabled>Share trade</button>
     <button class="button trade-command" id="clear-trade" type="button"><span aria-hidden="true">↺</span> Clear trade</button>
    </div>
@@ -59,11 +61,13 @@
     <section class="trade-side panel" aria-labelledby="trade-a-title">
      <div class="trade-side-head"><div><h2 id="trade-a-title">Manager A</h2><span>Trades away</span></div><span id="trade-a-total"></span></div>
      <div id="trade-a-players" class="trade-players"></div>
+     <label class="trade-roster-select">Saved team <select id="saved-team-a" aria-label="Saved team for the first manager"></select></label>
      <button class="button primary trade-add" type="button" data-pick="a"><span class="trade-add-icon" aria-hidden="true">+</span> Add player</button>
     </section>
     <section class="trade-side panel" aria-labelledby="trade-b-title">
      <div class="trade-side-head"><div><h2 id="trade-b-title">Manager B</h2><span>Trades away</span></div><span id="trade-b-total"></span></div>
      <div id="trade-b-players" class="trade-players"></div>
+     <label class="trade-roster-select">Saved team <select id="saved-team-b" aria-label="Saved team for the second manager"></select></label>
      <button class="button primary trade-add" type="button" data-pick="b"><span class="trade-add-icon" aria-hidden="true">+</span> Add player</button>
     </section>
     <span class="trade-exchange" aria-hidden="true">⇄</span>
@@ -79,6 +83,31 @@
      <div id="manager-impacts" class="manager-impacts"></div>
      <p class="sub">On season FP per game: fair within 10%, edge through 20%, lopsided above 20%. The gap is measured against the larger package.</p>
     </section>
+    <section id="trade-roster" class="panel panel-body trade-balance" aria-labelledby="trade-roster-title" hidden>
+     <div class="roster-heading"><h2 id="trade-roster-title">Roster adjustments</h2><span id="roster-limit-label" class="sub"></span></div>
+     <details class="roster-settings" id="roster-settings">
+      <summary>Roster settings</summary>
+      <div class="roster-setting-grid">
+       <fieldset><legend>League limits</legend>
+        <label>Regular spots <input type="number" min="1" max="99" step="1" data-roster-limit="regular"></label>
+        <label>IL spots <input type="number" min="0" max="99" step="1" data-roster-limit="il"></label>
+        <p class="sub">Default starters are PG, SG, G, SF, PF, F, C, C, Util, Util, plus 3 bench spots.</p>
+       </fieldset>
+       <fieldset data-roster-team="a"><legend></legend>
+        <label>Open regular spots before trade <input type="number" min="0" step="1" data-roster-option="open"></label>
+        <label>Outgoing players from IL <input type="number" min="0" step="1" data-roster-option="ilOut"></label>
+        <label>Incoming players going to IL <input type="number" min="0" step="1" data-roster-option="ilIn"></label>
+       </fieldset>
+       <fieldset data-roster-team="b"><legend></legend>
+        <label>Open regular spots before trade <input type="number" min="0" step="1" data-roster-option="open"></label>
+        <label>Outgoing players from IL <input type="number" min="0" step="1" data-roster-option="ilOut"></label>
+        <label>Incoming players going to IL <input type="number" min="0" step="1" data-roster-option="ilIn"></label>
+       </fieldset>
+      </div>
+      <p class="sub">Only use IL for eligible players with room on your IL. IL choices affect roster space. FP per game uses season averages.</p>
+     </details>
+     <div id="roster-results" class="manager-impacts"></div>
+    </section>
     <section id="trade-summary" class="panel panel-body trade-balance" aria-labelledby="trade-summary-title" hidden>
      <h2 id="trade-summary-title">TL;DR</h2>
      <p id="trade-summary-result"></p>
@@ -87,6 +116,7 @@
       <div><dt>Next week</dt><dd id="trade-summary-week"></dd></div>
       <div><dt>Injury watch</dt><dd id="trade-summary-flags"></dd></div>
       <div><dt>Injury history</dt><dd id="trade-summary-history"></dd></div>
+      <div id="trade-summary-roster-row" hidden><dt>Roster-adjusted net</dt><dd id="trade-summary-roster"></dd></div>
      </dl>
     </section>
    </div>
@@ -114,6 +144,7 @@
       <button class="button" type="button" data-question="Who has the better floor and ceiling?">Floor &amp; ceiling</button>
       <button class="button" type="button" data-question="What are the injury risks?">Injury risk</button>
       <button class="button" type="button" data-question="What does their injury history show?">Injury history</button>
+       <button class="button" type="button" data-question="What changes after roster adjustments?">Roster adjustments</button>
       <button class="button" type="button" data-question="Who has the edge next week?">Next week</button>
       <button class="button" type="button" data-question="Who has played more games?">Games played</button>
       <button class="button" type="button" data-question="Which stats drive the trade?">Stat drivers</button>
@@ -130,6 +161,31 @@
    <p id="trade-sources" class="sub"></p>
   </section>
  </main>
+ <dialog id="saved-rosters-dialog" aria-labelledby="saved-rosters-title">
+  <div class="roster-heading"><h2 id="saved-rosters-title">Saved rosters</h2><button class="button" id="close-roster-book" type="button">Close</button></div>
+  <p class="sub">Save one team or add every team in a league. Separate full player names with new lines or commas.</p>
+  <form id="saved-rosters-form" class="saved-rosters-form">
+   <div class="saved-roster-fields">
+    <label>Configuration <select id="saved-config-select"></select></label>
+    <label>Configuration name <input name="configName" maxlength="60" placeholder="e.g. Big Balls League" required></label>
+    <label>Regular spots <input name="regular" type="number" min="1" max="99" step="1" required></label>
+    <label>IL spots <input name="il" type="number" min="0" max="99" step="1" required></label>
+    <label>Team <select id="saved-team-select"></select></label>
+    <label>Team name <input name="teamName" maxlength="60" placeholder="e.g. Milch" required></label>
+    <label>Regular roster <textarea name="regularPlayers" rows="6" maxlength="6000"></textarea></label>
+    <label>Injured list <textarea name="injuredPlayers" rows="6" maxlength="6000"></textarea></label>
+   </div>
+   <div class="entry-actions">
+    <button class="button primary" type="submit">Save team</button>
+    <button class="button" id="share-saved-team" type="button">Copy team link</button>
+    <button class="button" id="share-saved-config" type="button">Copy configuration link</button>
+    <button class="button" id="browse-free-agents" type="button">Browse free agents</button>
+   </div>
+  </form>
+  <button class="button primary" id="save-roster-import" type="button" hidden>Save shared configuration</button>
+  <p id="saved-rosters-status" class="sub" role="status"></p>
+  <input id="saved-rosters-url" class="share-url" aria-label="Roster share link" type="url" readonly hidden>
+ </dialog>
  <dialog id="manager-dialog" aria-labelledby="manager-dialog-title">
   <h2 id="manager-dialog-title">Rename managers</h2>
   <form id="manager-form" class="manager-form">

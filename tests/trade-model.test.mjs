@@ -1,10 +1,46 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,packageForm,compareGamesPlayed,statSwings,packageScenarios,nextOpponents,easternWeek,weeklyPackage,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef} from '../dashboard/trade-model.mjs';
+import {scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,packageForm,compareGamesPlayed,statSwings,packageScenarios,nextOpponents,easternWeek,weeklyPackage,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,rosterSpots,rosterSettings,rosterAdjustment} from '../dashboard/trade-model.mjs';
+import {normalizeRosterConfig,savedRosterFilter,rosterConfigHash,parseRosterConfig} from '../dashboard/saved-rosters.mjs';
 import {injuryHistory} from '../refresh-injury-history.mjs';
 
 const base={pts:'1',reb:'1.2',ast:'1.5',st:'3',blk:'3',to:'1.5'};
 const box={pts:20,reb:10,oreb:3,dreb:7,ast:5,st:1,blk:1,to:4};
+
+test('roster adjustments apply cuts and pickups and keep existing and IL slots separate',()=>{
+ const a=rosterSpots(1,2),b=rosterSpots(2,1);
+ assert.deepEqual(rosterAdjustment(6,[18],a),{net:-12,remaining:0,breakEven:null});
+ assert.deepEqual(rosterAdjustment(-6,[],b),{net:-6,remaining:1,breakEven:6});
+ assert.deepEqual(rosterAdjustment(-6,[12],b),{net:6,remaining:0,breakEven:null});
+ assert.equal(rosterAdjustment(-6,[null],b).net,null);
+ assert.equal(rosterSpots(1,2,{open:1,ilOut:0,ilIn:0}).cuts,0);
+ assert.equal(rosterSpots(1,2,{open:0,ilOut:0,ilIn:1}).cuts,0);
+ assert.equal(rosterSpots(1,1,{open:0,ilOut:0,ilIn:1}).pickups,1);
+ assert.equal(rosterSettings({regular:13,il:3},{open:15,ilIn:4},1,2).ilIn,2);
+});
+
+test('share links preserve roster limits, IL counts and adjustments',()=>{
+ const roster={regular:14,il:3,a:{open:0,ilOut:1,ilIn:0,players:['_cc']},b:{open:0,ilOut:0,ilIn:0,players:['_dd']}};
+ const hash=compactTradeHash({scoring:scoringWeights(base,false),split:false,names:['',''],a:['_aa'],b:['_bb','_ee'],roster});
+ const parsed=parseSharedTrade(hash);
+ assert.equal(parsed.roster.regular,14);
+ assert.equal(parsed.roster.a.ilOut,1);
+ assert.deepEqual(parsed.roster.b.players,['_dd']);
+ assert.equal(parseSharedTrade(hash.replace('~_dd~','~_ee~')),null);
+});
+
+test('saved league links keep full and IL rosters and exclude them from free agents',()=>{
+ const config={name:'Test League 🏀',regular:13,il:3,teams:[{name:'Milch',players:['Nikola Jokić'],injured:['Victor Wembanyama']},{name:'Other',players:['Amen Thompson'],injured:[]}]};
+ assert.deepEqual(parseRosterConfig(rosterConfigHash(config)),config);
+ const available=savedRosterFilter(config,config.teams[0],'pickup');
+ assert.equal(available({name:'Nikola Jokic'}),false);
+ assert.equal(available({name:'Victor Wembanyama'}),false);
+ assert.equal(available({name:'Amen Thompson'}),false);
+ assert.equal(available({name:'Yaxel Lendeborg'}),true);
+ assert.equal(savedRosterFilter(config,config.teams[0],'cut')({name:'Victor Wembanyama'}),false);
+ assert.equal(savedRosterFilter(config,config.teams[0],'trade')({name:'Victor Wembanyama'}),true);
+ assert.equal(normalizeRosterConfig({...config,teams:[...config.teams,{name:'Duplicate',players:['Nikola Jokic'],injured:[]}]}),null);
+});
 
 test('weekly packages count both Eastern week boundaries across a daylight saving change',()=>{
  const dates=easternWeek(0,new Date('2026-03-09T02:00Z'));
