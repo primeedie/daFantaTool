@@ -1,5 +1,6 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
-import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=roster-search';
+import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=public-big-balls';
+import {bigBalls} from './big-balls.mjs?v=2026-11-18';
 import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=trade-suggestions';
 
 const $=selector=>document.querySelector(selector);
@@ -158,6 +159,15 @@ $('#edit-scoring').addEventListener('click',()=>{
  settings.hidden=false;
  input('pts').focus();
 });
+function enableBigBalls(save){
+ input('split').checked=false;
+ toggleRebounds();
+ for(const key of Object.keys(boxFields))input(key).value=bigBalls.scoring[key]??'';
+ roster.regular=bigBalls.regular;
+ roster.il=bigBalls.il;
+ activateTrade(save);
+}
+$('#use-big-balls').addEventListener('click',()=>{enableBigBalls(true);$('#edit-scoring').focus();});
 $('#clear-trade').addEventListener('click',()=>{
  picks.a.length=0;
  picks.b.length=0;
@@ -922,4 +932,6 @@ if(sharedTrade){
  });
 }else if(isTradeHash(location.hash)){
  $('#trade-link-error').hidden=false;
+}else if(new URLSearchParams(location.search).get('league')===bigBalls.id){
+ enableBigBalls(false);
 }

@@ -7,9 +7,9 @@
  <link rel="icon" href="./player-logo.png?v=3">
  <link rel="stylesheet" href="./style.css">
  <link rel="stylesheet" href="./font.css?v=logo-contrast">
- <link rel="stylesheet" href="./trading.css?v=trade-suggestions">
+ <link rel="stylesheet" href="./trading.css?v=public-big-balls">
  <script type="module" src="./theme.mjs?v=logo-contrast"></script>
- <script type="module" src="./trading.mjs?v=trade-suggestions"></script>
+ <script type="module" src="./trading.mjs?v=public-big-balls"></script>
 </head>
 <body>
  <header class="site-header"><div class="masthead">
@@ -39,6 +39,7 @@
     </div>
     <p class="sub">Turnovers always subtract points.</p>
     <button class="button primary" type="submit">Continue to player picker</button>
+    <button class="button" id="use-big-balls" type="button">Use Big Balls scoring</button>
    </form>
    <button class="button roster-book-shortcut" id="setup-roster-book" type="button">Saved rosters</button>
   </section>
@@ -174,6 +175,7 @@
  <dialog id="saved-rosters-dialog" aria-labelledby="saved-rosters-title">
   <div class="roster-heading"><h2 id="saved-rosters-title">Saved rosters</h2><button class="button" id="close-roster-book" type="button">Close</button></div>
   <p class="sub">Search for players or paste full names, one per line. Save one team or add every team in a league.</p>
+  <p class="sub" id="public-roster-note" hidden></p>
   <form id="saved-rosters-form" class="saved-rosters-form">
    <div class="saved-roster-fields">
     <label>Configuration <select id="saved-config-select"></select></label>
@@ -192,7 +194,8 @@
     </div>
    </div>
    <div class="entry-actions">
-    <button class="button primary" type="submit">Save team</button>
+    <button class="button primary" id="save-roster-team" type="submit">Save team</button>
+    <button class="button primary" id="copy-public-roster" type="button" hidden>Save editable copy</button>
     <button class="button" id="share-saved-team" type="button">Copy team link</button>
     <button class="button" id="share-saved-config" type="button">Copy configuration link</button>
     <button class="button" id="browse-free-agents" type="button">Browse free agents</button>

@@ -2,6 +2,7 @@ import {readFile,writeFile,mkdir,rename} from 'node:fs/promises';
 import {dirname,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {playerKey} from './dashboard/model.mjs';
+import {bigBallsRosterExtras} from './dashboard/big-balls.mjs';
 
 const origin='https://www.rotowire.com';
 const rankUrl=origin+'/basketball/article/2026-27-fantasy-basketball-cheat-sheet-points-leagues-printable-excel-142162';
@@ -9,6 +10,8 @@ const statsUrl=origin+'/basketball/stats.php';
 const linkedRankings=origin+'/basketball/article/updated-2026-27-fantasy-basketball-rankings-top-250-players-140954';
 const depthCharts=origin+'/basketball/nba-depth-charts/';
 const teamIndex=origin+'/basketball/team/los-angeles-lakers-lal';
+const profileFallbacks={krisdunn:'/basketball/player/kris-dunn-3854',jimmybutler:'/basketball/player/jimmy-butler-3231',
+ klaythompson:'/basketball/player/klay-thompson-3197',jaredmccain:'/basketball/player/jared-mccain-6266'};
 const codes={SAN:'SAS',SA:'SAS',NY:'NYK',NO:'NOP',GS:'GSW',PHO:'PHX',UTAH:'UTA',WSH:'WAS'};
 const nbaCode=code=>codes[code]||code;
 const statFields={pts:'pts',reb:'reb',oreb:'oreb',dreb:'dreb',ast:'ast',st:'stl',blk:'blk',to:'to'};
@@ -110,6 +113,12 @@ const [cheat,withLinks,depth,teams]=await Promise.all([
 ]);
 const players=rankRows(cheat);
 if(players.length!==200||new Set(players.map(player=>player.id)).size!==players.length)throw new Error('RotoWire draft rank list changed');
+const rankedCount=players.length;
+const rankedIds=new Set(players.map(player=>player.id));
+for(const [name,nba,position] of bigBallsRosterExtras){
+ const id=playerKey(name);
+ if(!rankedIds.has(id))players.push({id,name,nba,position,rank:null});
+}
 const profiles=new Map();
 profilesFrom(withLinks,profiles);
 profilesFrom(depth,profiles);
@@ -122,7 +131,7 @@ let updated=0,retained=0;
 await limit(players,5,async player=>{
  const old=oldPlayers.get(player.id);
  if(missingOnly&&old?.stats){Object.assign(player,old);retained++;return;}
- const path=profiles.get(player.id)||old?.profile?.replace(origin,'');
+ const path=profiles.get(player.id)||old?.profile?.replace(origin,'')||profileFallbacks[player.id];
  if(!path)return;
  player.profile=origin+path;
  const id=/-(\d+)$/.exec(path)?.[1];
@@ -149,8 +158,8 @@ await limit(players,5,async player=>{
  if(!player.opponentHistory&&old?.opponentHistory)player.opponentHistory=old.opponentHistory;
 });
 if((missingOnly?updated+retained:updated)<100)throw new Error(`Only ${updated} active-season RotoWire stats rows updated. Keeping the existing dataset.`);
-const result={analysisVersion:3,rankUrl,statsUrl,rankDate:'Oct 19, 2026',updatedAt:new Date().toISOString(),players};
+const result={analysisVersion:4,rankUrl,statsUrl,rankDate:'Oct 19, 2026',updatedAt:new Date().toISOString(),players};
 await mkdir(dirname(resolve(output)),{recursive:true});
 await writeFile(output+'.tmp',JSON.stringify(result,null,2)+'\n');
 await rename(output+'.tmp',output);
-console.log(`RotoWire: ${players.length} draft ranks, ${updated} updated season averages, ${retained} cached.`);
+console.log(`RotoWire: ${rankedCount} draft ranks and ${players.length-rankedCount} additional roster players, ${updated} updated season averages, ${retained} cached.`);

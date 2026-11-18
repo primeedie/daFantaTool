@@ -5,9 +5,21 @@ import {normalizeRosterConfig,savedRosterFilter,rosterConfigHash,parseRosterConf
 import {injuryHistory} from '../refresh-injury-history.mjs';
 import {pickerMatch,suggestFairTrades} from '../dashboard/trade-model.mjs';
 import {playerKey} from '../dashboard/model.mjs';
+import {bigBalls} from '../dashboard/big-balls.mjs';
 
 const base={pts:'1',reb:'1.2',ast:'1.5',st:'3',blk:'3',to:'1.5'};
 const box={pts:20,reb:10,oreb:3,dreb:7,ast:5,st:1,blk:1,to:4};
+
+test('the public Big Balls preset has its league scoring and ten non-overlapping rosters',()=>{
+ const league=normalizeRosterConfig(bigBalls);
+ assert.equal(league.teams.length,10);
+ assert.equal(league.regular,13);
+ assert.equal(league.il,3);
+ assert.equal(league.teams.reduce((sum,team)=>sum+team.players.length,0),128);
+ assert.equal(league.teams.reduce((sum,team)=>sum+team.injured.length,0),21);
+ assert.deepEqual(bigBalls.scoring,scoringWeights(base,false));
+ assert.equal(savedRosterFilter(league,null,'pickup')({name:'Stephen Curry'}),false);
+});
 
 test('suggestions use only marked players and rank qualifying packages by gap',()=>{
  const player=(id,pts)=>({id,stats:{pts}});
