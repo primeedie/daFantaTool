@@ -46,6 +46,29 @@ const form=$('#scoring-form');
 const input=name=>form.elements.namedItem(name);
 const settings=$('#trade-settings');
 const board=$('#trade-board');
+const tabList=$('#trade-tabs');
+const tabs=[...tabList.querySelectorAll('[role="tab"]')];
+function selectTradeTab(active){
+ for(const tab of tabs){
+  const selected=tab===active;
+  tab.setAttribute('aria-selected',String(selected));
+  tab.tabIndex=selected?0:-1;
+  document.getElementById(tab.getAttribute('aria-controls')).hidden=!selected;
+ }
+}
+tabList.addEventListener('click',event=>{
+ const tab=event.target.closest('[role="tab"]');
+ if(tab)selectTradeTab(tab);
+});
+tabList.addEventListener('keydown',event=>{
+ const index=tabs.indexOf(event.target);
+ if(index<0)return;
+ const next={ArrowLeft:(index+tabs.length-1)%tabs.length,ArrowRight:(index+1)%tabs.length,Home:0,End:tabs.length-1}[event.key];
+ if(next===undefined)return;
+ event.preventDefault();
+ selectTradeTab(tabs[next]);
+ tabs[next].focus();
+});
 const picker=$('#player-picker');
 const search=$('#picker-search');
 const sort=$('#picker-sort');
@@ -351,6 +374,8 @@ function renderContext(selected,totals,balance){
  const version=JSON.stringify([picks.a,picks.b,weights,managerNames]);
  if(version!==chatVersion){$('#trade-chat-log').textContent='';chatVersion=version;}
  $('#trade-assistant').hidden=$('#trade-summary').hidden=!a||!b;
+ $('#desk-empty').hidden=Boolean(a&&b);
+ $('#breakdown-empty').hidden=Boolean(a||b);
  section.hidden=!a&&!b;
  if(section.hidden){chatTrade=null;return;}
  const incoming={a:selected.b,b:selected.a};

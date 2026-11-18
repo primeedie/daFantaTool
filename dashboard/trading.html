@@ -7,9 +7,9 @@
  <link rel="icon" href="./player-logo.png?v=3">
  <link rel="stylesheet" href="./style.css">
  <link rel="stylesheet" href="./font.css?v=logo-contrast">
- <link rel="stylesheet" href="./trading.css?v=trade-brief">
+ <link rel="stylesheet" href="./trading.css?v=trade-tabs">
  <script type="module" src="./theme.mjs?v=logo-contrast"></script>
- <script type="module" src="./trading.mjs?v=trade-brief"></script>
+ <script type="module" src="./trading.mjs?v=trade-tabs"></script>
 </head>
 <body>
  <header class="site-header"><div class="masthead">
@@ -42,6 +42,11 @@
    </form>
   </section>
   <section id="trade-board" hidden>
+   <div class="trade-tabs" id="trade-tabs" role="tablist" aria-label="Trade views">
+    <button id="hub-tab" class="button" type="button" role="tab" aria-selected="true" aria-controls="hub-panel">Trading Hub</button>
+    <button id="breakdown-tab" class="button" type="button" role="tab" aria-selected="false" aria-controls="breakdown-panel" tabindex="-1">Trade Breakdown</button>
+    <button id="desk-tab" class="button" type="button" role="tab" aria-selected="false" aria-controls="desk-panel" tabindex="-1">Trade Desk</button>
+   </div>
    <div class="trade-toolbar">
     <button class="button trade-command" id="edit-scoring" type="button"><span aria-hidden="true">≡</span> Edit scoring</button>
     <button class="button trade-command" id="rename-managers" type="button">Rename managers</button>
@@ -63,57 +68,65 @@
     </section>
     <span class="trade-exchange" aria-hidden="true">⇄</span>
    </div>
-   <section id="trade-balance" class="panel panel-body trade-balance" aria-labelledby="trade-balance-title" hidden>
-    <div class="balance-heading"><h2 id="trade-balance-title">Trade balance</h2><strong id="trade-verdict" aria-live="polite"></strong></div>
-    <div class="balance-scale" id="trade-scale" role="img" aria-label="Trade balance scale">
-     <div class="balance-labels" aria-hidden="true"><span class="manager-a-text" id="balance-a-name">Manager A</span><span>Even</span><span class="manager-b-text" id="balance-b-name">Manager B</span></div>
-     <div class="balance-track"><span class="balance-marker" id="balance-marker"></span></div>
-    </div>
-    <p id="trade-delta" class="trade-delta"></p>
-    <div id="manager-impacts" class="manager-impacts"></div>
-    <p class="sub">On season FP per game: fair within 10%, edge through 20%, lopsided above 20%. The gap is measured against the larger package.</p>
-   </section>
-   <section id="trade-context" class="panel panel-body trade-balance" aria-labelledby="trade-context-title" hidden>
-    <h2 id="trade-context-title">Trade breakdown</h2>
-    <div id="trade-scenarios"></div>
-    <div id="trade-analysis"></div>
-    <div id="trade-weekly"></div>
-    <div id="trade-outlook"></div>
-    <div id="trade-risk-sides" class="trade-risk-sides"></div>
-    <p id="trade-roster-note" class="sub"></p>
-    <p id="trade-injury-source" class="sub"></p>
-    <div id="trade-injury-history"></div>
-   </section>
-   <section id="trade-summary" class="panel panel-body trade-balance" aria-labelledby="trade-summary-title" hidden>
-    <h2 id="trade-summary-title">TL;DR</h2>
-    <p id="trade-summary-result"></p>
-    <dl class="summary-details">
-     <div><dt>Scoring range</dt><dd id="trade-summary-range"></dd></div>
-     <div><dt>Next week</dt><dd id="trade-summary-week"></dd></div>
-     <div><dt>Injury watch</dt><dd id="trade-summary-flags"></dd></div>
-     <div><dt>Injury history</dt><dd id="trade-summary-history"></dd></div>
-    </dl>
-   </section>
-   <section id="trade-assistant" class="panel panel-body trade-balance" aria-labelledby="assistant-title" hidden>
-    <h2 id="assistant-title">Ask the trade desk</h2>
-    <p class="sub">Ask about this trade. Answers use the selected players and your scoring settings.</p>
-    <div class="question-chips" id="trade-questions">
-     <button class="button" type="button" data-question="Is this fair?">Is this fair?</button>
-     <button class="button" type="button" data-question="Who has the better floor and ceiling?">Floor &amp; ceiling</button>
-     <button class="button" type="button" data-question="What are the injury risks?">Injury risk</button>
-     <button class="button" type="button" data-question="What does their injury history show?">Injury history</button>
-     <button class="button" type="button" data-question="Who has the edge next week?">Next week</button>
-     <button class="button" type="button" data-question="Who has played more games?">Games played</button>
-     <button class="button" type="button" data-question="Which stats drive the trade?">Stat drivers</button>
-     <button class="button" type="button" data-question="Who are the next opponents?">Next opponents</button>
-    </div>
-    <div id="trade-chat-log" class="trade-chat-log" role="log" aria-live="polite"></div>
-    <form id="trade-ask" class="trade-ask">
-     <label class="sr-only" for="trade-question">Your question</label>
-     <input id="trade-question" placeholder="Ask about the trade…" maxlength="200" required>
-     <button class="button primary" type="submit">Ask</button>
-    </form>
-   </section>
+   <div id="hub-panel" role="tabpanel" aria-labelledby="hub-tab" tabindex="0">
+    <section id="trade-balance" class="panel panel-body trade-balance" aria-labelledby="trade-balance-title" hidden>
+     <div class="balance-heading"><h2 id="trade-balance-title">Trade balance</h2><strong id="trade-verdict" aria-live="polite"></strong></div>
+     <div class="balance-scale" id="trade-scale" role="img" aria-label="Trade balance scale">
+      <div class="balance-labels" aria-hidden="true"><span class="manager-a-text" id="balance-a-name">Manager A</span><span>Even</span><span class="manager-b-text" id="balance-b-name">Manager B</span></div>
+      <div class="balance-track"><span class="balance-marker" id="balance-marker"></span></div>
+     </div>
+     <p id="trade-delta" class="trade-delta"></p>
+     <div id="manager-impacts" class="manager-impacts"></div>
+     <p class="sub">On season FP per game: fair within 10%, edge through 20%, lopsided above 20%. The gap is measured against the larger package.</p>
+    </section>
+    <section id="trade-summary" class="panel panel-body trade-balance" aria-labelledby="trade-summary-title" hidden>
+     <h2 id="trade-summary-title">TL;DR</h2>
+     <p id="trade-summary-result"></p>
+     <dl class="summary-details">
+      <div><dt>Scoring range</dt><dd id="trade-summary-range"></dd></div>
+      <div><dt>Next week</dt><dd id="trade-summary-week"></dd></div>
+      <div><dt>Injury watch</dt><dd id="trade-summary-flags"></dd></div>
+      <div><dt>Injury history</dt><dd id="trade-summary-history"></dd></div>
+     </dl>
+    </section>
+   </div>
+   <div id="breakdown-panel" role="tabpanel" aria-labelledby="breakdown-tab" tabindex="0" hidden>
+    <p id="breakdown-empty" class="trade-tab-empty sub">Add a player to see the trade breakdown.</p>
+    <section id="trade-context" class="panel panel-body trade-balance" aria-labelledby="trade-context-title" hidden>
+     <h2 id="trade-context-title">Trade breakdown</h2>
+     <div id="trade-scenarios"></div>
+     <div id="trade-analysis"></div>
+     <div id="trade-weekly"></div>
+     <div id="trade-outlook"></div>
+     <div id="trade-risk-sides" class="trade-risk-sides"></div>
+     <p id="trade-roster-note" class="sub"></p>
+     <p id="trade-injury-source" class="sub"></p>
+     <div id="trade-injury-history"></div>
+    </section>
+   </div>
+   <div id="desk-panel" role="tabpanel" aria-labelledby="desk-tab" tabindex="0" hidden>
+    <p id="desk-empty" class="trade-tab-empty sub">Add a player for each manager to ask the trade desk.</p>
+    <section id="trade-assistant" class="panel panel-body trade-balance" aria-labelledby="assistant-title" hidden>
+     <h2 id="assistant-title">Ask the trade desk</h2>
+     <p class="sub">Ask about this trade. Answers use the selected players and your scoring settings.</p>
+     <div class="question-chips" id="trade-questions">
+      <button class="button" type="button" data-question="Is this fair?">Is this fair?</button>
+      <button class="button" type="button" data-question="Who has the better floor and ceiling?">Floor &amp; ceiling</button>
+      <button class="button" type="button" data-question="What are the injury risks?">Injury risk</button>
+      <button class="button" type="button" data-question="What does their injury history show?">Injury history</button>
+      <button class="button" type="button" data-question="Who has the edge next week?">Next week</button>
+      <button class="button" type="button" data-question="Who has played more games?">Games played</button>
+      <button class="button" type="button" data-question="Which stats drive the trade?">Stat drivers</button>
+      <button class="button" type="button" data-question="Who are the next opponents?">Next opponents</button>
+     </div>
+     <div id="trade-chat-log" class="trade-chat-log" role="log" aria-live="polite"></div>
+     <form id="trade-ask" class="trade-ask">
+      <label class="sr-only" for="trade-question">Your question</label>
+      <input id="trade-question" placeholder="Ask about the trade…" maxlength="200" required>
+      <button class="button primary" type="submit">Ask</button>
+     </form>
+    </section>
+   </div>
    <p id="trade-sources" class="sub"></p>
   </section>
  </main>
