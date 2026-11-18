@@ -13,11 +13,20 @@ document.body.insertAdjacentHTML('beforeend',`<svg class="brand-filters" width="
  <defs><filter id="player-palette" color-interpolation-filters="sRGB">
   <feFlood flood-color="white" result="white"/>
   <feComposite in="white" in2="SourceAlpha" operator="in" result="silhouette"/>
+  <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.6 3.2 1.6 0 -3.55" result="paleDetails"/>
+  <feComposite in="paleDetails" in2="SourceAlpha" operator="in" result="creaseMask"/>
+  <feFlood flood-color="#33323e" result="shade"/>
+  <feComposite in="shade" in2="creaseMask" operator="in" result="creases"/>
   <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  6 -6 0 0 -1.8" result="redDetails"/>
   <feComposite in="redDetails" in2="SourceAlpha" operator="in" result="detailMask"/>
   <feFlood class="player-accent-fill" result="accent"/>
   <feComposite in="accent" in2="detailMask" operator="in" result="details"/>
-  <feMerge><feMergeNode in="silhouette"/><feMergeNode in="details"/></feMerge>
+  <feMerge><feMergeNode in="silhouette"/><feMergeNode in="creases"/><feMergeNode in="details"/></feMerge>
+ </filter><filter id="wordmark-keyline" color-interpolation-filters="sRGB">
+  <feMorphology in="SourceAlpha" operator="dilate" radius="1.5" result="letterEdge"/>
+  <feFlood class="wordmark-keyline-fill" result="edgeColor"/>
+  <feComposite in="edgeColor" in2="letterEdge" operator="in" result="keyline"/>
+  <feMerge><feMergeNode in="keyline"/><feMergeNode in="SourceGraphic"/></feMerge>
  </filter></defs>
 </svg>`);
 const toggles=document.querySelectorAll('[data-theme-toggle]');
