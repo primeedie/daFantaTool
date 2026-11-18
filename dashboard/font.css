@@ -18,7 +18,7 @@ h2{font-family:SlamDunk,Impact,sans-serif;font-size:20px;font-weight:400;letter-
   --brand-light:#a9c9f4;
   --paper:#f2f4f7;
   --surface:#fff;
-  --typeface:system-ui,"Segoe UI",sans-serif;
+  --typeface:SlamDunk,system-ui,"Segoe UI",sans-serif;
   --ink:#172132;
   --muted:#4d5a6c;
   --line:#d3dce7;
@@ -30,7 +30,8 @@ h2{font-family:SlamDunk,Impact,sans-serif;font-size:20px;font-weight:400;letter-
 :root[data-palette="sixers"] {--brand-strong:#28568d;--brand-hot:#c85e65;--brand-blush:#e8effa;--brand-light:#b3d0f8}
 :root[data-palette="spurs"] {--brand-strong:#344253;--brand-hot:#bbc3cd;--brand-blush:#e9edf1;--brand-light:#cdd7e3}
 :root[data-palette="celtics"] {--brand-strong:#216247;--brand-hot:#98c3a5;--brand-blush:#e7f1ea;--brand-light:#addabb}
-body {font-size:16px;line-height:1.5}
+body {font-size:16px;line-height:1.65;letter-spacing:.025em}
+button,input,select {letter-spacing:inherit}
 :root[data-palette]:not([data-theme="dark"]) {--paper:color-mix(in srgb,#f7f8fa 68%,var(--brand-blush))}
 .site-header {background:var(--red);color:#fff;border-top:5px solid var(--brand-black);border-bottom:3px solid var(--brand-hot)}
 .masthead,.site-header nav {max-width:1500px;margin:auto;padding-inline:clamp(18px,4vw,56px)}
@@ -63,7 +64,7 @@ main {max-width:1500px;padding:32px clamp(18px,4vw,56px) 50px}
 h1 {font-size:clamp(40px,6vw,70px);line-height:1.04}
 h2 {font-size:26px}
 h3,.player-name,.controls,.field label {font-size:16px}
-.sub,.player-meta,.footnote,.stat small,footer,.notice-row p {font-size:14px}
+.sub,.player-meta,.footnote,.stat small,footer,.notice-row p {font-size:15px;line-height:1.65}
 .eyebrow,.stat label,.panel-link,.snapshot-badge,.slot,.tag {font-size:13px}
 .eyebrow,.kicker,.panel-link,.player-link,.tag,.positive,.negative,.star,.star.selected {color:var(--ink)}
 .stats,.grid {gap:18px}

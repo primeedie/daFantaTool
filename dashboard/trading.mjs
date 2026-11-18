@@ -203,18 +203,18 @@ function analysisNotes(selected,totals,risks){
   const gap=Number((recentB-recentA).toFixed(2));
   const before=managerChanges(totals.a,totals.b).a.net;
   const reversal=before!==null&&gap*before<0?' The recent sample flips the season-average edge.':'';
-  notes.push(`<strong>Recent form.</strong> Using up to five games per player, Manager A nets <b class="${tone(gap)}">${signed(gap)} FP / game</b> and Manager B nets <b class="${tone(-gap)}">${signed(-gap)} FP / game</b>.${reversal}`);
+  notes.push(['Recent form',`Over each player’s last five games or fewer, Manager A nets <b class="${tone(gap)}">${signed(gap)} FP / game</b> and Manager B nets <b class="${tone(-gap)}">${signed(-gap)} FP / game</b>.${reversal}`]);
  }
  if(Number.isFinite(totals.a)&&Number.isFinite(totals.b)){
   const changes=statSwings(selected.a,selected.b,weights);
   const swings=changes.slice(0,3).map(({stat,points})=>`${boxFields[stat]} <b class="${tone(points)}">${signed(points)} FP</b>`).join(' · ');
-  if(swings)notes.push(`<strong>What moves the score.</strong> Manager A’s biggest gains or losses per game: ${swings}. Manager B gets the inverse.`);
+  if(swings)notes.push(['What moves the score',`Manager A’s biggest FP changes per game: ${swings}. Manager B gets the opposite changes.`]);
   if((risks.a.flagged||risks.b.flagged)&&risks.a.flaggedPoints!==null&&risks.b.flaggedPoints!==null){
    const a=totals.b-risks.a.flaggedPoints,b=totals.a-risks.b.flaggedPoints;
-   notes.push(`<strong>If the flagged players sit.</strong> The incoming packages would be worth ${format(a)} FP / game for Manager A and ${format(b)} for Manager B before any replacement players.`);
+   notes.push(['If flagged players sit',`Manager A’s package would be worth ${format(a)} FP / game and Manager B’s ${format(b)} before any replacements.`]);
   }
  }
- return gamesPlayedTable(selected)+(notes.length?`<div class="trade-insights">${notes.map(note=>`<article class="trade-insight"><p>${note}</p></article>`).join('')}</div>`:'');
+ return gamesPlayedTable(selected)+(notes.length?`<div class="trade-insights">${notes.map(([heading,body])=>`<article class="trade-insight"><h3>${heading}</h3><p>${body}</p></article>`).join('')}</div>`:'');
 }
 
 function tradeAnswer(question){
