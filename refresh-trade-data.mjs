@@ -68,6 +68,23 @@ function recentGames(data){
   })));
 }
 
+function opponentHistory(data){
+ const meetings={};
+ const rows=[...(data?.gl2026?.body||[]),...(data?.gl2025?.body||[])]
+  .filter(row=>row.gametype==='REGULAR'&&String(row.playedgame)==='1'&&/^\d{4}-\d{2}-\d{2}/.test(row.gamedate))
+  .sort((a,b)=>b.gamedate.localeCompare(a.gamedate));
+ for(const row of rows){
+  const opponent=nbaCode(row.oppraw);
+  if(!opponent||meetings[opponent])continue;
+  const stats=Object.fromEntries(Object.entries(statFields).flatMap(([key,field])=>{
+   const raw=row[field];
+   return raw!=null&&String(raw).trim()&&Number.isFinite(Number(raw))?[[key,Number(raw)]]:[];
+  }));
+  meetings[opponent]={date:row.gamedate.slice(0,10),minutes:row.min||null,stats};
+ }
+ return meetings;
+}
+
 function gamesHistory(data){
  const history={};
  for(const year of [2023,2024,2025]){
@@ -117,6 +134,7 @@ await limit(players,5,async player=>{
   const row=perGame(data);
   player.history=gamesHistory(data);
   player.gameLogs=recentGames(data);
+  player.opponentHistory=opponentHistory(data);
   if(row){
    player.nba=row.nba||player.nba;
    player.games=row.games;
@@ -128,9 +146,10 @@ await limit(players,5,async player=>{
  if(old?.stats){player.games=old.games;player.stats=old.stats;player.nba=old.nba||player.nba;retained++;}
  if(!player.history&&old?.history)player.history=old.history;
  if(!player.gameLogs&&old?.gameLogs)player.gameLogs=old.gameLogs;
+ if(!player.opponentHistory&&old?.opponentHistory)player.opponentHistory=old.opponentHistory;
 });
 if((missingOnly?updated+retained:updated)<100)throw new Error(`Only ${updated} active-season RotoWire stats rows updated. Keeping the existing dataset.`);
-const result={analysisVersion:2,rankUrl,statsUrl,rankDate:'Oct 19, 2026',updatedAt:new Date().toISOString(),players};
+const result={analysisVersion:3,rankUrl,statsUrl,rankDate:'Oct 19, 2026',updatedAt:new Date().toISOString(),players};
 await mkdir(dirname(resolve(output)),{recursive:true});
 await writeFile(output+'.tmp',JSON.stringify(result,null,2)+'\n');
 await rename(output+'.tmp',output);

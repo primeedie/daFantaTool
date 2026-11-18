@@ -6,13 +6,19 @@
  --manager-b-text:var(--brand-black);
  --fp-gain:#215743;
  --fp-loss:#9c3643;
+ --number-ink:#195481;
 }
 [data-theme="dark"] .trade-tool {
  --manager-a-text:var(--brand-light);
  --manager-b-text:var(--ink);
  --fp-gain:#a4d7b7;
  --fp-loss:#ecc0c6;
+ --number-ink:#abd7ff;
 }
+.number-token {color:var(--number-ink,#195481);font-variant-numeric:tabular-nums;font-weight:700}
+[data-theme="dark"] .picker {--number-ink:#abd7ff}
+:is(.trade-fp,.metric-pill,.fp-gain,.fp-loss) .number-token {color:inherit}
+.scoring-grid input[type="number"] {color:var(--number-ink);font-variant-numeric:tabular-nums}
 .trade-title {display:flex;align-items:center;gap:16px;margin-bottom:24px;flex-wrap:wrap}
 .trade-title .trade-back {display:inline-flex;gap:8px;align-items:center;white-space:nowrap}
 .trade-title h1 {margin:0;font-size:clamp(35px,6vw,64px)}
@@ -33,18 +39,21 @@
 .trade-side {
  --side-accent:var(--manager-a);
  --side-ink:#fff;
+ --side-number:#ffedba;
  display:flex;
  flex-direction:column;
  min-height:250px;
  box-shadow:0 8px 20px #00000016;
 }
-.trade-side:nth-child(2) {--side-accent:var(--manager-b);--side-ink:var(--brand-black)}
+.trade-side:nth-child(2) {--side-accent:var(--manager-b);--side-ink:var(--brand-black);--side-number:#143963}
 :root[data-palette="nba"] .trade-side:nth-child(2),
 :root[data-palette="sixers"] .trade-side:nth-child(2) {
  --side-accent:color-mix(in srgb,var(--manager-b) 82%,black);
  --side-ink:#fff;
+ --side-number:#ffedba;
 }
 .trade-side-head {
+ position:relative;
  display:flex;
  justify-content:space-between;
  align-items:center;
@@ -56,6 +65,9 @@
   repeating-linear-gradient(125deg,transparent 0 12px,#ffffff0f 12px 13px,transparent 13px 23px),
   linear-gradient(155deg,var(--side-accent),color-mix(in srgb,var(--side-accent) 88%,black));
 }
+:root[data-palette="spurs"] .trade-side-head::after {content:"";position:absolute;inset:auto 0 0;height:4px;background:var(--palette-trim);pointer-events:none}
+.trade-side-head .number-token {color:var(--side-number)}
+body .chat-question .number-token {color:#ffedba}
 .trade-side-head div>span {display:block;font-size:13px}
 .trade-side-head>span:not(:empty) {padding:5px 9px;border:1px solid currentColor;border-radius:7px;font-size:14px;text-align:center}
 .trade-players {padding:0 16px;flex:1}
@@ -200,6 +212,10 @@
 .trade-insight p {margin:8px 0 0;max-width:65ch}
 .trade-scenario-table td,.trade-scenario-table th {padding:13px 14px}
 .trade-scenario-table td {font-variant-numeric:tabular-nums}
+.outlook-player {margin:12px 0;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.outlook-player summary {padding:12px 16px;cursor:pointer}
+.outlook-player .table-wrap {border-top:1px solid var(--line)}
+.outlook-player > p {padding:0 16px 12px}
 .form-coverage {display:block;white-space:nowrap;font-size:13px}
 .driver-stats {display:flex;flex-wrap:wrap;gap:4px 14px}
 .driver-stats span {white-space:nowrap}

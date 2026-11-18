@@ -1,9 +1,22 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,packageForm,compareGamesPlayed,statSwings,packageScenarios} from '../dashboard/trade-model.mjs';
+import {scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,packageForm,compareGamesPlayed,statSwings,packageScenarios,nextOpponents} from '../dashboard/trade-model.mjs';
 
 const base={pts:'1',reb:'1.2',ast:'1.5',st:'3',blk:'3',to:'1.5'};
 const box={pts:20,reb:10,oreb:3,dreb:7,ast:5,st:1,blk:1,to:4};
+test('opponent outlook takes the first five eligible games and scores the last meeting with custom weights',()=>{
+ const now=Date.parse('2026-11-18T00:00Z');
+ const game=(day,home,away,extra)=>({date:`2026-11-${day}T01:00Z`,home,away,...extra});
+ const player={nba:'DEN',opponentHistory:{LAL:{date:'2026-10-20',stats:box}}};
+ const defense={LAL:{pointsAllowed:110,pointsPer100:108}};
+ const games=[game(28,'DEN','POR'),game(17,'DEN','BOS'),game(19,'LAL','DEN'),game(20,'MIA','DEN',{status:'Postponed'}),game(21,'DEN','ATL',{completed:true}),game(22,'BOS','SAS'),game(23,'DEN','MEM'),game(24,'MIN','DEN'),game(25,'DEN','MIA'),game(26,'DEN','BOS')];
+ const next=nextOpponents(player,{defense,games},scoringWeights(base,false),now);
+ assert.deepEqual(next.map(row=>row.opponent),['LAL','MEM','MIN','MIA','BOS']);
+ assert.equal(next[0].home,false);
+ assert.equal(next[0].points,39.5);
+ assert.equal(next[0].defense,defense.LAL);
+ assert.equal(next[1].points,null);
+});
 test('turnover input has the same deduction for either sign',()=>{
  assert.equal(tradePoints(box,scoringWeights(base,false)),39.5);
  assert.deepEqual(scoringWeights(base,false),scoringWeights({...base,to:'-1.5'},false));

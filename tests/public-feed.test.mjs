@@ -1,7 +1,20 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {normalizeEvent,normalizeBox,nameKey,fantasyPoints} from '../public-feed.mjs';
+import {normalizeEvent,normalizeBox,nameKey,fantasyPoints,estimateGamePossessions,opponentDefense} from '../public-feed.mjs';
 import {validateSnapshot,publicGames,recentStats} from '../dashboard/public-ui.mjs';
+test('opponent defense uses regular-season finals and an adequate possession sample',()=>{
+ const values={'fieldGoalsMade-fieldGoalsAttempted':'40-90','freeThrowsMade-freeThrowsAttempted':'15-25',offensiveRebounds:'10',totalTurnovers:'9'};
+ const statistics=Object.entries(values).map(([name,displayValue])=>({name,displayValue}));
+ const possessions=estimateGamePossessions({boxscore:{teams:[{statistics},{statistics}]}});
+ assert.equal(possessions,100);
+ const game={home:'LAL',away:'DEN',homeScore:109,awayScore:113,seasonType:2,completed:true};
+ const games=Array.from({length:6},(_,id)=>({...game,id}));
+ games.push({...game,id:6,seasonType:1,awayScore:150});
+ const counts={0:100,1:100,2:100,3:100,4:100};
+ assert.deepEqual(opponentDefense(games,counts).LAL,{games:6,ratedGames:5,pointsAllowed:113,pointsPer100:113});
+ delete counts[4];
+ assert.equal(opponentDefense(games,counts).LAL.pointsPer100,null);
+});
 test('scores preserve missing values and normalize team abbreviations',()=>{
  const event=normalizeEvent({id:'123',date:'2026-11-18T00:00Z',competitions:[{competitors:[{homeAway:'home',team:{abbreviation:'NY'}},{homeAway:'away',team:{abbreviation:'SA'},score:'0'}]}]},'2026-11-17');
  assert.equal(event.home,'NYK');assert.equal(event.away,'SAS');assert.equal(event.homeScore,null);assert.equal(event.awayScore,0);assert.equal(event.completed,false);

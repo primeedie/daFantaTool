@@ -14,7 +14,41 @@ export function normalizeEvent(event,gameDate){
  if(!event.id||!home?.team?.abbreviation||!away?.team?.abbreviation||!event.date||!Number.isFinite(Date.parse(event.date)))return null;
  const completed=event.status?.type?.completed===true;
  const score=c=>c.score===undefined||c.score===''?null:Number(c.score);
- return {id:event.id,date:event.date,gameDate,home:teamCode(home.team.abbreviation),away:teamCode(away.team.abbreviation),homeScore:score(home),awayScore:score(away),completed,status:event.status?.type?.shortDetail||'Scheduled',sourceUrl:event.links?.find(l=>l.rel?.includes('summary'))?.href||`https://www.espn.com/nba/game/_/gameId/${event.id}`};
+ return {id:event.id,date:event.date,gameDate,home:teamCode(home.team.abbreviation),away:teamCode(away.team.abbreviation),homeScore:score(home),awayScore:score(away),seasonType:Number(event.season?.type)||null,completed,status:event.status?.type?.shortDetail||'Scheduled',sourceUrl:event.links?.find(l=>l.rel?.includes('summary'))?.href||`https://www.espn.com/nba/game/_/gameId/${event.id}`};
+}
+export function estimateGamePossessions(summary){
+ const teams=summary.boxscore?.teams;
+ if(teams?.length!==2)return null;
+ const estimates=teams.map(team=>{
+  const stats=Object.fromEntries((team.statistics||[]).map(stat=>[stat.name,stat.displayValue]));
+  const attempts=value=>typeof value==='string'&&/^\d+-\d+$/.test(value)?Number(value.split('-')[1]):NaN;
+  const count=value=>value!==undefined&&String(value).trim()!==''?Number(value):NaN;
+  const values=[attempts(stats['fieldGoalsMade-fieldGoalsAttempted']),attempts(stats['freeThrowsMade-freeThrowsAttempted']),count(stats.offensiveRebounds),count(stats.totalTurnovers??stats.turnovers)];
+  return values.every(Number.isFinite)?values[0]+.44*values[1]-values[2]+values[3]:NaN;
+ });
+ return estimates.every(value=>Number.isFinite(value)&&value>0)?(estimates[0]+estimates[1])/2:null;
+}
+
+export function opponentDefense(games,possessions){
+ const totals={};
+ for(const game of games){
+  if(!game.completed||game.seasonType!==2||!Number.isFinite(game.homeScore)||!Number.isFinite(game.awayScore))continue;
+  for(const [team,points] of [[game.home,game.awayScore],[game.away,game.homeScore]]){
+   const row=totals[team]??={points:0,games:0,matchedPoints:0,possessions:0,ratedGames:0};
+   row.points+=points;
+   row.games++;
+   const count=possessions[game.id];
+   if(!Number.isFinite(count)||count<=0)continue;
+   row.matchedPoints+=points;
+   row.possessions+=count;
+   row.ratedGames++;
+  }
+ }
+ return Object.fromEntries(Object.entries(totals).map(([team,row])=>[team,{
+  games:row.games,ratedGames:row.ratedGames,
+  pointsAllowed:row.points/row.games,
+  pointsPer100:row.ratedGames>=5?100*row.matchedPoints/row.possessions:null
+ }]));
 }
 export function normalizeBox(summary,event){
  const logs=[];
@@ -58,15 +92,24 @@ export async function refreshPublicFeed(){
  const games=[...byId.values()].sort((a,b)=>a.date.localeCompare(b.date));
  if(!refreshedDates.length)throw new Error('ESPN unavailable. Existing cache kept.');
  const boxCache={...old.boxCache};
+ const possessionCache={...old.possessionCache};
  const completed=games.filter(g=>g.completed&&g.gameDate<=today);
  await mapLimit(completed,3,async(game)=>{
    // Re-read the last two NBA days for stat corrections; older finals stay cached.
    const age=(anchor-new Date(game.gameDate+'T12:00:00Z'))/86400000;
-   if(boxCache[game.id]?.length&&age>2)return;
-   try{const json=await fetchJson(base+'summary?event='+game.id);const logs=normalizeBox(json,game);if(!logs.length)throw new Error('No player stats');boxCache[game.id]=logs;}catch{errors.push({gameId:game.id,message:'Box score unavailable'});}
+   if(boxCache[game.id]?.length&&age>2&&(game.seasonType!==2||Number.isFinite(possessionCache[game.id])))return;
+   try{
+    const json=await fetchJson(base+'summary?event='+game.id);
+    const logs=normalizeBox(json,game);
+    if(!logs.length)throw new Error('No player stats');
+    boxCache[game.id]=logs;
+    const possessions=estimateGamePossessions(json);
+    if(possessions!==null)possessionCache[game.id]=possessions;
+   }catch{errors.push({gameId:game.id,message:'Box score unavailable'});}
  });
  const keepIds=new Set(games.map(g=>g.id));for(const id of Object.keys(boxCache))if(!keepIds.has(id))delete boxCache[id];
- const result={source:'ESPN',sourceUrl:'https://www.espn.com/nba/scoreboard',updatedAt:new Date().toISOString(),nbaDate:today,window:{from:dates[0],through:dates.at(-1)},refreshIntervalMinutes:60,refreshedDates:refreshedDates.sort(),partial:errors.length>0,errors,games,logs:completed.flatMap(g=>boxCache[g.id]||[]),boxCache};
+ for(const id of Object.keys(possessionCache))if(!keepIds.has(id))delete possessionCache[id];
+ const result={source:'ESPN',sourceUrl:'https://www.espn.com/nba/scoreboard',updatedAt:new Date().toISOString(),nbaDate:today,window:{from:dates[0],through:dates.at(-1)},refreshIntervalMinutes:60,refreshedDates:refreshedDates.sort(),partial:errors.length>0,errors,games,logs:completed.flatMap(g=>boxCache[g.id]||[]),boxCache,defense:opponentDefense(completed,possessionCache),possessionCache};
  await atomicJson(file,result);
  const status={attemptAt:result.updatedAt,success:true,partial:result.partial,errors:errors.length,games:games.length,playerGameLogs:result.logs.length};
  await atomicJson(resolve(dataDir,'public-refresh-status.json'),status);

@@ -41,7 +41,7 @@ function loadData(){
   if(new Set([...rosters,...available].map(p=>p.name)).size!==rosters.length+available.length)throw new Error('Duplicate player in snapshot');
   const recentGames=JSON.parse(readFileSync(resolve(privateDir,'recent-games.json'),'utf8'));
   let publicFeed=null,refreshStatus=null;
-  try{publicFeed=JSON.parse(readFileSync(resolve(privateDir,'public-feed.json'),'utf8'));delete publicFeed.boxCache;}catch{}
+  try{publicFeed=JSON.parse(readFileSync(resolve(privateDir,'public-feed.json'),'utf8'));delete publicFeed.boxCache;delete publicFeed.possessionCache;}catch{}
   try{refreshStatus=JSON.parse(readFileSync(resolve(privateDir,'public-refresh-status.json'),'utf8'));}catch{}
   return {...meta,teams,available,transactions,draft,recentGames,publicFeed,refreshStatus};
 }
@@ -68,7 +68,12 @@ if(process.argv.includes('--export-snapshot')){
         return;
       }
       if(req.method!=='GET'){res.writeHead(405,headers);res.end();return;}
-      if(url.pathname==='/api/public-feed'){const feed=JSON.parse(readFileSync(resolve(privateDir,'public-feed.json'),'utf8'));delete feed.boxCache;res.writeHead(200,{...headers,'Content-Type':'application/json'});res.end(JSON.stringify(feed));return;}
+      if(['/api/public-feed','/trade-outlook.json'].includes(url.pathname)){
+        const {boxCache,possessionCache,...feed}=JSON.parse(readFileSync(resolve(privateDir,'public-feed.json'),'utf8'));
+        const {sourceUrl,updatedAt,window,games,defense}=feed;
+        const data=url.pathname==='/trade-outlook.json'?{sourceUrl,updatedAt,window,games:games.filter(game=>!game.completed),defense}:feed;
+        res.writeHead(200,{...headers,'Content-Type':'application/json'});res.end(JSON.stringify(data));return;
+      }
       if(url.pathname==='/api/snapshot'){
         const manager=auth?.session(req);
         if(auth&&!manager){res.writeHead(401,headers);res.end();return;}

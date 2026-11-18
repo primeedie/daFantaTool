@@ -17,8 +17,9 @@ await writeFile(resolve(out,'trade-data.json'),JSON.stringify(useTradeCache?trad
 const tradeInjuries=await readFile(resolve(folder,'trade-injuries.json'),'utf8').catch(()=>readFile(resolve(root,'dashboard/trade-injuries.json'),'utf8'));
 await writeFile(resolve(out,'trade-injuries.json'),tradeInjuries);
 const feed=JSON.parse(await readFile(resolve(folder,'public-feed.json'),'utf8'));
-const {source,sourceUrl,updatedAt,nbaDate,window,refreshIntervalMinutes,partial,refreshedDates,games,logs}=feed;
+const {source,sourceUrl,updatedAt,nbaDate,window,refreshIntervalMinutes,partial,refreshedDates,games,logs,defense}=feed;
 if(!Array.isArray(games)||!Array.isArray(logs)||!updatedAt)throw new Error('No valid public feed');
 await writeFile(resolve(out,'public-feed.json'),JSON.stringify({source,sourceUrl,updatedAt,nbaDate,window,refreshIntervalMinutes,partial,refreshedDates,games,logs}));
+await writeFile(resolve(out,'trade-outlook.json'),JSON.stringify({sourceUrl,updatedAt,window,games:games.filter(game=>!game.completed),defense}));
 await writeFile(resolve(out,'.nojekyll'),'');
 console.log(`Pages ready: league snapshot, ${games.length} games, ${logs.length} player logs.`);

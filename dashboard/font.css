@@ -42,11 +42,12 @@ h2{font-family:SlamDunk,Impact,sans-serif;font-size:20px;font-weight:400;letter-
  --brand-dark:#371f2b;
 }
 :root[data-palette="spurs"] {
- --brand-strong:#0c625d;
- --brand-hot:#f1a78b;
- --brand-blush:#e5f4ee;
+ --brand-strong:#23242c;
+ --brand-hot:#55d5c8;
+ --brand-blush:#e9f6f4;
  --brand-light:#a2ddd3;
- --brand-dark:#192e2d;
+ --brand-dark:#1a1d21;
+ --palette-trim:linear-gradient(118deg,#45cfbd 0 34%,#ee5f9b 34% 67%,#f89853 67%);
 }
 :root[data-palette="celtics"] {
  --brand-strong:#22563b;
@@ -62,10 +63,48 @@ h2{font-family:SlamDunk,Impact,sans-serif;font-size:20px;font-weight:400;letter-
  --brand-light:#bacdff;
  --brand-dark:#1f2a48;
 }
+:root[data-palette="heat"] {
+ --brand-strong:#164a68;--brand-hot:#fa92c1;--brand-blush:#e7f8fc;--brand-light:#92e8f7;--brand-dark:#1d2337;
+ --palette-trim:linear-gradient(110deg,#49dff4 0 50%,#ff74ae 50%);
+}
+:root[data-palette="wolves"] {
+ --brand-strong:#233e55;--brand-hot:#b4dc73;--brand-blush:#ebf3ea;--brand-light:#cdeca8;--brand-dark:#1d2a35;
+}
+:root[data-palette="nuggets"] {
+ --brand-strong:#18375c;--brand-hot:#f6ae78;--brand-blush:#f5efe3;--brand-light:#ffe0a0;--brand-dark:#202c43;
+ --palette-trim:linear-gradient(110deg,#7dbceb 0 45%,#ffcf65 45% 72%,#e57c6c 72%);
+}
+:root[data-palette="mavs"] {
+ --brand-strong:#1c566f;--brand-hot:#9fd3eb;--brand-blush:#e1f0f7;--brand-light:#acdaef;--brand-dark:#132c38;
+}
+:root[data-palette="pistons"] {
+ --brand-strong:#963e37;--brand-hot:#a1dcd7;--brand-blush:#e9f5f5;--brand-light:#e9c2bb;--brand-dark:#342528;
+}
+:root[data-palette="knicks"] {
+ --brand-strong:#234782;--brand-hot:#ffad6b;--brand-blush:#fff0e2;--brand-light:#bcd3fa;--brand-dark:#232c48;
+}
+:root[data-palette="cavs"] {
+ --brand-strong:#74253c;--brand-hot:#eac18a;--brand-blush:#f7ece3;--brand-light:#edb9c9;--brand-dark:#33212c;
+}
+:root[data-palette="pacers"] {
+ --brand-strong:#233148;--brand-hot:#f2ce4f;--brand-blush:#fbf2d3;--brand-light:#f3dc88;--brand-dark:#222932;
+}
+:root[data-palette="raptors"] {
+ --brand-strong:#512d76;--brand-hot:#ed879c;--brand-blush:#f2e8f7;--brand-light:#dec4f9;--brand-dark:#2b213e;
+}
 body {font-size:16px;line-height:1.65;letter-spacing:.025em}
 button,input,select {letter-spacing:inherit}
 :root[data-palette]:not([data-theme="dark"]) {--paper:color-mix(in srgb,#f7f8fa 68%,var(--brand-blush))}
 .site-header {background:var(--red);color:#fff;border-top:5px solid var(--brand-black);border-bottom:3px solid var(--brand-hot)}
+:root:is([data-palette="spurs"],[data-palette="heat"],[data-palette="nuggets"]) .site-header {
+ border-bottom:0;
+}
+:root:is([data-palette="spurs"],[data-palette="heat"],[data-palette="nuggets"]) .site-header::after {
+ content:'';
+ display:block;
+ height:6px;
+ background:var(--palette-trim);
+}
 .masthead,.site-header nav {max-width:1500px;margin:auto;padding-inline:clamp(18px,4vw,56px)}
 .masthead {display:flex;align-items:center;justify-content:space-between;gap:20px;padding-block:23px}
 .masthead .logo {font-size:clamp(28px,4vw,38px)}

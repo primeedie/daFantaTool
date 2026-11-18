@@ -1,5 +1,5 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
-import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm} from './trade-model.mjs';
+import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents} from './trade-model.mjs';
 
 const $=selector=>document.querySelector(selector);
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -7,6 +7,30 @@ const number=new Intl.NumberFormat('en-US',{maximumFractionDigits:2});
 const format=value=>value===null?'—':number.format(value);
 const signed=value=>value===null?'—':`${value>0?'+':''}${format(value)}`;
 const tone=value=>value>0?'fp-gain':value<0?'fp-loss':'';
+const tipoff=new Intl.DateTimeFormat('en-PH',{timeZone:'Asia/Manila',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+const numberPattern=/\d{4}(?:-\d{2}-\d{2}|[–-]\d{2,4})|\d{1,2}:\d{2}|[+−-]?\d[\d,]*(?:\.\d+)?(?:%|\/\d+)?/g;
+function colorNumbers(container){
+ const walker=document.createTreeWalker(container,NodeFilter.SHOW_TEXT);
+ const nodes=[];
+ while(walker.nextNode()){
+  if(!walker.currentNode.parentElement?.closest('.number-token,script,style,option,textarea'))nodes.push(walker.currentNode);
+ }
+ for(const node of nodes){
+  const matches=[...node.data.matchAll(numberPattern)];
+  if(!matches.length)continue;
+  const parts=document.createDocumentFragment();
+  let start=0;
+  for(const match of matches){
+   const token=document.createElement('span');
+   token.className='number-token';
+   token.textContent=match[0];
+   parts.append(node.data.slice(start,match.index),token);
+   start=match.index+match[0].length;
+  }
+  parts.append(node.data.slice(start));
+  node.replaceWith(parts);
+ }
+}
 const managerNamesKey='real-balliggas-manager-names';
 const managerNames={a:'',b:''};
 const cleanName=value=>typeof value==='string'?value.replace(/\s+/g,' ').trim().slice(0,24):'';
@@ -28,6 +52,7 @@ const settingsKey='real-balliggas-trade-weights';
 let weights,side='a',dataset,dataRequest;
 let currentRanks=new Map();
 let injuryData,injuryRequest;
+let outlookData,outlookRequest,outlookFailed=false;
 let chatTrade,chatVersion='';
 let totalRebound='';
 
@@ -70,6 +95,7 @@ form.addEventListener('submit',event=>{
  renderTrade();
  loadPlayers();
  loadInjuries();
+ loadOutlook();
  $('#edit-scoring').focus();
 });
 $('#edit-scoring').addEventListener('click',()=>{
@@ -132,6 +158,7 @@ function renderTrade(){
  }
  renderBalance(totals);
  renderContext(selected,totals);
+ colorNumbers(board);
 }
 
 function renderBalance(totals){
@@ -169,6 +196,28 @@ async function loadInjuries(){
  return injuryRequest;
 }
 
+function loadOutlook(){
+ if(outlookRequest)return outlookRequest;
+ outlookFailed=false;
+ outlookRequest=fetch('./trade-outlook.json').then(async response=>{
+  if(!response.ok)throw new Error('NBA schedule unavailable');
+  const feed=await response.json();
+  if(!Array.isArray(feed.games))throw new Error('Invalid NBA schedule');
+  outlookData=feed;
+ }).catch(()=>{outlookFailed=true;outlookRequest=null;}).then(renderTrade);
+ return outlookRequest;
+}
+
+function outlookTable(players){
+ const title='<h3>Next five opponents</h3>';
+ if(!outlookData)return `<section class="trade-subsection">${title}<p class="sub">${outlookFailed?'NBA schedule unavailable.':'Loading NBA schedule…'}</p></section>`;
+ const blocks=players.map(player=>{
+  const rows=nextOpponents(player,outlookData,weights).map(({date,home,opponent,defense,meeting,points})=>`<tr><td>${esc(tipoff.format(new Date(date)))}</td><th scope="row">${home?'vs':'@'} ${nbaBadge(opponent)}</th><td class="num">${format(defense?.pointsAllowed??null)}${defense?`<small class="sub form-coverage">${defense.games} games</small>`:''}</td><td class="num">${format(defense?.pointsPer100??null)}</td><td>${meeting?`${esc(meeting.date)}${meeting.minutes?` · ${esc(meeting.minutes)} MIN`:''}`:'—'}</td><td class="num"><b class="trade-fp">${format(points)}</b></td></tr>`);
+  return `<details class="outlook-player" ${players.length<=2?'open':''}><summary>${nbaBadge(player.nba,player.name)}</summary>${rows.length?`<div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Tipoff (Manila)</th><th>Opponent</th><th class="num">PTS allowed / game</th><th class="num">PTS allowed / 100 poss.</th><th>Last meeting (NBA date)</th><th class="num">Last meeting FP</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`:'<p class="sub">No upcoming games in the current feed.</p>'}</details>`;
+ }).join('');
+ return `<section class="trade-subsection">${title}${blocks}<p class="sub">Defense uses recent regular-season finals from <a href="https://www.espn.com/nba/scoreboard" target="_blank" rel="noopener noreferrer">ESPN</a>. The per-100 figure uses estimated possessions and needs at least five box scores. Last meeting uses available RotoWire regular-season logs and your scoring settings.</p></section>`;
+}
+
 function renderContext(selected,totals){
  const section=$('#trade-context');
  const a=selected.a.length,b=selected.b.length;
@@ -190,6 +239,7 @@ function renderContext(selected,totals){
   marker.style.left=`${marker.dataset.position}%`;
  }
  $('#trade-analysis').innerHTML=a&&b?analysisNotes(selected,totals,risks,formRows):'';
+ $('#trade-outlook').innerHTML=outlookTable([...selected.a,...selected.b]);
  $('#trade-risk-sides').innerHTML=['a','b'].filter(key=>incoming[key].length).map(key=>{
   const context=risks[key];
   const {flagged,flaggedPoints,entries}=context;
@@ -282,6 +332,14 @@ function tradeAnswer(question){
   const verdict=result.leader?`${manager(result.leader)} leads by ${format(result.gap)} FP per game.`:'The packages are even.';
   return `${manager('a')} receives ${format(a)} FP per game and ${manager('b')} receives ${format(b)}. ${verdict}`;
  };
+ if(/\b(opponents?|schedule|next (five|5))\b/.test(q)){
+  if(!outlookData)return 'The NBA schedule is currently unavailable.';
+  const players=chosen.length?chosen:[...incoming.a,...incoming.b];
+  return players.slice(0,4).map(player=>{
+   const opponents=nextOpponents(player,outlookData,weights).map(game=>`${game.home?'vs':'at'} ${game.opponent}`);
+   return opponents.length?`${player.name}: ${opponents.join(', ')}.`:`No upcoming games in the feed for ${player.name}.`;
+  }).join(' ')+' See Next five opponents for defense and last meetings.';
+ }
  if(/\b(floor|ceiling|quartile|variance|range|upside)\b/.test(q)){
   if(!scenarios.a||!scenarios.b)return 'Every player needs five complete season games before both packages can be compared at the floor and ceiling.';
   return `Floor: ${comparison(scenarios.a.floor,scenarios.b.floor)} Ceiling: ${comparison(scenarios.a.ceiling,scenarios.b.ceiling)} These sum individual percentiles. Players can hit their highs and lows on different nights.`;
@@ -346,6 +404,7 @@ function askTrade(question){
   turn.append(paragraph);
  }
  turns.append(turn);
+ colorNumbers(turn);
  if(turns.childElementCount>8)turns.firstElementChild.remove();
  turns.scrollTop=turns.scrollHeight;
 }
@@ -367,6 +426,7 @@ async function loadPlayers(){
   currentRanks=seasonRanks(data.players,weights);
   const asOf=new Date(data.updatedAt).toLocaleDateString('en-PH',{timeZone:'Asia/Manila',month:'short',day:'numeric'});
   $('#trade-sources').innerHTML=`<a href="${esc(data.statsUrl)}" target="_blank" rel="noopener noreferrer">RotoWire season stats</a> · checked ${esc(asOf)} · <a href="${esc(data.rankUrl)}" target="_blank" rel="noopener noreferrer">Draft ranks</a> (${esc(data.rankDate)})`;
+  colorNumbers($('#trade-sources'));
   return data;
  }).catch(()=>{
   dataRequest=null;
@@ -395,6 +455,8 @@ function renderPicker(){
   const lead=sort.value==='draft'?rankText(player.rank):rankText(seasonRank(player));
   return `<button class="picker-row" type="button" data-player-id="${esc(player.id)}" ${selected?'disabled':''}><span>${lead}</span><span><strong>${esc(player.name)}</strong><span class="sub">${nbaBadge(player.nba)} ${esc(player.position)} · ${rankSummary(player)}</span></span><span class="${!selected&&points!==null?'trade-fp':''}">${selected?'Added':points===null?'No stats':`${format(points)} FP`}</span></button>`;
  }).join('');
+ colorNumbers(results);
+ colorNumbers(status);
 }
 
 board.addEventListener('click',async event=>{
@@ -410,6 +472,7 @@ board.addEventListener('click',async event=>{
  if(!add)return;
  side=add.dataset.pick;
  $('#picker-title').textContent=`Add outgoing player for ${manager(side)}`;
+ colorNumbers($('#picker-title'));
  search.value='';
  $('#picker-status').textContent='Loading players…';
  $('#picker-results').innerHTML='';

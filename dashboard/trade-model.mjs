@@ -23,6 +23,18 @@ export function tradePoints(stats,weights){
  return Number.isFinite(total)?total:null;
 }
 
+export function nextOpponents(player,feed,weights,now=Date.now()){
+ if(!player.nba)return [];
+ return (feed?.games||[]).filter(game=>!game.completed&&Date.parse(game.date)>now&&
+  !/postpon|cancel/i.test(game.status)&&(game.home===player.nba||game.away===player.nba))
+  .sort((a,b)=>Date.parse(a.date)-Date.parse(b.date)).slice(0,5).map(game=>{
+   const home=game.home===player.nba;
+   const opponent=home?game.away:game.home;
+   const meeting=player.opponentHistory?.[opponent];
+   return {date:game.date,home,opponent,defense:feed.defense?.[opponent],meeting,points:tradePoints(meeting?.stats,weights)};
+  });
+}
+
 export function seasonRanks(players,weights){
  const scored=players.flatMap(player=>{
   if(!(player.games>0))return [];
