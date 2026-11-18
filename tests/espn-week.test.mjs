@@ -27,3 +27,20 @@ test('ESPN scoring includes both ends of the week and optimizes through Yahoo be
  assert.equal(afterSunday.totals[0].actual,56);
  assert.equal(afterSunday.totals[0].projected,0);
 });
+
+test('a move after tipoff keeps the dropped player and excludes the pickup for that game',()=>{
+ const date='2026-11-16';
+ const tip='2026-11-17T00:00:00Z';
+ const first={name:'Before Move',team_id:'1',nba:'LAL',slot:'BN',positions:['PG'],fpts:10};
+ const second={...first,name:'Late Pickup'};
+ const game={id:'game',gameDate:date,date:tip,home:'LAL',away:'BOS',completed:true};
+ const log=(key,pts)=>({key,nba:'LAL',gameId:game.id,gameDate:date,date:tip,pts});
+ const snapshot={
+  nbaDate:date,scoring:{pts:1},
+  timedRosterMoves:[{teamId:'1',at:'2026-11-17T02:00:00Z',added:second.name,dropped:first}],
+  publicFeed:{nbaDate:'2026-11-17',window:{from:date,through:'2026-11-22'},games:[game],logs:[log('beforemove',7.4),log('latepickup',31.2)]}
+ };
+ const result=espnWeek(snapshot,[[second]]);
+ assert.equal(result.totals[0].actual,7.4);
+ assert.deepEqual(result.breakdown[0].map(row=>row.name),[first.name]);
+});

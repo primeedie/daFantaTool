@@ -15229,6 +15229,214 @@
             "fpts": 44.3
           }
         ]
+      },
+      "previousThrough": "2026-11-18T02:34:00.000Z"
+    }
+  ],
+  "timedRosterMoves": [
+    {
+      "teamId": "2",
+      "at": "2026-11-18T03:28:00.000Z",
+      "added": "Derrick Jones Jr.",
+      "dropped": null
+    },
+    {
+      "teamId": "9",
+      "at": "2026-11-18T03:18:00.000Z",
+      "added": "Klay Thompson",
+      "dropped": null
+    },
+    {
+      "teamId": "7",
+      "at": "2026-11-17T18:38:00.000Z",
+      "added": "Matisse Thybulle",
+      "dropped": null
+    },
+    {
+      "teamId": "8",
+      "at": "2026-11-17T16:52:00.000Z",
+      "added": "Quentin Grimes",
+      "dropped": {
+        "name": "Tari Eason",
+        "nba": "HOU",
+        "positions": [
+          "SG",
+          "SF",
+          "PF"
+        ],
+        "fpts": 23.61,
+        "slot": "BN",
+        "team_id": "8"
+      }
+    },
+    {
+      "teamId": "4",
+      "at": "2026-11-17T16:28:00.000Z",
+      "added": "Mikal Bridges",
+      "dropped": {
+        "name": "De'Anthony Melton",
+        "nba": "GSW",
+        "positions": [
+          "PG",
+          "SG"
+        ],
+        "fpts": 20.87,
+        "slot": "BN",
+        "team_id": "4"
+      }
+    },
+    {
+      "teamId": "1",
+      "at": "2026-11-17T16:26:00.000Z",
+      "added": "Mo Bamba",
+      "dropped": {
+        "name": "Nic Claxton",
+        "nba": "CHI",
+        "positions": [
+          "C"
+        ],
+        "fpts": 18.9,
+        "slot": "BN",
+        "team_id": "1"
+      }
+    },
+    {
+      "teamId": "1",
+      "at": "2026-11-17T16:25:00.000Z",
+      "added": null,
+      "dropped": {
+        "name": "Cameron Johnson",
+        "nba": "DEN",
+        "positions": [
+          "SF",
+          "PF"
+        ],
+        "fpts": 20.32,
+        "slot": "BN",
+        "team_id": "1"
+      }
+    },
+    {
+      "teamId": "6",
+      "at": "2026-11-17T02:48:00.000Z",
+      "added": "Cam Spencer",
+      "dropped": null
+    },
+    {
+      "teamId": "1",
+      "at": "2026-11-16T22:47:00.000Z",
+      "added": "Cameron Johnson",
+      "dropped": {
+        "name": "Jakob Poeltl",
+        "nba": "TOR",
+        "positions": [
+          "C"
+        ],
+        "fpts": 21.4,
+        "slot": "BN",
+        "team_id": "1"
+      }
+    },
+    {
+      "teamId": "7",
+      "at": "2026-11-16T15:53:00.000Z",
+      "added": "Tyrese Proctor",
+      "dropped": {
+        "name": "Rui Hachimura",
+        "nba": "LAC",
+        "positions": [
+          "SF",
+          "PF"
+        ],
+        "fpts": 22.8,
+        "slot": "BN",
+        "team_id": "7"
+      }
+    },
+    {
+      "teamId": "7",
+      "at": "2026-11-16T15:47:00.000Z",
+      "added": null,
+      "dropped": {
+        "name": "P.J. Washington",
+        "nba": "DAL",
+        "positions": [
+          "PF",
+          "C"
+        ],
+        "fpts": 25.56,
+        "slot": "BN",
+        "team_id": "7"
+      }
+    },
+    {
+      "teamId": "9",
+      "at": "2026-11-16T09:02:00.000Z",
+      "added": "Neemias Queta",
+      "dropped": null
+    },
+    {
+      "teamId": "9",
+      "at": "2026-11-16T08:54:00.000Z",
+      "added": null,
+      "dropped": {
+        "name": "Julian Champagnie",
+        "nba": "SAS",
+        "positions": [
+          "SF",
+          "PF"
+        ],
+        "fpts": 20.37,
+        "slot": "BN",
+        "team_id": "9"
+      }
+    },
+    {
+      "teamId": "9",
+      "at": "2026-11-16T08:53:00.000Z",
+      "added": null,
+      "dropped": {
+        "name": "Ryan Rollins",
+        "nba": "MIL",
+        "positions": [
+          "PG",
+          "SG"
+        ],
+        "fpts": 22.2,
+        "slot": "BN",
+        "team_id": "9"
+      }
+    },
+    {
+      "teamId": "4",
+      "at": "2026-11-16T08:21:00.000Z",
+      "added": "De'Anthony Melton",
+      "dropped": {
+        "name": "Devin Vassell",
+        "nba": "SAS",
+        "positions": [
+          "SG",
+          "SF"
+        ],
+        "fpts": 24.41,
+        "slot": "BN",
+        "team_id": "4"
+      }
+    },
+    {
+      "teamId": "1",
+      "at": "2026-11-16T00:04:00.000Z",
+      "added": null,
+      "dropped": {
+        "name": "Paul Reed",
+        "nba": "DET",
+        "positions": [
+          "PF",
+          "C"
+        ],
+        "fpts": 26.51,
+        "slot": "BN",
+        "team_id": "1"
       }
     }
   ]
