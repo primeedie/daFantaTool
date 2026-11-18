@@ -64,8 +64,20 @@ h2{font-family:SlamDunk,Impact,sans-serif;font-size:20px;font-weight:400;letter-
  --brand-dark:#1f2a48;
 }
 :root[data-palette="heat"] {
- --brand-strong:#164a68;--brand-hot:#fa92c1;--brand-blush:#e7f8fc;--brand-light:#92e8f7;--brand-dark:#1d2337;
- --palette-trim:linear-gradient(110deg,#49dff4 0 50%,#ff74ae 50%);
+ --vice-blue:#16c9f3;
+ --vice-pink:#ff389f;
+ --vice-blue-ink:#005d77;
+ --vice-pink-ink:#a50057;
+ --brand-black:#0d0b10;
+ --brand-strong:var(--vice-pink-ink);
+ --brand-hot:var(--vice-blue);
+ --brand-blush:#ffe5f2;
+ --brand-light:#ffa1d0;
+ --brand-dark:#0d0b10;
+ --ink:#1b1421;
+ --muted:#5a4357;
+ --line:#d7b9ce;
+ --palette-trim:linear-gradient(100deg,var(--vice-pink),#d36ce4 48%,var(--vice-blue));
 }
 :root[data-palette="wolves"] {
  --brand-strong:#233e55;--brand-hot:#b4dc73;--brand-blush:#ebf3ea;--brand-light:#cdeca8;--brand-dark:#1d2a35;
@@ -253,6 +265,46 @@ dialog {max-width:780px;font-family:var(--typeface)}
 .theme-controls select {
  border-radius:8px;
  box-shadow:0 2px 0 var(--line);
+}
+:root[data-palette="heat"]:not([data-theme="dark"]) {
+ --paper:#fff5fa;
+ --surface:#fffdfd;
+}
+:root[data-palette="heat"][data-theme="dark"] {
+ --paper:#100d14;
+ --surface:#1d1522;
+ --ink:#f8eef7;
+ --muted:#cebbd0;
+ --line:#604457;
+ --vice-blue-ink:#85e7ff;
+ --vice-pink-ink:#ffa1d0;
+ --brand-strong:#8e155e;
+}
+[data-palette="heat"] body {accent-color:var(--vice-pink-ink)}
+[data-palette="heat"] .site-header {
+ background:linear-gradient(105deg,#28101e,var(--brand-dark) 45%,#071a22);
+ border-top-color:var(--brand-black);
+}
+:root[data-palette="heat"] .site-header::after {height:8px}
+[data-palette="heat"] .masthead .logo span {text-shadow:2px 2px 0 var(--vice-pink-ink),-1px -1px 0 var(--vice-blue)}
+[data-palette="heat"] .theme-controls {border-color:#705265;background:var(--brand-black)}
+:root[data-palette="heat"] .theme-controls :is(select,button.button) {
+ --button-edge:#654858;
+ border-color:var(--button-edge);
+ background:#211721;
+ color:#fff3fa;
+ box-shadow:0 2px 0 var(--brand-black);
+}
+[data-palette="heat"] .theme-controls select {border-bottom-color:var(--vice-blue)}
+[data-palette="heat"] .theme-controls button.button {border-bottom-color:var(--vice-pink)}
+[data-palette="heat"] .button.primary {
+ --button-face:var(--vice-pink);
+ --button-edge:#801346;
+ --button-text:var(--brand-black);
+}
+:root[data-palette="heat"] main :is(.button,input,select):focus-visible {
+ outline:2px solid var(--vice-pink-ink);
+ outline-offset:3px;
 }
 .nba-badge {
   display:inline-block;

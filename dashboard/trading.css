@@ -233,6 +233,33 @@ body .chat-question .number-token {color:#ffedba}
 .chat-turn .chat-answer {justify-self:start;background:var(--paper);border:1px solid var(--line)}
 .trade-ask {display:flex;gap:8px}
 .trade-ask input {flex:1;min-width:0}
+[data-palette="heat"] .trade-tool {
+ --manager-a:var(--vice-blue);
+ --manager-b:var(--vice-pink);
+ --manager-a-text:var(--vice-blue-ink);
+ --manager-b-text:var(--vice-pink-ink);
+ --number-ink:var(--vice-blue-ink);
+}
+[data-palette="heat"] :is(#trade-settings,.trade-balance) {
+ border-top:4px solid transparent;
+ background:linear-gradient(var(--surface),var(--surface)) padding-box,var(--palette-trim) border-box;
+}
+[data-palette="heat"] .trade-side {--side-ink:var(--brand-black);--side-number:#30204b}
+[data-palette="heat"] .trade-side-head {
+ background:linear-gradient(115deg,color-mix(in srgb,var(--side-accent) 68%,white),var(--side-accent) 72%);
+}
+[data-palette="heat"] .trade-side .trade-add {
+ --button-face:var(--side-accent);
+ --button-edge:color-mix(in srgb,var(--side-accent) 50%,black);
+}
+[data-palette="heat"] .scoring-grid input {
+ border-bottom:2px solid var(--line);
+ background:var(--paper);
+}
+[data-palette="heat"] .scoring-grid label:focus-within {color:var(--vice-pink-ink)}
+[data-palette="heat"] .trade-scenario-table thead th {
+ border-bottom:2px solid var(--vice-pink);
+}
 .trade-risk-sides {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:24px}
 .trade-risk-side {padding:16px;background:var(--paper);border:1px solid var(--line);border-radius:8px}
 .trade-risk-side ul {padding-left:17px;margin:8px 0}
