@@ -3,11 +3,24 @@ import assert from 'node:assert/strict';
 import {scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,packageForm,compareGamesPlayed,statSwings,packageScenarios,nextOpponents,easternWeek,weeklyPackage,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,rosterSpots,rosterSettings,rosterAdjustment} from '../dashboard/trade-model.mjs';
 import {normalizeRosterConfig,savedRosterFilter,rosterConfigHash,parseRosterConfig} from '../dashboard/saved-rosters.mjs';
 import {injuryHistory} from '../refresh-injury-history.mjs';
-import {pickerMatch} from '../dashboard/trade-model.mjs';
+import {pickerMatch,suggestFairTrades} from '../dashboard/trade-model.mjs';
 import {playerKey} from '../dashboard/model.mjs';
 
 const base={pts:'1',reb:'1.2',ast:'1.5',st:'3',blk:'3',to:'1.5'};
 const box={pts:20,reb:10,oreb:3,dreb:7,ast:5,st:1,blk:1,to:4};
+
+test('suggestions use only marked players and rank qualifying packages by gap',()=>{
+ const player=(id,pts)=>({id,stats:{pts}});
+ const outgoing=[player('star',50),player('a1',29),player('a2',20)];
+ const targets=[player('b1',30),player('b2',20),player('unmatched',105),player('missing',null)];
+ const offers=suggestFairTrades(outgoing,targets,{pts:1});
+ assert.deepEqual(offers[0].a.players.map(p=>p.id),['a2']);
+ assert.deepEqual(offers[0].b.players.map(p=>p.id),['b2']);
+ assert.ok(offers.some(offer=>offer.a.players.length===1&&offer.b.players.length===2&&offer.balance.gap===0));
+ assert.ok(offers.every(({balance})=>balance.percentage<=10));
+ assert.deepEqual(suggestFairTrades([player('same',50)],[player('same',50)],{pts:1}),[]);
+ assert.deepEqual(suggestFairTrades([player('x',10)],[player('y',20)],{pts:1}),[]);
+});
 
 test('the player picker prioritizes exact nicknames and keeps NBA-team and name search',()=>{
  const jokic={id:'nikolajokic',name:'Nikola Jokić',nba:'DEN'};

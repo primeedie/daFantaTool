@@ -7,9 +7,9 @@
  <link rel="icon" href="./player-logo.png?v=3">
  <link rel="stylesheet" href="./style.css">
  <link rel="stylesheet" href="./font.css?v=logo-contrast">
- <link rel="stylesheet" href="./trading.css?v=roster-search">
+ <link rel="stylesheet" href="./trading.css?v=trade-suggestions">
  <script type="module" src="./theme.mjs?v=logo-contrast"></script>
- <script type="module" src="./trading.mjs?v=roster-search"></script>
+ <script type="module" src="./trading.mjs?v=trade-suggestions"></script>
 </head>
 <body>
  <header class="site-header"><div class="masthead">
@@ -47,6 +47,7 @@
     <button id="hub-tab" class="button" type="button" role="tab" aria-selected="true" aria-controls="hub-panel">Trading Hub</button>
     <button id="breakdown-tab" class="button" type="button" role="tab" aria-selected="false" aria-controls="breakdown-panel" tabindex="-1">Trade Breakdown</button>
     <button id="desk-tab" class="button" type="button" role="tab" aria-selected="false" aria-controls="desk-panel" tabindex="-1">Trade Desk</button>
+    <button id="suggestions-tab" class="button" type="button" role="tab" aria-selected="false" aria-controls="suggestions-panel" tabindex="-1">Trade Suggestions</button>
    </div>
    <div class="trade-toolbar">
     <button class="button trade-command" id="edit-scoring" type="button"><span aria-hidden="true">≡</span> Edit scoring</button>
@@ -156,6 +157,15 @@
       <input id="trade-question" placeholder="Ask about the trade…" maxlength="200" required>
       <button class="button primary" type="submit">Ask</button>
      </form>
+    </section>
+   </div>
+   <div id="suggestions-panel" role="tabpanel" aria-labelledby="suggestions-tab" tabindex="0" hidden>
+    <section class="panel panel-body trade-balance" aria-labelledby="suggestions-title">
+     <h2 id="suggestions-title">Find fair trades</h2>
+     <p class="sub">Choose saved teams above to see their rosters, or search for players. Each offer uses up to 3 marked players per side and stays within 10% on season FP/game.</p>
+     <div class="manager-impacts" id="suggestion-pools"></div>
+     <p class="sub" id="suggestion-status" role="status"></p>
+     <div id="suggestion-results" class="suggestion-results"></div>
     </section>
    </div>
    <p id="trade-sources" class="sub"></p>

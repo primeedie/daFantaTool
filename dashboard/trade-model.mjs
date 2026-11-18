@@ -220,6 +220,42 @@ export function tradeBalance(sideA,sideB){
  };
 }
 
+export const suggestionPoolLimit=16;
+
+function suggestionPackages(players,weights){
+ const scored=new Map();
+ for(const player of players){
+  const points=tradePoints(player.stats,weights);
+  if(points!==null)scored.set(player.id,{player,points});
+ }
+ const pool=[...scored.values()].slice(0,suggestionPoolLimit);
+ const packages=[];
+ function extend(start,group,points){
+  if(group.length)packages.push({players:group,points});
+  if(group.length===3)return;
+  for(let i=start;i<pool.length;i++)extend(i+1,[...group,pool[i].player],points+pool[i].points);
+ }
+ extend(0,[],0);
+ return packages;
+}
+
+export function suggestFairTrades(outgoing,targets,weights){
+ const source=suggestionPackages(outgoing,weights);
+ const wanted=suggestionPackages(targets,weights);
+ const matches=[];
+ const compare=(left,right)=>left.balance.percentage-right.balance.percentage||left.size-right.size||right.total-left.total;
+ for(const a of source)for(const b of wanted){
+  const balance=tradeBalance(b.points,a.points);
+  if(balance?.level!=='fair'||a.players.some(player=>b.players.some(target=>target.id===player.id)))continue;
+  const offer={a,b,balance,size:a.players.length+b.players.length,total:a.points+b.points};
+  const index=matches.findIndex(match=>compare(offer,match)<0);
+  if(index>=0)matches.splice(index,0,offer);
+  else if(matches.length<8)matches.push(offer);
+  if(matches.length>8)matches.pop();
+ }
+ return matches;
+}
+
 export function managerChanges(outgoingA,outgoingB){
  const net=Number.isFinite(outgoingA)&&Number.isFinite(outgoingB)?Number((outgoingB-outgoingA).toFixed(2)):null;
  return {

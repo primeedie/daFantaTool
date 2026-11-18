@@ -32,10 +32,17 @@
 .split-fields {grid-template-columns:repeat(2,minmax(0,1fr))}
 .split-fields .sub {grid-column:1/-1}
 #trade-settings [type=submit] {margin-top:12px}
-.trade-tabs {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:6px;margin-bottom:18px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.trade-tabs {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:6px;margin-bottom:18px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
 .trade-tabs .button {min-width:0;min-height:44px;padding:8px;white-space:normal;line-height:1.25}
 :root .trade-tabs .button[aria-selected="true"] {background:var(--brand-strong);border-color:var(--brand-strong);color:#fff;box-shadow:inset 0 -3px 0 var(--brand-hot)}
 .trade-tab-empty {margin:18px 0 0;padding:14px 16px;border:1px dashed var(--line);border-radius:10px}
+.suggestion-pool-list {display:grid;gap:6px;margin:10px 0}
+.suggestion-pool-list label {display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;padding:4px 0;min-width:0}
+.suggestion-pool-list label span {overflow-wrap:anywhere}
+.suggestion-results {display:grid;gap:10px}
+.suggestion-offer {border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--paper)}
+.suggestion-offer header {display:flex;align-items:baseline;justify-content:space-between;gap:8px 12px;flex-wrap:wrap}
+.suggestion-offer p {margin:6px 0}
 .trade-toolbar,.picker-controls,.picker-head {display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
 .trade-toolbar {justify-content:flex-start;flex-wrap:wrap}
 #clear-trade {margin-inline-start:auto}
@@ -318,6 +325,8 @@ body .chat-question .number-token {color:#ffedba}
 .picker-row .sub {display:block}
 [hidden] {display:none !important}
 @media(max-width:620px){
+ .trade-tabs {grid-template-columns:repeat(2,minmax(0,1fr))}
+ #suggestion-pools {grid-template-columns:1fr}
  .trade-sides,.trade-risk-sides,.scenario-scales {grid-template-columns:1fr}
  .trade-side {min-height:185px}
  .trade-sides {gap:16px}

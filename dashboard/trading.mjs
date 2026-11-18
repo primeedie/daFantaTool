@@ -1,6 +1,6 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
 import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=roster-search';
-import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch} from './trade-model.mjs?v=roster-search';
+import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=trade-suggestions';
 
 const $=selector=>document.querySelector(selector);
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -49,12 +49,20 @@ const settings=$('#trade-settings');
 const board=$('#trade-board');
 const tabList=$('#trade-tabs');
 const tabs=[...tabList.querySelectorAll('[role="tab"]')];
+const suggestionsPanel=$('#suggestions-panel');
 function selectTradeTab(active){
  for(const tab of tabs){
   const selected=tab===active;
   tab.setAttribute('aria-selected',String(selected));
   tab.tabIndex=selected?0:-1;
   document.getElementById(tab.getAttribute('aria-controls')).hidden=!selected;
+ }
+ if(!suggestionsPanel.hidden){
+  renderSuggestions();
+  if(!dataset)loadPlayers().then(data=>{
+   if(data)renderSuggestions();
+   else $('#suggestion-status').textContent='Player data unavailable.';
+  });
  }
 }
 tabList.addEventListener('click',event=>{
@@ -74,6 +82,8 @@ const picker=$('#player-picker');
 const search=$('#picker-search');
 const sort=$('#picker-sort');
 const picks={a:[],b:[]};
+const candidates={a:new Set(),b:new Set()};
+let offers=[];
 const roster={...defaultRoster,a:{open:0,ilOut:0,ilIn:0,players:[]},b:{open:0,ilOut:0,ilIn:0,players:[]}};
 const rosterPanel=$('#trade-roster');
 const settingsKey='real-balliggas-trade-weights';
@@ -244,9 +254,83 @@ function renderTrade(){
  const balance=renderBalance(totals);
  const rosterResults=renderRoster(selected,totals);
  renderContext(selected,totals,balance,rosterResults);
+ if(!suggestionsPanel.hidden)renderSuggestions();
  shareButton.disabled=!dataset||!(selected.a.length||selected.b.length);
  colorNumbers(board);
 }
+
+function renderSuggestions(){
+ if(suggestionsPanel.hidden)return;
+ const status=$('#suggestion-status'),results=$('#suggestion-results'),pools=$('#suggestion-pools');
+ if(!dataset){status.textContent='Loading players…';return;}
+ const byName=new Map(dataset.players.map(player=>[playerKey(player.name),player]));
+ const selected={};
+ pools.innerHTML=['a','b'].map(key=>{
+  const {team,allows}=rosterScope(key,'trade');
+  const rosterRows=team?[...team.players.map(name=>({name,injured:false})),...team.injured.map(name=>({name,injured:true}))]:
+   [...candidates[key]].map(id=>({name:dataset.players.find(player=>player.id===id)?.name||'',injured:false}));
+  const rows=rosterRows.map(row=>({...row,player:byName.get(playerKey(row.name))}));
+  const valid=new Set(rows.map(row=>row.player).filter(player=>player&&allows(player)).map(player=>player.id));
+  for(const id of candidates[key])if(!valid.has(id))candidates[key].delete(id);
+  selected[key]=rows.map(row=>row.player).filter(player=>player&&candidates[key].has(player.id));
+  const heading=key==='a'?`${managerLabel('a')} is willing to send`:`Targets from ${managerLabel('b')}`;
+  const list=rows.map(({name,injured,player})=>{
+   const id=player?.id||'';
+   const checked=candidates[key].has(id);
+   const points=player?fp(player):null;
+   const disabled=points===null||candidates[other(key)].has(id)||!checked&&candidates[key].size>=suggestionPoolLimit;
+   return `<label><input type="checkbox" data-candidate="${esc(id)}" data-side="${key}" ${checked?'checked':''} ${disabled?'disabled':''}><span>${esc(name)}${injured?' <small class="sub">IL</small>':''}</span><small class="${points!==null?'trade-fp':'sub'}">${points!==null?`${format(points)} FP`:'No stats'}</small></label>`;
+  }).join('');
+  return `<section class="manager-impact"><h3 class="manager-${key}-text">${heading}</h3>${team?`<p class="sub">${esc(team.name)} · ${candidates[key].size} marked</p>`:''}<div class="suggestion-pool-list">${list}</div>${team?'':`<button class="button" type="button" data-suggestion-pick="${key}" ${candidates[key].size>=suggestionPoolLimit?'disabled':''}>${key==='a'?'Choose players to offer':'Choose targets'}</button>`}</section>`;
+ }).join('');
+ offers=suggestFairTrades(selected.a,selected.b,weights);
+ status.textContent=!selected.a.length||!selected.b.length?'Mark at least one player on each side.':offers.length?'Closest matches first. For uneven offers, review roster spots in the Hub.':'No fair matches among the marked players.';
+ results.innerHTML=offers.map(({a,b,balance},index)=>{
+  const offerSide=(key,pkg)=>`<p>${feedbackManager(key)} sends ${pkg.players.map(player=>nbaBadge(player.nba,player.name)).join(' ')} · <strong class="trade-fp">${format(pkg.points)} FP/game</strong></p>`;
+  return `<article class="suggestion-offer"><header><strong>${a.players.length}-for-${b.players.length} · ${format(balance.percentage)}% gap</strong><button type="button" class="button" data-load-offer="${index}">Load in Hub</button></header>${offerSide('a',a)}${offerSide('b',b)}</article>`;
+ }).join('');
+ colorNumbers(suggestionsPanel);
+}
+
+suggestionsPanel.addEventListener('change',event=>{
+ const field=event.target.closest('[data-candidate]');
+ if(!field||field.disabled)return;
+ const {side:key,candidate}=field.dataset;
+ if(field.checked)candidates[key].add(candidate);
+ else candidates[key].delete(candidate);
+ renderSuggestions();
+ const replacement=suggestionsPanel.querySelector(`[data-side="${key}"][data-candidate="${CSS.escape(candidate)}"]`);
+ (replacement||suggestionsPanel.querySelector(`[data-suggestion-pick="${key}"]`))?.focus();
+});
+
+suggestionsPanel.addEventListener('click',event=>{
+ const action=event.target.closest('[data-load-offer], [data-suggestion-pick]');
+ if(!action)return;
+ if(action.dataset.loadOffer!==undefined){
+  const offer=offers[Number(action.dataset.loadOffer)];
+  if(!offer)return;
+  for(const key of ['a','b']){
+   picks[key]=offer[key].players.map(player=>player.id);
+   Object.assign(roster[key],{ilOut:0,ilIn:0,players:[]});
+  }
+  selectTradeTab($('#hub-tab'));
+  renderTrade();
+  $('#hub-tab').focus();
+  return;
+ }
+ const key=action.dataset.suggestionPick;
+ const {allows}=rosterScope(key,'trade');
+ const remaining=()=>suggestionPoolLimit-candidates[key].size;
+ draftPicker={
+  allows,remaining,rostered:player=>candidates.a.has(player.id)||candidates.b.has(player.id),
+  add(player){
+   if(remaining()>0&&allows(player)&&fp(player)!==null&&!this.rostered(player))candidates[key].add(player.id);
+   renderSuggestions();
+  }
+ };
+ pickerPurpose='suggestion';
+ openPicker(key==='a'?`Players ${manager('a')} can offer`:`Targets from ${manager('b')}`);
+});
 
 function renderRoster(selected,totals){
  const limits=rosterSettings(roster,null,0,0);
@@ -708,9 +792,10 @@ function renderPicker(){
  if(!dataset){status.textContent='Player data unavailable. Close the picker and try again.';results.innerHTML='';return;}
  const query=playerKey(search.value);
  const browsing=pickerPurpose==='browse';
- const entry=pickerPurpose==='draft'?draftPicker:null;
+ const suggesting=pickerPurpose==='suggestion';
+ const entry=pickerPurpose==='draft'||suggesting?draftPicker:null;
  const action=pickerPurpose==='roster'?(spotsFor(side).cuts?'cut':'pickup'):browsing?'pickup':'trade';
- const {config,team,allows}=browsing?{config:pickerLeague,allows:savedRosterFilter(pickerLeague,null,'pickup')}:entry?{allows:()=>true}:rosterScope(side,action);
+ const {config,team,allows}=browsing?{config:pickerLeague,allows:savedRosterFilter(pickerLeague,null,'pickup')}:entry?{allows:entry.allows||(()=>true)}:rosterScope(side,action);
  const matches=dataset.players.filter(allows).map(player=>({player,match:pickerMatch(player,query)})).filter(row=>row.match);
  const nameOrder=(a,b)=>a.name.localeCompare(b.name);
  const byRank=(a,b,getRank)=>(getRank(a)??Infinity)-(getRank(b)??Infinity)||nameOrder(a,b);
@@ -718,7 +803,7 @@ function renderPicker(){
  matches.sort((a,b)=>b.match-a.match||order(a.player,b.player));
  const players=matches.map(row=>row.player);
  const notes=[];
- if(entry)notes.push(`${entry.remaining()} open spots · Select players, then click Done.`);
+ if(entry)notes.push(`${entry.remaining()} ${suggesting?'more you can mark':'open spots'} · Select players, then click Done.`);
  else if(action==='pickup')notes.push(config?`Excludes regular and IL players across ${config.teams.length} saved team${config.teams.length===1?'':'s'} in ${config.name}.`:'Check pickup availability in your league.');
  else if(team)notes.push(action==='cut'?`Regular roster for ${team.name}.`:`Regular roster and IL for ${team.name}.`);
  else notes.push(`Season rank uses your FP per game rules across ${currentRanks.size} players with stats.`);
@@ -730,8 +815,10 @@ function renderPicker(){
   const selected=entry?entry.rostered(player):!browsing&&pickerOccupied(player.id);
   const full=entry?.remaining()===0;
   const lead=sort.value==='draft'?rankText(player.rank):rankText(seasonRank(player));
-  const cells=`<span>${lead}</span><span><strong>${esc(player.name)}</strong><span class="sub">${nbaBadge(player.nba)} ${esc(player.position)} · ${rankSummary(player)}</span></span><span class="${!selected&&!full&&points!==null?'trade-fp':''}">${selected?(entry?'On roster':'Added'):full?'Roster full':points===null?(weights?'No stats':''):`${format(points)} FP`}</span>`;
-  return browsing?`<div class="picker-row">${cells}</div>`:`<button class="picker-row" type="button" data-player-id="${esc(player.id)}" ${selected||full?'disabled':''}>${cells}</button>`;
+  const selectionLabel=suggesting?'Marked':entry?'On roster':'Added';
+  const limitLabel=suggesting?'Mark limit reached':'Roster full';
+  const cells=`<span>${lead}</span><span><strong>${esc(player.name)}</strong><span class="sub">${nbaBadge(player.nba)} ${esc(player.position)} · ${rankSummary(player)}</span></span><span class="${!selected&&!full&&points!==null?'trade-fp':''}">${selected?selectionLabel:full?limitLabel:points===null?(weights?'No stats':''):`${format(points)} FP`}</span>`;
+  return browsing?`<div class="picker-row">${cells}</div>`:`<button class="picker-row" type="button" data-player-id="${esc(player.id)}" ${selected||full||suggesting&&points===null?'disabled':''}>${cells}</button>`;
  }).join('');
  colorNumbers(results);
  colorNumbers(status);
@@ -742,8 +829,9 @@ async function openPicker(title){
  colorNumbers($('#picker-title'));
  search.value='';
  const close=$('#close-player-picker');
- close.textContent=pickerPurpose==='draft'?'Done':'×';
- close.setAttribute('aria-label',pickerPurpose==='draft'?'Done adding roster players':'Close player picker');
+ const multiple=pickerPurpose==='draft'||pickerPurpose==='suggestion';
+ close.textContent=multiple?'Done':'×';
+ close.setAttribute('aria-label',multiple?'Done adding players':'Close player picker');
  $('#picker-status').textContent='Loading players…';
  $('#picker-results').innerHTML='';
  picker.showModal();
@@ -774,7 +862,7 @@ sort.addEventListener('change',renderPicker);
 $('#picker-results').addEventListener('click',event=>{
  const button=event.target.closest('[data-player-id]');
  if(!button||button.disabled)return;
- if(pickerPurpose==='draft'){
+ if(pickerPurpose==='draft'||pickerPurpose==='suggestion'){
   const player=dataset.players.find(player=>player.id===button.dataset.playerId);
   if(!player)return;
   draftPicker.add(player);
