@@ -6,7 +6,9 @@ NBA fantasy tools for my Yahoo league. Slam Dunk theme.
 
 Planned: daily briefing, lineups, waiver picks, weekly matchups, and streaming.
 
-The dashboard is published with GitHub Pages. ESPN games and player logs refresh hourly through GitHub Actions. Scheduled runs can be delayed by GitHub.
+The dashboard is published with GitHub Pages. ESPN games and player logs refresh hourly through GitHub Actions, with an extra run at 3 PM Manila time. Scheduled runs can be delayed by GitHub.
+
+Weekly matchup scoring uses ESPN finals and projects pending games. It optimizes the daily starting lineup from the captured roster, including eligible players listed on the bench. The scoring week includes all seven NBA dates from Monday through Sunday Eastern.
 
 Sign in on Pages with your Yahoo team name and app password to open your team. The snapshot and salted password hashes are public. Use passwords dedicated to this app. The Yahoo snapshot was captured November 18, 2026. ESPN updates separately.
 

@@ -1,5 +1,6 @@
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-export const playerKey=name=>name.normalize('NFD').replace(/\p{Diacritic}/gu,'').toLowerCase().replace(/\b(jr|iii|ii|iv)\b/g,'').replace(/[^a-z0-9]/g,'');
+export {playerKey} from './model.mjs';
+import {playerKey} from './model.mjs';
 export function nbaBadge(team,label=team){
  if(!team)return esc(label);
  return `<span class="nba-badge" data-nba="${esc(team)}"${label===team?'':` title="${esc(team)}"`}>${esc(label)}</span>`;

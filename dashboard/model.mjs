@@ -18,50 +18,77 @@ export function optimizeLineup(players,{playingTeams=null,includeQ=true,occupied
   }
   return [...dp.values()].sort((a,b)=>b.score-a.score||b.assignment.filter(Boolean).length-a.assignment.filter(Boolean).length)[0];
 }
-export function remainingWeek(snapshot,rosters){
-  const {nbaDate,capturedDate,captureWindow,publicFeed}=snapshot;
-  const captureEnd=/[–-](\d{2}:\d{2}) PHT$/.exec(captureWindow||'')?.[1];
-  const cutoff=Date.parse(`${capturedDate}T${captureEnd}:00+08:00`);
-  const date=new Date(`${nbaDate}T12:00:00Z`);
-  if(!Number.isFinite(cutoff)||!Number.isFinite(+date)||!publicFeed?.games)return null;
-  const weekEnd=new Date(date);
-  weekEnd.setUTCDate(date.getUTCDate()+(7-date.getUTCDay())%7);
-  const end=weekEnd.toISOString().slice(0,10);
-  if(!publicFeed.window||publicFeed.window.from>nbaDate||publicFeed.window.through<end)return null;
-  const byDay=new Map();
-  while(date<=weekEnd){
-    const day=date.toISOString().slice(0,10);
-    if(publicFeed.refreshedDates&&!publicFeed.refreshedDates.includes(day))return null;
-    byDay.set(day,{started:new Set(),remaining:new Set()});
-    date.setUTCDate(date.getUTCDate()+1);
+export const playerKey=name=>name.normalize('NFD').replace(/\p{Diacritic}/gu,'').toLowerCase().replace(/\b(jr|iii|ii|iv)\b/g,'').replace(/[^a-z0-9]/g,'');
+
+function scoreBox(log,scoring){
+  let score=0;
+  for(const [stat,weight] of Object.entries(scoring)){
+    if(!Number.isFinite(log[stat])||!Number.isFinite(weight))return null;
+    score+=log[stat]*weight;
   }
-  for(const game of publicFeed.games){
-    const day=byDay.get(game.gameDate);
-    if(!day||/postpon|cancel/i.test(game.status))continue;
-    const group=Date.parse(game.date)<=cutoff?day.started:day.remaining;
-    group.add(game.home);
-    group.add(game.away);
-  }
-  const totals=rosters.map(players=>{
-    let points=0, games=0;
-    for(const [day,teams] of byDay){
-      if(!teams.remaining.size)continue;
-      let occupiedSlots=0;
-      if(day===nbaDate){
-        for(const player of players){
-          if(!teams.started.has(player.nba))continue;
-          const index=slots.findIndex((slot,i)=>slot===player.slot&&!(occupiedSlots&(1<<i)));
-          if(index>=0)occupiedSlots|=1<<index;
-        }
-      }
-      const lineup=optimizeLineup(players,{playingTeams:[...teams.remaining],occupiedSlots});
-      points+=lineup.score;
-      games+=lineup.assignment.filter(Boolean).length;
-    }
-    return {points,games};
-  });
-  return {end,totals};
+  return score;
 }
+
+export function espnWeek(snapshot,rosters){
+  const {nbaDate,scoring,publicFeed:feed}=snapshot;
+  if(!feed?.window||!scoring||!Object.keys(scoring).length)return null;
+  const monday=new Date(`${nbaDate}T12:00:00Z`);
+  if(!Number.isFinite(+monday))return null;
+  monday.setUTCDate(monday.getUTCDate()-(monday.getUTCDay()+6)%7);
+  const dates=Array.from({length:7},(_,i)=>new Date(+monday+i*86400000).toISOString().slice(0,10));
+  if(feed.window.from>dates[0]||feed.window.through<dates[6])return null;
+  const gamesByDate=new Map(dates.map(date=>[date,new Map()]));
+  for(const game of feed.games){
+    const day=gamesByDate.get(game.gameDate);
+    if(!day||/postpon|cancel/i.test(game.status))continue;
+    day.set(game.home,game);
+    day.set(game.away,game);
+  }
+  const keys=new Set(rosters.flat().map(player=>playerKey(player.name)));
+  const logsByPlayer=new Map();
+  const completedBoxes=new Set();
+  for(const log of feed.logs){
+    const points=scoreBox(log,scoring);
+    if(points===null)continue;
+    completedBoxes.add(`${log.gameId}/${log.nba}`);
+    if(!keys.has(log.key))continue;
+    if(!logsByPlayer.has(log.key))logsByPlayer.set(log.key,[]);
+    logsByPlayer.get(log.key).push({...log,points});
+  }
+  for(const logs of logsByPlayer.values())logs.sort((a,b)=>b.date.localeCompare(a.date));
+  const totals=rosters.map(players=>{
+    const total={actual:0,actualStarts:0,projected:0,projectedStarts:0,missingStarts:0};
+    for(const [date,games] of gamesByDate){
+      const finishedDay=date<feed.nbaDate||([...games.values()].length>0&&[...games.values()].every(game=>game.completed));
+      const candidates=players.flatMap(player=>{
+        const logs=logsByPlayer.get(playerKey(player.name))||[];
+        const dayLog=logs.find(log=>log.gameDate===date);
+        const game=games.get(dayLog?.nba||player.nba);
+        if(!game||player.slot==='IL')return [];
+        if(!finishedDay&&['O','NA'].includes(player.status))return [];
+        const prior=logs.filter(log=>log.gameDate<date).slice(0,10);
+        const average=prior.length?prior.reduce((sum,log)=>sum+log.points,0)/prior.length:player.fpts;
+        if(!Number.isFinite(average))return [];
+        return [{...player,status:'',fpts:average,game,logs,gameTeam:dayLog?.nba||player.nba}];
+      });
+      const lineup=optimizeLineup(candidates);
+      for(const player of lineup.assignment.filter(Boolean)){
+        const {game,logs}=player;
+        if(!game.completed){
+          total.projected+=player.fpts;
+          total.projectedStarts++;
+        }else if(completedBoxes.has(`${game.id}/${player.gameTeam}`)){
+          total.actual+=logs.find(log=>log.gameId===game.id)?.points??0;
+          total.actualStarts++;
+        }else total.missingStarts++;
+      }
+    }
+    return total;
+  });
+  const missingDates=feed.refreshedDates?dates.filter(date=>!feed.refreshedDates.includes(date)):[];
+  return {start:dates[0],end:dates[6],totals,missingDates,updatedAt:feed.updatedAt};
+}
+
 export function streamEstimate({candidate,drop,games,newGames,adds,remaining}){
   if(!Number.isFinite(games)||!Number.isFinite(newGames)||games<0||newGames<0||games>7||newGames>7||!Number.isInteger(games)||!Number.isInteger(newGames))return {error:'Enter whole game counts from 0 to 7.'};
   if(adds>remaining)return {error:`Only ${remaining} adds remain in this snapshot.`};

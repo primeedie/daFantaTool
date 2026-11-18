@@ -5,6 +5,7 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '23 * * * *'
+    - cron: '0 7 * * *' # 3 PM Manila
 permissions:
   contents: read
   pages: write
