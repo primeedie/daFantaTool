@@ -3125,7 +3125,14 @@
       "scoreA": 274.1,
       "scoreB": 258.1,
       "yahooEstimateA": 1327.67,
-      "yahooEstimateB": 1359.71
+      "yahooEstimateB": 1359.71,
+      "scoreCheckpoint": {
+        "throughNbaDate": "2026-11-17",
+        "scoreA": 404.3,
+        "scoreB": 346.4,
+        "projectionA": 1482.52,
+        "projectionB": 1382.18
+      }
     },
     {
       "a": "1",

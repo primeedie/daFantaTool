@@ -26,13 +26,17 @@ const note=(n,title,detail)=>`<div class="notice-row"><span class="notice-number
 const pendingNames=()=>new Set(data.trades.filter(t=>t.status!=='Completed'&&(t.from===teamId||t.to===teamId)).flatMap(t=>[...t.send,...t.receive]));
 function drops(){const pending=pendingNames();return team().players.filter(p=>p.slot!=='IL'&&healthy(p)&&!protectedNames.has(p.name)&&!pending.has(p.name)).sort((a,b)=>a.fpts-b.fpts);}
 function pageTop(){return `<div class="page-top"><div><div class="eyebrow">${esc(data.league)} / ${esc(team().name)}</div><h1>${titles[page]||titles.briefing}</h1><p class="sub">Nov 18, 2026 · Week 5 · Head-to-head points</p></div><span class="snapshot-badge"><i></i> SNAPSHOT · NOV 18</span></div>`;}
-function matchupScores(m){return espnWeek(data,[team().players,m.opponent.players]);}
+function matchupScores(m){return espnWeek(data,[team().players,m.opponent.players],m.checkpoint);}
 function scoreboard(m=matchup(),week=matchupScores(m)){
  const [home,away]=week?.totals||[];
- const score=home?.actual,other=away?.actual;
- const ratio=home&&score+other>0?score/(score+other)*100:50;
- const status=week?"FINISHED NBA GAMES":"ESPN SCORE UNAVAILABLE";
- return `<div class="match-card"><div class="eyebrow">WEEK ${esc(data.week)} <span class="muted">/ ${status}</span></div><div class="scoreboard"><div class="score-side mine"><div class="name">${esc(team().name)}</div><div class="score">${fmt(score,1)}</div></div><span class="versus">VS</span><div class="score-side right"><div class="name">${esc(m.opponent.name)}</div><div class="score">${fmt(other,1)}</div></div></div><div class="bar"><span data-width="${ratio}"></span></div><div class="bar-label"><span>ESPN box scores for estimated starters</span><a href="#matchup">View matchup ↗</a></div></div>`;
+ const score=home?.actual??m.checkpoint?.scores[0],other=away?.actual??m.checkpoint?.scores[1];
+ const ratio=score+other>0?score/(score+other)*100:50;
+ const estimatedStarts=(home?.actualStarts||0)+(away?.actualStarts||0);
+ const status=m.checkpoint?(estimatedStarts?'YAHOO + ESTIMATED POINTS':'YAHOO SCORE'):week?'ESTIMATED SCORE':'SCORE UNAVAILABLE';
+ const source=m.checkpoint
+  ? `Yahoo through ${esc(m.checkpoint.throughNbaDate)} (NBA date)${estimatedStarts?' + ESPN points for estimated starters':''}`
+  : 'ESPN box scores for estimated starters';
+ return `<div class="match-card"><div class="eyebrow">WEEK ${esc(data.week)} <span class="muted">/ ${status}</span></div><div class="scoreboard"><div class="score-side mine"><div class="name">${esc(team().name)}</div><div class="score">${fmt(score)}</div></div><span class="versus">VS</span><div class="score-side right"><div class="name">${esc(m.opponent.name)}</div><div class="score">${fmt(other)}</div></div></div><div class="bar"><span data-width="${ratio}"></span></div><div class="bar-label"><span>${source}</span><a href="#matchup">View matchup ↗</a></div></div>`;
 }
 function rosterTable(players,{protection=false,stats=false}={}){return `<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Player</th><th>NBA day 11/17</th><th class="num">GP</th>${stats?'<th class="num">PTS</th><th class="num">REB</th><th class="num">AST</th><th class="num">ST</th><th class="num">BLK</th><th class="num">TO</th>':''}<th class="num">FP / game</th>${protection?'<th>Keep</th>':''}</tr></thead><tbody>${players.map(p=>`<tr><td><span class="slot">${esc(p.slot)}</span></td><td>${playerCell(p)}</td><td>${playing(p)?'<span class="tag green">GAME</span>':'<span class="muted">Off</span>'}</td><td class="num">${fmt(p.gp,0)}</td>${stats?['pts','reb','ast','st','blk','to'].map(k=>`<td class="num">${fmt(p[k],1)}</td>`).join(''):''}<td class="num fp">${fmt(p.fpts)}</td>${protection?`<td>${protectButton(p)}</td>`:''}</tr>`).join('')}</tbody></table></div>`;}
 function briefing(){
@@ -62,7 +66,9 @@ function weekProjection(week,m){
  const updated=new Date(week.updatedAt).toLocaleString("en-PH",{timeZone:"Asia/Manila",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
  const summary=(teamName,points)=>`<div><span class="small-label">${esc(teamName)}</span><b>+${fmt(points.projected,1)} FP</b><span class="sub">${points.projectedStarts} starts pending</span></div>`;
  const label=incomplete?"Partial estimate":pending?"Projected week total":"Week total under modeled lineups";
- return `<div class="panel-body"><div class="metric-row">${summary(team().name,home)}${summary(m.opponent.name,away)}</div><div class="result-box"><h3>${label}</h3><strong>${fmt(home.actual+home.projected,1)} – ${fmt(away.actual+away.projected,1)}</strong></div><p class="sub">${esc(week.start)} to ${esc(week.end)} Eastern (Tuesday through Monday in Manila) · ESPN updated ${esc(updated)} Manila time. Pending points use up to 10 prior box scores per player, with snapshot averages for players without logs.</p><p class="sub">Lineups are estimated from captured rosters and eligible slots. ${incomplete?"Some ESPN schedule or box-score data is missing.":""}</p></div>`;
+ const yahoo=m.checkpoint?.yahooProjection;
+ const comparison=yahoo?`<p class="sub">Yahoo live projection at capture: ${fmt(yahoo[0])} – ${fmt(yahoo[1])}</p>`:'';
+ return `<div class="panel-body"><div class="metric-row">${summary(team().name,home)}${summary(m.opponent.name,away)}</div><div class="result-box"><h3>${label}</h3><strong>${fmt(home.actual+home.projected,1)} – ${fmt(away.actual+away.projected,1)}</strong></div>${comparison}<p class="sub">${esc(week.start)} to ${esc(week.end)} Eastern (Tuesday through Monday in Manila) · ESPN updated ${esc(updated)} Manila time. Pending points use up to 10 prior box scores per player, with snapshot averages for players without logs.</p><p class="sub">Lineups are estimated from captured rosters and eligible slots. ${incomplete?"Some ESPN schedule or box-score data is missing.":""}</p></div>`;
 }
 function weeklyMatchup(){
  const m=matchup(),week=matchupScores(m);

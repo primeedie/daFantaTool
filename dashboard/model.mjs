@@ -29,7 +29,7 @@ function scoreBox(log,scoring){
   return score;
 }
 
-export function espnWeek(snapshot,rosters){
+export function espnWeek(snapshot,rosters,checkpoint=null){
   const {nbaDate,scoring,publicFeed:feed}=snapshot;
   if(!feed?.window||!scoring||!Object.keys(scoring).length)return null;
   const monday=new Date(`${nbaDate}T12:00:00Z`);
@@ -58,10 +58,11 @@ export function espnWeek(snapshot,rosters){
     logsByPlayer.get(log.key).push({...log,points});
   }
   for(const logs of logsByPlayer.values())logs.sort((a,b)=>b.date.localeCompare(a.date));
-  const totals=rosters.map(players=>{
-    const total={actual:0,actualStarts:0,projected:0,projectedStarts:0,missingStarts:0};
+  const totals=rosters.map((players,index)=>{
+    const total={actual:checkpoint?.scores[index]??0,actualStarts:0,projected:0,projectedStarts:0,missingStarts:0};
     const teamId=players[0]?.team_id;
     for(const [date,games] of gamesByDate){
+      if(checkpoint&&date<=checkpoint.throughNbaDate)continue;
       const finishedDay=date<feed.nbaDate||([...games.values()].length>0&&[...games.values()].every(game=>game.completed));
       const nextUpdate=history.find(update=>date<update.effectiveNbaDate&&update.previous[teamId]);
       const dailyRoster=nextUpdate?.previous[teamId]||players;
@@ -90,7 +91,7 @@ export function espnWeek(snapshot,rosters){
     }
     return total;
   });
-  const missingDates=feed.refreshedDates?dates.filter(date=>!feed.refreshedDates.includes(date)):[];
+  const missingDates=feed.refreshedDates?dates.filter(date=>(!checkpoint||date>checkpoint.throughNbaDate)&&!feed.refreshedDates.includes(date)):[];
   return {start:dates[0],end:dates[6],totals,missingDates,updatedAt:feed.updatedAt};
 }
 
@@ -106,5 +107,10 @@ export function snapshotMatchup(data,id){
   const m=data.matchups.find(m=>m.a===id||m.b===id);
   if(!m)return null;
   const side=m.a===id;
-  return {opponent:data.teams.find(t=>t.id===(side?m.b:m.a)),score:side?m.scoreA:m.scoreB,opponentScore:side?m.scoreB:m.scoreA,yahooEstimate:side?m.yahooEstimateA:m.yahooEstimateB,opponentEstimate:side?m.yahooEstimateB:m.yahooEstimateA};
+  const matchup={opponent:data.teams.find(t=>t.id===(side?m.b:m.a)),score:side?m.scoreA:m.scoreB,opponentScore:side?m.scoreB:m.scoreA,yahooEstimate:side?m.yahooEstimateA:m.yahooEstimateB,opponentEstimate:side?m.yahooEstimateB:m.yahooEstimateA};
+  if(m.scoreCheckpoint){
+    const {throughNbaDate,scoreA,scoreB,projectionA,projectionB}=m.scoreCheckpoint;
+    matchup.checkpoint={throughNbaDate,scores:side?[scoreA,scoreB]:[scoreB,scoreA],yahooProjection:side?[projectionA,projectionB]:[projectionB,projectionA]};
+  }
+  return matchup;
 }

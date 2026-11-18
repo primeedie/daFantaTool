@@ -20,4 +20,12 @@ test('ESPN scoring includes both ends of the week and optimizes through Yahoo be
  assert.equal(result.start,days[0]);
  assert.equal(result.end,days[1]);
  assert.deepEqual(result.totals,[{actual:33,actualStarts:4,projected:69,projectedStarts:4,missingStarts:0}]);
+ const checkpoint={scores:[404.3],throughNbaDate:days[0]};
+ const anchored=espnWeek(snapshot,[centers],checkpoint);
+ assert.deepEqual(anchored.totals,[{actual:404.3,actualStarts:0,projected:69,projectedStarts:4,missingStarts:0}]);
+ sunday.completed=true;
+ snapshot.publicFeed.logs.push(log(4,'game-1',days[1],20));
+ const afterSunday=espnWeek(snapshot,[centers],checkpoint);
+ assert.equal(afterSunday.totals[0].actual,427.3);
+ assert.equal(afterSunday.totals[0].projected,0);
 });
