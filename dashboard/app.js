@@ -1,6 +1,13 @@
 import {publicGames,recentStats,validateSnapshot,nbaBadge,playerKey} from './public-ui.mjs';
 import {slots,optimizeLineup,streamEstimate,snapshotMatchup,espnWeek,playersAtTip} from './model.mjs';
 
+const publicLeague=document.documentElement.hasAttribute('data-public-league');
+if(publicLeague){
+ let unlocked=false;
+ try {unlocked=sessionStorage.getItem('real-balliggas-other')==='open';} catch {}
+ if(!unlocked){location.replace('./?view=other');await new Promise(()=>{});}
+ document.documentElement.dataset.other='open';
+}
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=(v,d=2)=>Number.isFinite(Number(v))&&v!==null?Number(v).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}):'—';
@@ -119,7 +126,7 @@ function bindControls(){
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('show');setTimeout(()=>$('#toast').classList.remove('show'),2500);}
 function playerDetails(name){const p=[...data.teams.flatMap(t=>t.players),...data.available].find(p=>p.name===name);if(!p)return;const t=data.teams.find(t=>t.players.some(x=>x.name===name));$('#player-details').innerHTML=`<div class="eyebrow">${esc(t?.name||'Available player')}</div><h1>${nbaBadge(p.nba,p.name)}</h1><p class="sub">${nbaBadge(p.nba)} · ${esc(p.positions.join(', '))} ${statusTag(p)}</p><div class="player-detail-stats">${[['FP / game',p.fpts],['Games played',p.gp],['Minutes',p.mpg],['Points',p.pts],['Rebounds',p.reb],['Assists',p.ast],['Steals',p.st],['Blocks',p.blk],['Turnovers',p.to]].map(([l,v])=>`<div>${l}<b>${typeof v==='string'?esc(v):fmt(v,l==='Games played'?0:1)}</b></div>`).join('')}</div><p class="sub">${p.availability?`Yahoo status: ${esc(p.availability)}. `:''}Season averages · captured Nov 18. ${p.pts===undefined?'Detailed scoring stats were not retained for this available player.':''}</p>`;$('#player-details').insertAdjacentHTML('beforeend',recentStats(p,data.publicFeed,data.scoring));$('#player-dialog').showModal();}
 document.addEventListener('click',e=>{const p=e.target.closest('[data-player]');if(p)playerDetails(decodeURIComponent(p.dataset.player));const s=e.target.closest('[data-protect]');if(s){const n=decodeURIComponent(s.dataset.protect);if(protectedNames.has(n))protectedNames.delete(n);else protectedNames.add(n);try{localStorage.setItem('shohoku-protected',JSON.stringify([...protectedNames]))}catch{}render();toast(protectedNames.has(n)?'Protected from drop comparisons':'Protection removed');}const w=e.target.closest('[data-waiver-page]');if(w){waiverState.page+=Number(w.dataset.waiverPage);updateWaivers();}const a=e.target.closest('[data-activity-page]');if(a){activityState.page+=Number(a.dataset.activityPage);updateActivity();}const l=e.target.closest('[data-league-tab]');if(l){leagueState.tab=l.dataset.leagueTab;render();}const t=e.target.closest('[data-switch-team]');if(t){teamId=t.dataset.switchTeam;render();}if(e.target.closest('.close-dialog'))$('#player-dialog').close();});
-const publicLeague=document.documentElement.hasAttribute('data-public-league');
+
 $('#team-select').addEventListener('change',e=>{
  teamId=e.target.value;
  render();
@@ -134,7 +141,8 @@ function acceptSnapshot(snapshot){
  if(publicFeed)data.publicFeed=publicFeed;teamId=data.manager?.teamId ?? (data.teams.some(t=>t.id===data.ownerTeam)?data.ownerTeam:data.teams[0].id);
  $('#manager-name').textContent=data.manager?.name ?? '';
  $('#manager-name').hidden=!data.manager;
- $('#sign-out').hidden=!data.manager;
+ $('#sign-out').hidden=!publicLeague&&!data.manager;
+ if(publicLeague)$('#sign-out').textContent='Back to tools';
  $('#team-select').innerHTML=data.teams.map(t=>`<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('');render();
  $('#source-label').textContent='Yahoo snapshot · ESPN public games';
 }
@@ -149,22 +157,13 @@ async function loadPublicFeed(){try{let response=await fetch('./public-feed.json
 await loadPublicFeed();
 function showSignIn(){
  $('.top-actions').hidden=true;
- $('#content').innerHTML=`<section class="signin"><h1>Manager sign-in</h1><form id="sign-in-form" class="panel panel-body"><div class="field"><label for="username">Yahoo team name</label><input id="username" name="username" autocomplete="username" maxlength="80" required></div><div class="field"><label for="password">App password</label><input id="password" type="password" name="password" autocomplete="current-password" maxlength="128" required></div><button class="button primary" type="submit">Sign in</button><p id="sign-in-status" role="status"></p>${publicLeague?'<p class="sub">Sign in to open your team. League data is public.</p>':''}</form></section>`;
+ $('#content').innerHTML=`<section class="signin"><h1>Manager sign-in</h1><form id="sign-in-form" class="panel panel-body"><div class="field"><label for="username">Yahoo team name</label><input id="username" name="username" autocomplete="username" maxlength="80" required></div><div class="field"><label for="password">App password</label><input id="password" type="password" name="password" autocomplete="current-password" maxlength="128" required></div><button class="button primary" type="submit">Sign in</button><p id="sign-in-status" role="status"></p></form></section>`;
  $('#sign-in-form').addEventListener('submit',async event=>{
   event.preventDefault();
   const form=event.currentTarget,button=form.querySelector('button'),status=$('#sign-in-status');
   button.disabled=true;
   status.textContent='';
   try {
-   if(publicLeague){
-    const fields=new FormData(form);
-    const manager=await verifyPagesLogin(fields.get('username'),fields.get('password'));
-    if(!manager){status.textContent='Check your Yahoo team name and app password.';return;}
-    pagesManager=manager;
-    try {sessionStorage.setItem('shohoku-manager',manager.teamId);} catch {}
-    await loadLeague();
-    return;
-   }
    const response=await fetch('./api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.fromEntries(new FormData(form)))});
    if(response.ok){location.reload();return;}
    status.textContent=response.status===429?'Too many attempts. Try again in 15 minutes.':response.status===401?'Check your username and password.':'Sign-in is unavailable.';
@@ -174,10 +173,8 @@ function showSignIn(){
 }
 $('#sign-out').addEventListener('click',async ()=>{
  if(publicLeague){
-  data=undefined;
-  pagesManager=undefined;
-  try {sessionStorage.removeItem('shohoku-manager');} catch {}
-  showSignIn();
+  try {sessionStorage.removeItem('real-balliggas-other');} catch {}
+  location.assign('./');
   return;
  }
  try {
@@ -186,34 +183,12 @@ $('#sign-out').addEventListener('click',async ()=>{
  } catch {}
  toast('Could not sign out. Try again.');
 });
-let pagesManager;
-let managerRecords;
-async function getManagerRecords(){
- if(managerRecords)return managerRecords;
- const response=await fetch('./manager-verifiers.json');
- if(!response.ok)throw new Error('Cannot load manager accounts');
- managerRecords=await response.json();
- return managerRecords;
-}
-const managerKey=name=>name.normalize('NFKC').trim().replace(/\s+/g,' ').toLowerCase();
-async function verifyPagesLogin(username,password){
- const records=await getManagerRecords();
- const record=records.find(entry=>managerKey(entry.name)===managerKey(username));
- if(!record)return null;
- const encoder=new TextEncoder();
- const key=await crypto.subtle.importKey('raw',encoder.encode(password),'PBKDF2',false,['deriveBits']);
- const bits=await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:encoder.encode(record.salt),iterations:600000},key,256);
- const hash=Array.from(new Uint8Array(bits),byte=>byte.toString(16).padStart(2,'0')).join('');
- return hash===record.hash?{teamId:record.teamId,name:record.name}:null;
-}
 async function loadLeague(){
- if(publicLeague&&!pagesManager){showSignIn();return;}
  try {
   const response=await fetch(publicLeague?'./public-league.json':'./api/snapshot');
   if(!publicLeague&&response.status===401){showSignIn();return;}
   if(!response.ok)throw new Error('League data unavailable');
   const snapshot=await response.json();
-  if(publicLeague)snapshot.manager=pagesManager;
   acceptSnapshot(snapshot);
   $('.top-actions').hidden=false;
  } catch {
@@ -224,13 +199,7 @@ async function loadLeague(){
 if(publicLeague){
  $('#import-snapshot').hidden=true;
  $('#team-select').title='Choose fantasy team';
- try {
-  const saved=sessionStorage.getItem('shohoku-manager');
-  if(saved){
-   const record=(await getManagerRecords()).find(entry=>entry.teamId===saved);
-   if(record)pagesManager={teamId:record.teamId,name:record.name};
-  }
- } catch {}
+
 }
 await loadLeague();
-setInterval(async()=>{await loadPublicFeed();if(data){if(!$('#player-dialog').open&&['briefing','matchup'].includes(page))render();}else if(pagesManager)await loadLeague();else if(!publicLeague&&!$('#sign-in-form'))welcome();},300000);
+setInterval(async()=>{await loadPublicFeed();if(data){if(!$('#player-dialog').open&&['briefing','matchup'].includes(page))render();}else if(publicLeague)await loadLeague();else if(!publicLeague&&!$('#sign-in-form'))welcome();},300000);

@@ -4,9 +4,10 @@ import {fileURLToPath} from 'node:url';
 const root=dirname(fileURLToPath(import.meta.url)),out=resolve(root,'dist');
 await mkdir(resolve(out,'fonts'),{recursive:true});
 // Only ship the reviewed public snapshot and the listed assets.
-for(const file of ['app.js','style.css','font.css','model.mjs','public-ui.mjs','fonts/slam-dunk.otf','fonts/LICENSE.txt','public-league.json','manager-verifiers.json','player-logo.png'])await copyFile(resolve(root,'dashboard',file),resolve(out,file));
+for(const file of ['app.js','entry.mjs','theme.mjs','trading.html','entry-access.json','style.css','font.css','model.mjs','public-ui.mjs','fonts/slam-dunk.otf','fonts/LICENSE.txt','public-league.json','player-logo.png'])await copyFile(resolve(root,'dashboard',file),resolve(out,file));
+await copyFile(resolve(root,'dashboard/entry.html'),resolve(out,'index.html'));
 const html=await readFile(resolve(root,'dashboard/index.html'),'utf8');
-await writeFile(resolve(out,'index.html'),html.replace('<html lang="en">','<html lang="en" data-public-league>'));
+await writeFile(resolve(out,'dashboard.html'),html.replace('<html lang="en">','<html lang="en" data-public-league>'));
 const folder=process.env.FANTASY_DATA_DIR||resolve(root,'../../data/private');
 const feed=JSON.parse(await readFile(resolve(folder,'public-feed.json'),'utf8'));
 const {source,sourceUrl,updatedAt,nbaDate,window,refreshIntervalMinutes,partial,refreshedDates,games,logs}=feed;

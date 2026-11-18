@@ -52,7 +52,7 @@ if(process.argv.includes('--export-snapshot')){
 }else{
   const accountPath=resolve(privateDir,'manager-accounts.json');
   const auth=existsSync(accountPath)?managerAuth(accountPath):null;
-  const files={'/':'dashboard/index.html','/app.js':'dashboard/app.js','/style.css':'dashboard/style.css','/font.css':'dashboard/font.css','/player-logo.png':'dashboard/player-logo.png','/model.mjs':'dashboard/model.mjs','/public-ui.mjs':'dashboard/public-ui.mjs'};
+  const files={'/':'dashboard/index.html','/app.js':'dashboard/app.js','/theme.mjs':'dashboard/theme.mjs','/style.css':'dashboard/style.css','/font.css':'dashboard/font.css','/player-logo.png':'dashboard/player-logo.png','/model.mjs':'dashboard/model.mjs','/public-ui.mjs':'dashboard/public-ui.mjs'};
   const mime={png:'image/png',html:'text/html; charset=utf-8',js:'text/javascript; charset=utf-8',mjs:'text/javascript; charset=utf-8',css:'text/css; charset=utf-8'};
   const server=http.createServer(async(req,res)=>{
     const host=req.headers.host||'';

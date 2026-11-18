@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <title>REAL BALLIGGAS</title>
+ <link rel="icon" href="./player-logo.png">
+ <link rel="stylesheet" href="./style.css">
+ <link rel="stylesheet" href="./font.css">
+ <script type="module" src="./theme.mjs"></script>
+ <script type="module" src="./entry.mjs"></script>
+</head>
+<body>
+ <header class="site-header"><div class="masthead">
+  <a class="logo" href="./"><img class="player-logo" src="./player-logo.png" alt="" width="64" height="64"><span>REAL BALLIGGAS</span></a>
+  <button class="button theme-toggle" type="button" data-theme-toggle>Dark mode</button>
+ </div></header>
+ <main class="entry">
+  <section class="panel panel-body" id="tool-choice">
+   <h1>Are you here for the trading tool or for the other thing?</h1>
+   <div class="entry-actions">
+    <a class="button primary" href="./trading.html">TRADING TOOL</a>
+    <button class="button" id="open-other" type="button">OTHER THING</button>
+   </div>
+  </section>
+  <section class="panel panel-body" id="other-access" hidden>
+   <h1>Other thing</h1>
+   <form id="access-form" class="access-form">
+    <div class="field"><label for="access-password">Password</label><input id="access-password" type="password" required maxlength="128" autocomplete="current-password"></div>
+    <div class="entry-actions"><button class="button primary" type="submit">Open dashboard</button><button class="button" id="back-to-choice" type="button">Back</button></div>
+    <p id="access-message" class="sub" role="status"></p>
+   </form>
+  </section>
+ </main>
+</body>
+</html>
