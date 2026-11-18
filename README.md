@@ -12,6 +12,8 @@ Pages serves the app and public NBA data. Use **Open league** to load a local JS
 
 Dashboard: `npm start`, then open http://127.0.0.1:4173.
 
+For manager sign-in, place `manager-accounts.json` in the private data folder. Generate each entry with `makeAccount({id, name}, password)` from `manager-auth.mjs` and save the entries as a JSON array. Use the Yahoo team name as the username. The server binds to loopback for local use. Pages supports browser-local snapshot import.
+
 Data stays outside this repo in `../../data/private`. Set `FANTASY_DATA_DIR` to use a different folder. No Yahoo credentials are stored.
 
 `npm test` checks the lineup and streaming calculations. `npm run check` checks the snapshot.

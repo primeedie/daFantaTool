@@ -76,13 +76,14 @@ $('#export').addEventListener('click',()=>{if(!data)return;const blob=new Blob([
 let publicFeed;
 function acceptSnapshot(snapshot){
  if(!validateSnapshot(snapshot))throw new Error('Invalid league file');
- data=snapshot;if(publicFeed)data.publicFeed=publicFeed;teamId=data.teams.some(t=>t.id===data.ownerTeam)?data.ownerTeam:data.teams[0].id;
+ data=snapshot;if(publicFeed)data.publicFeed=publicFeed;teamId=data.manager?.teamId ?? (data.teams.some(t=>t.id===data.ownerTeam)?data.ownerTeam:data.teams[0].id);
+ $('#manager-name').textContent=data.manager?.name ?? '';
+ $('#manager-name').hidden=!data.manager;
+ $('#sign-out').hidden=!data.manager;
  $('#team-select').innerHTML=data.teams.map(t=>`<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('');render();
- $('.sidebar-bottom').innerHTML='<span class="dot"></span> LEAGUE SNAPSHOT<small>Yahoo data · Nov 18, 2026</small>';
  $('#source-label').textContent='Yahoo snapshot · ESPN public games';
 }
 function welcome(){
- $('.sidebar-bottom').innerHTML='<span class="dot"></span> PUBLIC NBA DATA<small>League file stays on your device</small>';
  $('#source-label').textContent='ESPN · public NBA data';$('#team-select').innerHTML='<option>Open a league file</option>';
  $('#content').innerHTML=`<div class="page-top"><div><div class="eyebrow">SHOHOKU FANTASY</div><h1>GAME PLAN</h1><p class="sub">Open your league snapshot to use the planners.</p></div></div>${panel('Your league','<div class="panel-body"><button class="button primary" id="welcome-import">Open league file</button><p class="sub">Choose the JSON exported from the local dashboard. It stays in this browser tab.</p></div>')}<div class="section-gap">${panel('NBA games',publicGames(publicFeed))}</div>`;
  $('#welcome-import').addEventListener('click',()=>$('#snapshot-file').click());
@@ -91,5 +92,28 @@ $('#import-snapshot').addEventListener('click',()=>$('#snapshot-file').click());
 $('#snapshot-file').addEventListener('change',async e=>{try{const file=e.target.files[0];if(!file)return;if(file.size>15000000)throw new Error('File too large');acceptSnapshot(JSON.parse(await file.text()));toast('League loaded');}catch{toast('Could not read this league file');}finally{e.target.value='';}});
 async function loadPublicFeed(){try{let response=await fetch('./public-feed.json',{cache:'no-store'});if(!response.ok)response=await fetch('./api/public-feed',{cache:'no-store'});if(response.ok){const feed=await response.json();if(Array.isArray(feed.games)&&Array.isArray(feed.logs)){publicFeed=feed;if(data)data.publicFeed=feed;}}}catch{}}
 await loadPublicFeed();
-try{const response=await fetch('./api/snapshot');if(!response.ok)throw new Error();acceptSnapshot(await response.json());}catch{welcome();}
-setInterval(async()=>{await loadPublicFeed();if(data){if(!$('#player-dialog').open&&page==='briefing')render();}else welcome();},300000);
+function showSignIn(){
+ $('.top-actions').hidden=true;
+ $('#content').innerHTML=`<section class="signin"><h1>Manager sign-in</h1><form id="sign-in-form" class="panel panel-body"><div class="field"><label for="username">Username</label><input id="username" name="username" autocomplete="username" maxlength="80" required></div><div class="field"><label for="password">Password</label><input id="password" type="password" name="password" autocomplete="current-password" maxlength="128" required></div><button class="button primary" type="submit">Sign in</button><p id="sign-in-status" role="status"></p></form></section>`;
+ $('#sign-in-form').addEventListener('submit',async event=>{
+  event.preventDefault();
+  const form=event.currentTarget,button=form.querySelector('button'),status=$('#sign-in-status');
+  button.disabled=true;
+  status.textContent='';
+  try {
+   const response=await fetch('./api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.fromEntries(new FormData(form)))});
+   if(response.ok){location.reload();return;}
+   status.textContent=response.status===429?'Too many attempts. Try again in 15 minutes.':response.status===401?'Check your username and password.':'Sign-in is unavailable.';
+  } catch {status.textContent='Could not reach the server.';}
+  finally {button.disabled=false;}
+ });
+}
+$('#sign-out').addEventListener('click',async ()=>{
+ try {
+  const response=await fetch('./api/logout',{method:'POST'});
+  if(response.ok){location.reload();return;}
+ } catch {}
+ toast('Could not sign out. Try again.');
+});
+try{const response=await fetch('./api/snapshot');if(response.status===401){showSignIn();}else{if(!response.ok)throw new Error();acceptSnapshot(await response.json());}}catch{welcome();}
+setInterval(async()=>{await loadPublicFeed();if(data){if(!$('#player-dialog').open&&page==='briefing')render();}else if(!$('#sign-in-form'))welcome();},300000);

@@ -2,6 +2,7 @@ import http from 'node:http';
 import {readFileSync,existsSync,writeFileSync} from 'node:fs';
 import {dirname,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {managerAuth} from './manager-auth.mjs';
 
 const root=dirname(fileURLToPath(import.meta.url));
 const privateDir=process.env.FANTASY_DATA_DIR || resolve(root,'../../data/private');
@@ -49,17 +50,33 @@ if(process.argv.includes('--export-snapshot')){
 }else if(process.argv.includes('--check-data')){
   const d=loadData();console.log(JSON.stringify({teams:d.teams.length,rostered:d.teams.reduce((n,t)=>n+t.players.length,0),available:d.available.length,transactions:d.transactions.length,draft:d.draft.length}));
 }else{
+  const accountPath=resolve(privateDir,'manager-accounts.json');
+  const auth=existsSync(accountPath)?managerAuth(accountPath):null;
   const files={'/':'dashboard/index.html','/app.js':'dashboard/app.js','/style.css':'dashboard/style.css','/font.css':'dashboard/font.css','/model.mjs':'dashboard/model.mjs','/public-ui.mjs':'dashboard/public-ui.mjs'};
   const mime={html:'text/html; charset=utf-8',js:'text/javascript; charset=utf-8',mjs:'text/javascript; charset=utf-8',css:'text/css; charset=utf-8'};
-  const server=http.createServer((req,res)=>{
+  const server=http.createServer(async(req,res)=>{
     const host=req.headers.host||'';
     if(!/^(127\.0\.0\.1|localhost):4173$/.test(host)){res.writeHead(403);res.end('Local access only');return;}
     const headers={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','Content-Security-Policy':"default-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'"};
-    if(req.method!=='GET'){res.writeHead(405,headers);res.end();return;}
     const url=new URL(req.url,'http://127.0.0.1:4173');
     try{
+      if(auth&&req.method==='POST'&&['/api/login','/api/logout'].includes(url.pathname)){
+        if(req.headers.origin!==`http://${host}`){res.writeHead(403,headers);res.end();return;}
+        const result=url.pathname==='/api/login'?await auth.login(req):{status:204,cookie:auth.logout(req)};
+        res.writeHead(result.status,result.cookie?{...headers,'Set-Cookie':result.cookie}:headers);
+        res.end();
+        return;
+      }
+      if(req.method!=='GET'){res.writeHead(405,headers);res.end();return;}
       if(url.pathname==='/api/public-feed'){const feed=JSON.parse(readFileSync(resolve(privateDir,'public-feed.json'),'utf8'));delete feed.boxCache;res.writeHead(200,{...headers,'Content-Type':'application/json'});res.end(JSON.stringify(feed));return;}
-      if(url.pathname==='/api/snapshot'){res.writeHead(200,{...headers,'Content-Type':'application/json; charset=utf-8'});res.end(JSON.stringify(loadData()));return;}
+      if(url.pathname==='/api/snapshot'){
+        const manager=auth?.session(req);
+        if(auth&&!manager){res.writeHead(401,headers);res.end();return;}
+        const snapshot=loadData();
+        res.writeHead(200,{...headers,'Content-Type':'application/json; charset=utf-8'});
+        res.end(JSON.stringify({...snapshot,manager}));
+        return;
+      }
       if(url.pathname==='/fonts/slam-dunk.otf'){
         const font=resolve(root,'dashboard/fonts/slam-dunk.otf');
         if(!existsSync(font)){res.writeHead(404,headers);res.end();return;}

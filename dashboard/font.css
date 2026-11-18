@@ -9,3 +9,63 @@ h1{font-size:43px;line-height:1.25}
 .logo{font-size:23px}
 h2{font-family:SlamDunk,Impact,sans-serif;font-size:20px;font-weight:400;letter-spacing:.5px}
 @media(max-width:760px){h1{font-size:34px}.logo{font-size:21px}}
+
+:root {
+  --paper:#f2eee8;
+  --surface:#fffcf8;
+  --ink:#251b20;
+  --muted:#695a61;
+  --line:#e3d7d3;
+  --red:#aa243f;
+  --green:#25604d;
+  --gold:#8e5d19;
+}
+body {font-size:16px;line-height:1.5}
+.site-header {background:#291720;color:#fff5e9;border-top:5px solid #d64a55}
+.masthead,.site-header nav {max-width:1500px;margin:auto;padding-inline:clamp(18px,4vw,56px)}
+.masthead {display:flex;align-items:center;justify-content:space-between;gap:20px;padding-block:23px}
+.masthead .logo {font-size:clamp(28px,4vw,38px)}
+.logo small {font-size:11px;color:#e2bac1}
+.masthead .jersey {background:#b92a49;border:0;border-radius:8px;height:52px;width:47px}
+.masthead .sidebar-label {margin:0;color:#e2bac1;font-size:14px;letter-spacing:0}
+.site-header nav {display:flex;gap:7px;overflow-x:auto}
+.site-header nav a {font-size:15px;flex:none;white-space:nowrap;margin:0;padding:12px 16px;border-radius:8px 8px 0 0;color:#f4dde2}
+.site-header nav a:hover {background:#553241}
+.site-header nav a.active {background:var(--paper);color:var(--red);font-weight:700}
+.shell {margin:0}
+.topbar {min-height:72px;height:auto;gap:14px;flex-wrap:wrap;padding:12px clamp(18px,4vw,56px);background:var(--surface)}
+.top-actions {flex-wrap:wrap}
+.top-actions[hidden] {display:none}
+.top-actions select,.tiny,.topbar b,.week-range {font-size:14px}
+.icon-button {width:auto;min-width:42px;height:40px;padding-inline:10px;font-size:15px}
+main {max-width:1500px;padding:32px clamp(18px,4vw,56px) 50px}
+.page-top {padding:20px 0 24px;border-bottom:2px solid var(--line);flex-wrap:wrap}
+h1 {font-size:clamp(40px,6vw,70px);line-height:1.04}
+h2 {font-size:26px}
+h3,.player-name,.controls,.field label {font-size:16px}
+.sub,.player-meta,.footnote,.stat small,footer,.notice-row p {font-size:14px}
+.eyebrow,.stat label,.panel-link,.snapshot-badge,.slot,.tag {font-size:13px}
+.stats,.grid {gap:18px}
+.stat,.panel,dialog {border-radius:14px;box-shadow:0 5px 18px #3b182309}
+.stat {border-top:3px solid #cb4860}
+.stat strong {font-size:40px}
+.panel {overflow:hidden}
+.panel-head {background:#f9eee9}
+.match-card {background:#f5dedc}
+table {font-size:15px}
+th {font-size:12px}
+dialog {max-width:780px}
+.signin {max-width:490px;margin:3vh auto}
+.signin form {display:grid;gap:16px}
+.signin input {width:100%}
+.signin button {justify-self:start}
+.signin #sign-in-status:empty {display:none}
+@media(max-width:650px) {
+  .masthead .sidebar-label,.week-range {display:none}
+  .masthead {padding-block:15px}
+  .site-header nav a {padding:10px 13px}
+  .topbar {align-items:flex-start}
+  .stats {gap:9px}
+  .stat {padding:13px}
+  .stat strong {font-size:33px}
+}
