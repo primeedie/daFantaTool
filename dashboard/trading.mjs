@@ -1,5 +1,5 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
-import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents} from './trade-model.mjs';
+import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,historicalAvailability,parseSharedTrade} from './trade-model.mjs';
 
 const $=selector=>document.querySelector(selector);
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -36,6 +36,7 @@ const managerNames={a:'',b:''};
 const cleanName=value=>typeof value==='string'?value.replace(/\s+/g,' ').trim().slice(0,24):'';
 const manager=key=>managerNames[key.toLowerCase()]||`Manager ${key.toUpperCase()}`;
 const managerLabel=key=>esc(manager(key));
+const feedbackManager=key=>`<strong class="feedback-manager manager-${key.toLowerCase()}-text">${managerLabel(key)}</strong>`;
 try {
  const saved=JSON.parse(localStorage.getItem(managerNamesKey)||'null');
  for(const key of ['a','b'])managerNames[key]=cleanName(saved?.[key]);
@@ -52,9 +53,12 @@ const settingsKey='real-balliggas-trade-weights';
 let weights,side='a',dataset,dataRequest;
 let currentRanks=new Map();
 let injuryData,injuryRequest;
+let injuryHistoryData,historyRequest,historyFailed=false;
 let outlookData,outlookRequest,outlookFailed=false;
 let chatTrade,chatVersion='';
+let weeklyOffset=1;
 let totalRebound='';
+const sharedTrade=parseSharedTrade(location.hash);
 
 try {
  const saved=JSON.parse(localStorage.getItem(settingsKey)||'null');
@@ -63,6 +67,14 @@ try {
   input('split').checked=saved.split===true;
  }
 } catch {}
+if(sharedTrade){
+ for(const key of Object.keys(boxFields))input(key).value=sharedTrade.scoring[key];
+ input('split').checked=sharedTrade.split;
+ for(const [index,key] of ['a','b'].entries()){
+  managerNames[key]=cleanName(sharedTrade.names[index]);
+  picks[key].push(...sharedTrade[key]);
+ }
+}
 
 function toggleRebounds(){
  const split=input('split').checked;
@@ -81,21 +93,25 @@ function toggleRebounds(){
 input('split').addEventListener('change',toggleRebounds);
 toggleRebounds();
 
-form.addEventListener('submit',event=>{
- event.preventDefault();
+function activateTrade(save){
  const values=Object.fromEntries(Object.keys(boxFields).map(key=>[key,input(key).value]));
  const split=input('split').checked;
  weights=scoringWeights(values,split);
  if(!weights)return;
  if(dataset)currentRanks=seasonRanks(dataset.players,weights);
  input('to').value=weights.to;
- try {localStorage.setItem(settingsKey,JSON.stringify({...values,reb:split?totalRebound:values.reb,to:weights.to,split}));} catch {}
+ if(save)try {localStorage.setItem(settingsKey,JSON.stringify({...values,reb:split?totalRebound:values.reb,to:weights.to,split}));} catch {}
  settings.hidden=true;
  board.hidden=false;
  renderTrade();
  loadPlayers();
  loadInjuries();
+ loadInjuryHistory();
  loadOutlook();
+}
+form.addEventListener('submit',event=>{
+ event.preventDefault();
+ activateTrade(true);
  $('#edit-scoring').focus();
 });
 $('#edit-scoring').addEventListener('click',()=>{
@@ -107,6 +123,25 @@ $('#clear-trade').addEventListener('click',()=>{
  picks.a.length=0;
  picks.b.length=0;
  renderTrade();
+});
+const shareButton=$('#share-trade');
+const shareStatus=$('#trade-share-status');
+const shareUrl=$('#trade-share-url');
+shareButton.addEventListener('click',async()=>{
+ const url=new URL(location.href);
+ const values={...weights};
+ if(input('split').checked&&totalRebound!==''&&Number.isFinite(Number(totalRebound)))values.reb=Number(totalRebound);
+ url.hash='trade='+encodeURIComponent(JSON.stringify([1,values,input('split').checked,[managerNames.a,managerNames.b],picks.a,picks.b]));
+ try {
+  await navigator.clipboard.writeText(url.href);
+  shareUrl.hidden=true;
+  shareStatus.textContent='Trade link copied.';
+ } catch {
+  shareUrl.value=url.href;
+  shareUrl.hidden=false;
+  shareUrl.select();
+  shareStatus.textContent='Copy this link to share the trade.';
+ }
 });
 const managerDialog=$('#manager-dialog');
 $('#rename-managers').addEventListener('click',()=>{
@@ -158,6 +193,7 @@ function renderTrade(){
  }
  renderBalance(totals);
  renderContext(selected,totals);
+ shareButton.disabled=!dataset||!(selected.a.length||selected.b.length);
  colorNumbers(board);
 }
 
@@ -178,10 +214,9 @@ function renderBalance(totals){
  const {gap,percentage,level,leader,position}=balance;
  const winner=leader&&manager(leader);
  if(!winner)verdict.textContent='Even on season averages';
- else if(level==='fair')verdict.textContent=`Balanced · small edge for ${winner}`;
- else if(level==='edge')verdict.textContent=`Edge for ${winner}`;
- else verdict.textContent=`Big edge for ${winner}`;
- delta.textContent=winner?`${winner} gains ${format(gap)} FP / game on season averages. The packages are ${format(percentage)}% apart.`:'Both packages have the same FP per game.';
+ else verdict.innerHTML=`${{fair:'Balanced · small edge for',edge:'Edge for',lopsided:'Big edge for'}[level]} ${feedbackManager(leader)}`;
+ if(winner)delta.innerHTML=`${feedbackManager(leader)} gains ${format(gap)} FP / game on season averages. The packages are ${format(percentage)}% apart.`;
+ else delta.textContent='Both packages have the same FP per game.';
  scale.setAttribute('aria-label',`${verdict.textContent}. ${delta.textContent}`);
  $('#balance-marker').style.left=`${position}%`;
 }
@@ -196,6 +231,37 @@ async function loadInjuries(){
  return injuryRequest;
 }
 
+function loadInjuryHistory(){
+ if(historyRequest)return historyRequest;
+ historyFailed=false;
+ historyRequest=fetch('./trade-injury-history.json').then(async response=>{
+  if(!response.ok)throw new Error('Injury history unavailable');
+  injuryHistoryData=await response.json();
+ }).catch(()=>{historyFailed=true;historyRequest=null;}).then(renderTrade);
+ return historyRequest;
+}
+
+function injuryHistoryTable(incoming){
+ const title='<h3>Injury history</h3>';
+ if(!injuryHistoryData)return `<section class="trade-subsection">${title}<p class="sub">${historyFailed?'Injury history unavailable.':'Loading injury history…'}</p></section>`;
+ const {currentSeason,players}=injuryHistoryData;
+ const years=Array.from({length:4},(_,index)=>currentSeason-3+index);
+ const rows=Object.entries(incoming).flatMap(([key,group])=>group.map(player=>{
+  const record=players[player.id];
+  const sample=historicalAvailability(player,record,currentSeason,weights);
+  const recent=record?.recent.map(({date,reason})=>`${esc(reason)} · ${esc(date)}`).join('<br>')||'—';
+  const topAreas=record?.areas.slice(0,2).map(({area,games,seasons})=>`${esc(area)} · ${games} G${seasons>1?` across ${seasons} seasons`:''}`).join('<br>')||'—';
+  const name=record?`<a href="${esc(record.url)}" target="_blank" rel="noopener noreferrer">${esc(player.name)}</a>`:esc(player.name);
+  return `<tr><th scope="row">${name}<small class="sub form-coverage">To ${managerLabel(key)}</small></th>${years.map(year=>`<td class="num">${record?record.seasons[year]?.injury??0:'—'}</td>`).join('')}<td>${topAreas}</td><td>${recent}</td><td class="num">${sample?.rate==null?'—':`${format(100*sample.rate)}%<small class="sub form-coverage">${sample.missed}/${sample.games} games</small>`}</td><td class="num"><b class="trade-fp">${format(sample?.adjusted??null)}</b></td></tr>`;
+ })).join('');
+ const adjusted=Object.fromEntries(Object.entries(incoming).map(([key,group])=>{
+  const values=group.map(player=>historicalAvailability(player,players[player.id],currentSeason,weights)?.adjusted);
+  return [key,values.length&&values.every(Number.isFinite)?values.reduce((sum,value)=>sum+value,0):null];
+ }));
+ const packageNote=adjusted.a!==null&&adjusted.b!==null?`<p>${feedbackManager('a')} receives <b class="trade-fp">${format(adjusted.a)} FP</b> and ${feedbackManager('b')} receives <b class="trade-fp">${format(adjusted.b)} FP</b> per game in the historical availability scenario.</p>`:'';
+ return `<section class="trade-subsection">${title}<div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Player</th>${years.map(year=>`<th class="num">${year}–${String(year+1).slice(-2)}</th>`).join('')}<th>Most affected areas</th><th>Recent reported reasons</th><th class="num">Injury absence rate</th><th class="num">Adjusted FP / game</th></tr></thead><tbody>${rows}</tbody></table></div>${packageNote}<p class="sub">Season columns count documented regular-season injury absences. The rate uses games played and documented injury absences across up to three completed seasons, with a minimum of 50 combined games. Adjusted FP applies that historical rate to the season average as a scenario. A dash means coverage or sample size is insufficient.</p></section>`;
+}
+
 function loadOutlook(){
  if(outlookRequest)return outlookRequest;
  outlookFailed=false;
@@ -207,6 +273,40 @@ function loadOutlook(){
  }).catch(()=>{outlookFailed=true;outlookRequest=null;}).then(renderTrade);
  return outlookRequest;
 }
+
+const shortDate=new Intl.DateTimeFormat('en-US',{timeZone:'UTC',month:'short',day:'numeric'});
+const weekdayDate=new Intl.DateTimeFormat('en-US',{timeZone:'UTC',weekday:'short',month:'short',day:'numeric'});
+const slateDate=date=>new Date(`${date}T12:00:00Z`);
+function weekComparison(incoming,offset){
+ if(!outlookData)return null;
+ const dates=easternWeek(offset);
+ return {dates,a:weeklyPackage(incoming.a,outlookData,weights,dates),b:weeklyPackage(incoming.b,outlookData,weights,dates)};
+}
+
+function renderWeekly(incoming){
+ const target=$('#trade-weekly');
+ if(!incoming.a.length||!incoming.b.length){target.innerHTML='';return;}
+ const comparison=weekComparison(incoming,weeklyOffset);
+ if(!comparison){
+  target.innerHTML=`<section class="trade-subsection"><h3>Weekly comparison</h3><p class="sub">${outlookFailed?'Schedule unavailable.':'Loading NBA schedule…'}</p></section>`;
+  return;
+ }
+ const {dates,a,b}=comparison;
+ const margin=a.total!==null&&b.total!==null?a.total-b.total:null;
+ const leader=margin>0?'a':'b';
+ const feedback=margin===null?'Full-week totals are unavailable for one or both sides.':Math.abs(margin)<.005?'Even on the weekly projection.':`${feedbackManager(leader)} gains <strong class="fp-gain">${format(Math.abs(margin))} projected FP</strong> for the week.`;
+ const cell=({games,points,covered=true})=>`<td class="num">${covered?games:'—'}</td><td class="num"><b class="trade-fp">${format(covered?points:null)}</b></td>`;
+ const rows=dates.map((date,index)=>`<tr><th scope="row">${weekdayDate.format(slateDate(date))}</th>${cell(a.daily[index])}${cell(b.daily[index])}</tr>`).join('');
+ target.innerHTML=`<section class="trade-subsection"><div class="weekly-heading"><h3>Weekly comparison</h3><select id="trade-week-offset" aria-label="Comparison week"><option value="0" ${weeklyOffset===0?'selected':''}>This week</option><option value="1" ${weeklyOffset===1?'selected':''}>Next week</option></select></div><p class="sub">${shortDate.format(slateDate(dates[0]))}–${shortDate.format(slateDate(dates[6]))} ET · Monday–Sunday Eastern, typically Tuesday–Monday Manila.</p><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th scope="col" rowspan="2">NBA slate (ET)</th><th class="num" colspan="2" scope="colgroup">${managerLabel('a')} receives</th><th class="num" colspan="2" scope="colgroup">${managerLabel('b')} receives</th></tr><tr><th scope="col" class="num">Player-games</th><th scope="col" class="num">Proj. FP</th><th scope="col" class="num">Player-games</th><th scope="col" class="num">Proj. FP</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><th scope="row">Week total</th>${cell({games:a.games,points:a.total})}${cell({games:b.games,points:b.total})}</tr></tfoot></table></div><p class="weekly-feedback">${feedback}</p><p class="sub">Season FP per game × scheduled games for the players received. Assumes each player plays every listed game, including earlier slates in this week’s comparison. ${a.covered?'':'Schedule coverage is incomplete for this week.'}</p></section>`;
+}
+
+$('#trade-weekly').addEventListener('change',event=>{
+ if(event.target.id!=='trade-week-offset'||!chatTrade)return;
+ weeklyOffset=Number(event.target.value);
+ renderWeekly(chatTrade.incoming);
+ colorNumbers($('#trade-weekly'));
+ $('#trade-week-offset').focus();
+});
 
 function outlookTable(players){
  const title='<h3>Next five opponents</h3>';
@@ -239,7 +339,9 @@ function renderContext(selected,totals){
   marker.style.left=`${marker.dataset.position}%`;
  }
  $('#trade-analysis').innerHTML=a&&b?analysisNotes(selected,totals,risks,formRows):'';
+ renderWeekly(incoming);
  $('#trade-outlook').innerHTML=outlookTable([...selected.a,...selected.b]);
+ $('#trade-injury-history').innerHTML=injuryHistoryTable(incoming);
  $('#trade-risk-sides').innerHTML=['a','b'].filter(key=>incoming[key].length).map(key=>{
   const context=risks[key];
   const {flagged,flaggedPoints,entries}=context;
@@ -314,7 +416,7 @@ function analysisNotes(selected,totals,risks,formRows){
  if(Number.isFinite(totals.a)&&Number.isFinite(totals.b)){
   if((risks.a.flagged||risks.b.flagged)&&risks.a.flaggedPoints!==null&&risks.b.flaggedPoints!==null){
    const a=totals.b-risks.a.flaggedPoints,b=totals.a-risks.b.flaggedPoints;
-   notes.push(['If flagged players sit',`${managerLabel('a')}’s package would be worth ${format(a)} FP / game and ${managerLabel('b')}’s ${format(b)} before any replacements.`]);
+   notes.push(['If flagged players sit',`${feedbackManager('a')}’s package would be worth ${format(a)} FP / game and ${feedbackManager('b')}’s ${format(b)} before any replacements.`]);
   }
  }
  return formTable(formRows)+driversTable(selected,formRows)+gamesPlayedTable(selected)+(notes.length?`<div class="trade-insights">${notes.map(([heading,body])=>`<article class="trade-insight"><h3>${heading}</h3><p>${body}</p></article>`).join('')}</div>`:'');
@@ -332,6 +434,12 @@ function tradeAnswer(question){
   const verdict=result.leader?`${manager(result.leader)} leads by ${format(result.gap)} FP per game.`:'The packages are even.';
   return `${manager('a')} receives ${format(a)} FP per game and ${manager('b')} receives ${format(b)}. ${verdict}`;
  };
+ if(/\b(weekly|this week|next week|which week)\b/.test(q)){
+  const week=weekComparison(incoming,/\bthis week\b/.test(q)?0:1);
+  if(!week||week.a.total===null||week.b.total===null)return 'Full-week totals are unavailable for one or both sides.';
+  const margin=week.a.total-week.b.total;
+  return `${manager('a')} projects for ${format(week.a.total)} FP over ${week.a.games} player-games. ${manager('b')} projects for ${format(week.b.total)} FP over ${week.b.games}. ${Math.abs(margin)<.005?'Even on the weekly projection.':`${manager(margin>0?'a':'b')} leads by ${format(Math.abs(margin))} FP.`} This assumes everyone plays their listed games.`;
+ }
  if(/\b(opponents?|schedule|next (five|5))\b/.test(q)){
   if(!outlookData)return 'The NBA schedule is currently unavailable.';
   const players=chosen.length?chosen:[...incoming.a,...incoming.b];
@@ -345,6 +453,17 @@ function tradeAnswer(question){
   return `Floor: ${comparison(scenarios.a.floor,scenarios.b.floor)} Ceiling: ${comparison(scenarios.a.ceiling,scenarios.b.ceiling)} These sum individual percentiles. Players can hit their highs and lows on different nights.`;
  }
  if(/injur|\brisk\b|\bhealthy\b|\bmiss\b|\bsit\b/.test(q)){
+  if(/history|historical|past|recurr|durability/.test(q)){
+   if(!injuryHistoryData)return 'The historical injury feed is unavailable.';
+   const players=chosen.length?chosen:[...incoming.a,...incoming.b];
+   return players.map(player=>{
+    const record=injuryHistoryData.players[player.id];
+    const sample=historicalAvailability(player,record,injuryHistoryData.currentSeason,weights);
+    if(!sample)return `Injury history unavailable for ${player.name}.`;
+    const area=record.areas[0];
+    return `${player.name}: ${sample.missed} documented injury absences over ${sample.games} played or injury-missed games in the covered completed seasons.${area?` ${area.area} was the most reported area (${area.games} games in the available history).`:''}${sample.adjusted===null?'':` Historical availability scenario: ${format(sample.adjusted)} FP per game.`}`;
+   }).join(' ');
+  }
   if(!injuryData)return 'The injury feed is unavailable. The season FP comparison doesn’t account for missed games.';
   const entries=['a','b'].map(key=>{
    const items=risks[key].entries.filter(entry=>entry.injury?.status&&(chosen.length===0||chosen.includes(entry.player)));
@@ -389,7 +508,7 @@ function tradeAnswer(question){
   const player=chosen[0],points=fp(player);
   return `${player.name} has ${points===null?'no complete FP average':`${format(points)} FP per game`} under your settings${player.games>0?` across ${player.games} games`:''}. Ask about injuries, recent form, or games played for more context.`;
  }
- return 'I can compare fairness, floor and ceiling, recent form, injury risk, games played, stat drivers, and roster spots for this trade. Try one of those topics.';
+ return 'Ask about fairness, floor and ceiling, recent form, injury history, weekly points, stat drivers, or roster spots.';
 }
 
 function askTrade(question){
@@ -490,3 +609,19 @@ $('#picker-results').addEventListener('click',event=>{
  picker.close();
  renderTrade();
 });
+
+if(sharedTrade){
+ activateTrade(false);
+ loadPlayers().then(data=>{
+  if(!data){shareStatus.textContent='Could not load the players in this trade link.';return;}
+  const known=new Set(data.players.map(player=>player.id));
+  for(const key of ['a','b']){
+   const valid=picks[key].filter(id=>known.has(id));
+   if(valid.length!==picks[key].length)shareStatus.textContent='Some players in this link are unavailable.';
+   picks[key]=valid;
+  }
+  renderTrade();
+ });
+}else if(location.hash.startsWith('#trade=')){
+ $('#trade-link-error').hidden=false;
+}

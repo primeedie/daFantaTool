@@ -1,9 +1,43 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,packageForm,compareGamesPlayed,statSwings,packageScenarios,nextOpponents} from '../dashboard/trade-model.mjs';
+import {scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,packageForm,compareGamesPlayed,statSwings,packageScenarios,nextOpponents,easternWeek,weeklyPackage,historicalAvailability,parseSharedTrade} from '../dashboard/trade-model.mjs';
+import {injuryHistory} from '../refresh-injury-history.mjs';
 
 const base={pts:'1',reb:'1.2',ast:'1.5',st:'3',blk:'3',to:'1.5'};
 const box={pts:20,reb:10,oreb:3,dreb:7,ast:5,st:1,blk:1,to:4};
+
+test('weekly packages count both Eastern week boundaries across a daylight saving change',()=>{
+ const dates=easternWeek(0,new Date('2026-03-09T02:00Z'));
+ assert.deepEqual(dates,['2026-03-02','2026-03-03','2026-03-04','2026-03-05','2026-03-06','2026-03-07','2026-03-08']);
+ const game=(date,status)=>({date,status,home:'LAL',away:'DEN'});
+ const feed={refreshedDates:dates,games:[game('2026-03-02T04:59Z'),game('2026-03-02T05:00Z'),game('2026-03-09T03:59Z'),game('2026-03-09T04:00Z'),game('2026-03-04T00:00Z','Canceled')]};
+ const players=[{nba:'LAL',stats:box}];
+ const result=weeklyPackage(players,feed,scoringWeights(base,false),dates);
+ assert.equal(result.games,2);
+ assert.equal(result.total,79);
+ assert.equal(result.daily.at(-1).games,1);
+ assert.equal(weeklyPackage(players,{...feed,refreshedDates:dates.slice(0,-1)},{pts:1},dates).total,null);
+});
+
+test('versioned links keep split scoring and reject duplicate or unrecognized pick formats',()=>{
+ const link=(a,b)=>'#trade='+encodeURIComponent(JSON.stringify([1,{pts:1,oreb:2,dreb:1,ast:1,st:3,blk:3,to:-2},true,['A & B','C'],a,b]));
+ assert.equal(parseSharedTrade(link(['jalenbrunson'],['anthonydavis'])).scoring.oreb,2);
+ assert.equal(parseSharedTrade(link(['jalenbrunson'],['jalenbrunson'])),null);
+ assert.equal(parseSharedTrade(link(['<script>'],[])),null);
+ assert.equal(parseSharedTrade('#trade=%'),null);
+});
+
+test('injury history counts distinct regular-season game absences and excludes rest',()=>{
+ const row=(id,phase,reason)=>`<tr><td>2025-11-01</td><td>${id}</td><td>WAS</td><td>${phase}</td><td>${reason}</td><td>yes</td></tr>`;
+ const html=`<h1>Anthony Davis injury history</h1><h2>Games behind the totals</h2><details class="aud"><tbody>${row(1,'regular','Ankle sprain')}${row(1,'regular','Ankle sprain')}${row(2,'regular','Rest')}${row(3,'playoffs','Knee soreness')}</tbody></details></section>`;
+ const record=injuryHistory(html,'Anthony Davis',2026);
+ assert.equal(injuryHistory(html,'Jalen Brunson',2026),null);
+ assert.deepEqual(record.seasons['2025'],{injury:1,other:1});
+ assert.deepEqual(record.areas,[{area:'Ankle',games:1,seasons:1}]);
+ const sample=historicalAvailability({history:{2025:79},stats:box},record,2026,{pts:1});
+ assert.equal(sample.rate,1/80);
+ assert.equal(sample.adjusted,19.75);
+});
 test('opponent outlook takes the first five eligible games and scores the last meeting with custom weights',()=>{
  const now=Date.parse('2026-11-18T00:00Z');
  const game=(day,home,away,extra)=>({date:`2026-11-${day}T01:00Z`,home,away,...extra});

@@ -104,22 +104,79 @@ h2{font-family:SlamDunk,Impact,sans-serif;font-size:20px;font-weight:400;letter-
 :root[data-palette="raptors"] {
  --brand-strong:#512d76;--brand-hot:#ed879c;--brand-blush:#f2e8f7;--brand-light:#dec4f9;--brand-dark:#2b213e;
 }
+:root[data-palette="hawks"] {
+ --brand-strong:#302326;--brand-hot:#ffab85;--brand-blush:#fff0e6;--brand-light:#ffc6a9;--brand-dark:#21191b;
+}
+:root[data-palette="nets"] {
+ --brand-strong:#181819;--brand-hot:#eeeef1;--brand-blush:#e8e8eb;--brand-light:#d7d7dd;--brand-dark:#111112;
+}
+:root[data-palette="hornets"] {
+ --brand-strong:#38266a;--brand-hot:#48cfce;--brand-blush:#e5f4f2;--brand-light:#c9b5f6;--brand-dark:#261b43;
+}
+:root[data-palette="bulls"] {
+ --brand-strong:#a32039;--brand-hot:#e6d5c8;--brand-blush:#f7ebe4;--brand-light:#ffacb8;--brand-dark:#35171f;
+}
+:root[data-palette="rockets"] {
+ --brand-strong:#99274e;--brand-hot:#a6d8ff;--brand-blush:#e8f2ff;--brand-light:#f4bad0;--brand-dark:#331b2d;
+}
+:root[data-palette="clippers"] {
+ --brand-strong:#192c4c;--brand-hot:#fa827c;--brand-blush:#f0ecf4;--brand-light:#a3d5ff;--brand-dark:#14233b;
+ --palette-trim:linear-gradient(110deg,#fa827c 0 64%,#7cbae9 64%);
+}
+:root[data-palette="grizzlies"] {
+ --brand-strong:#075451;--brand-hot:#dcaa7d;--brand-blush:#ebf5ef;--brand-light:#a6e6d4;--brand-dark:#102f2e;
+ --palette-trim:linear-gradient(110deg,#55cbb9 0 68%,#dcaa7d 68% 91%,#f87569 91%);
+}
+:root[data-palette="bucks"] {
+ --brand-strong:#183e2e;--brand-hot:#f2daaa;--brand-blush:#f8efe0;--brand-light:#e4d5ac;--brand-dark:#142c23;
+ --palette-trim:linear-gradient(110deg,#f2daaa 0 82%,#65a5c6 82%);
+}
+:root[data-palette="pelicans"] {
+ --brand-strong:#44216b;--brand-hot:#c3e66d;--brand-blush:#f1eaf9;--brand-light:#dfc3fa;--brand-dark:#2b183d;
+ --palette-trim:linear-gradient(110deg,#9965cd 0 40%,#c3e66d 40% 76%,#f0c35e 76%);
+}
+:root[data-palette="thunder"] {
+ --brand-strong:#00608d;--brand-hot:#ffa64f;--brand-blush:#e3f4fc;--brand-light:#a7e2ff;--brand-dark:#123546;
+}
+:root[data-palette="magic"] {
+ --brand-strong:#163eaa;--brand-hot:#d2dbe8;--brand-blush:#e6eef9;--brand-light:#b3cbff;--brand-dark:#18264c;
+}
+:root[data-palette="suns"] {
+ --brand-strong:#4c2271;--brand-hot:#ff9b47;--brand-blush:#fff0de;--brand-light:#ffd199;--brand-dark:#301c43;
+ --palette-trim:linear-gradient(100deg,#ffb04c,#f8845d 55%,#b57ce4);
+}
+:root[data-palette="blazers"] {
+ --brand-strong:#272426;--brand-hot:#ff7479;--brand-blush:#f2e8ea;--brand-light:#f8bdc0;--brand-dark:#191719;
+ --palette-trim:linear-gradient(122deg,#ff7479 0 48%,#e7e4e7 48% 54%,#ff7479 54%);
+}
+:root[data-palette="kings"] {
+ --brand-strong:#583185;--brand-hot:#c7c6d1;--brand-blush:#ede9f2;--brand-light:#dccafb;--brand-dark:#292036;
+}
+:root[data-palette="jazz"] {
+ --brand-strong:#362d79;--brand-hot:#a9d8f4;--brand-blush:#edf0fb;--brand-light:#d5c6fd;--brand-dark:#251f48;
+ --palette-trim:linear-gradient(108deg,#b691ed,#c3dff5 66%,#78c8cb);
+}
+:root[data-palette="wizards"] {
+ --brand-strong:#2b3b65;--brand-hot:#f8bdce;--brand-blush:#fcecf2;--brand-light:#f9bfd5;--brand-dark:#252c49;
+ --palette-trim:linear-gradient(102deg,#f8bdce,#e1c4e2 50%,#86a0cc);
+}
 body {font-size:16px;line-height:1.65;letter-spacing:.025em}
 button,input,select {letter-spacing:inherit}
 :root[data-palette]:not([data-theme="dark"]) {--paper:color-mix(in srgb,#f7f8fa 68%,var(--brand-blush))}
-.site-header {background:var(--red);color:#fff;border-top:5px solid var(--brand-black);border-bottom:3px solid var(--brand-hot)}
-:root:is([data-palette="spurs"],[data-palette="heat"],[data-palette="nuggets"]) .site-header {
- border-bottom:0;
-}
-:root:is([data-palette="spurs"],[data-palette="heat"],[data-palette="nuggets"]) .site-header::after {
+.site-header {background:var(--red);color:#fff;border-top:5px solid var(--brand-black);border-bottom:0}
+.site-header::after {
  content:'';
  display:block;
- height:6px;
- background:var(--palette-trim);
+ height:var(--palette-trim-size,3px);
+ background:var(--palette-trim,var(--brand-hot));
 }
+:root:where([data-palette="spurs"],[data-palette="nuggets"],[data-palette="clippers"],
+ [data-palette="grizzlies"],[data-palette="bucks"],[data-palette="pelicans"],
+ [data-palette="suns"],[data-palette="blazers"],[data-palette="jazz"],[data-palette="wizards"]) {--palette-trim-size:6px}
 .masthead,.site-header nav {max-width:1500px;margin:auto;padding-inline:clamp(18px,4vw,56px)}
 .masthead {display:flex;align-items:center;justify-content:space-between;gap:20px;padding-block:23px}
 .masthead .logo {font-size:clamp(28px,4vw,38px)}
+.masthead .site-wordmark {display:block;width:clamp(165px,34vw,258px);height:auto}
 .logo small {font-size:12px;color:#fff}
 .masthead .player-logo {
   width:clamp(46px,8vw,64px);
@@ -286,7 +343,7 @@ dialog {max-width:780px;font-family:var(--typeface)}
  border-top-color:var(--brand-black);
 }
 :root[data-palette="heat"] .site-header::after {height:8px}
-[data-palette="heat"] .masthead .logo span {text-shadow:2px 2px 0 var(--vice-pink-ink),-1px -1px 0 var(--vice-blue)}
+[data-palette="heat"] .site-wordmark {filter:drop-shadow(1px 1px 0 var(--vice-pink-ink)) drop-shadow(-1px -1px 0 var(--vice-blue))}
 [data-palette="heat"] .theme-controls {border-color:#705265;background:var(--brand-black)}
 :root[data-palette="heat"] .theme-controls :is(select,button.button) {
  --button-edge:#654858;

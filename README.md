@@ -1,4 +1,4 @@
-# REAL BALLIGGAS
+# daFantaTool by primeedie
 
 [Open the dashboard](https://primeedie.github.io/shohoku-fantasy-companion/)
 
@@ -9,3 +9,5 @@ ESPN stats refresh hourly, with an extra update at 3 PM Manila. Yahoo rosters ar
 Local: `npm start`. Checks: `npm test`.
 
 Slam Dunk font by Sensatype Studio. [License](dashboard/fonts/LICENSE.txt)
+
+Wordmark artwork uses Academic M54 by justme54s.

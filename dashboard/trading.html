@@ -3,7 +3,7 @@
 <head>
  <meta charset="utf-8">
  <meta name="viewport" content="width=device-width, initial-scale=1">
- <title>Trading Tool / REAL BALLIGGAS</title>
+ <title>Trading Tool / daFantaTool by primeedie</title>
  <link rel="icon" href="./player-logo.png?v=3">
  <link rel="stylesheet" href="./style.css">
  <link rel="stylesheet" href="./font.css">
@@ -13,11 +13,12 @@
 </head>
 <body>
  <header class="site-header"><div class="masthead">
-  <a class="logo" href="./"><img class="player-logo" src="./player-logo.png?v=3" alt="" width="64" height="64"><span>REAL BALLIGGAS</span></a>
+  <a class="logo" href="./"><img class="player-logo" src="./player-logo.png?v=3" alt="" width="64" height="64"><img class="site-wordmark" src="./dafantatool-wordmark.png" alt="daFantaTool by primeedie" width="615" height="122"></a>
   <button class="button theme-toggle" type="button" data-theme-toggle>Dark mode</button>
  </div></header>
  <main class="trade-tool" id="trade-tool">
   <div class="trade-title"><a class="button trade-back" href="./"><span aria-hidden="true">←</span> Back</a><h1>Trading Tool</h1></div>
+  <p id="trade-link-error" class="sub" role="status" hidden>Could not open this trade link.</p>
   <section id="trade-settings" class="panel panel-body">
    <h2>League scoring</h2>
    <p class="sub">Fantasy points per stat</p>
@@ -44,8 +45,11 @@
    <div class="trade-toolbar">
     <button class="button trade-command" id="edit-scoring" type="button"><span aria-hidden="true">≡</span> Edit scoring</button>
     <button class="button trade-command" id="rename-managers" type="button">Rename managers</button>
+    <button class="button trade-command" id="share-trade" type="button" disabled>Share trade</button>
     <button class="button trade-command" id="clear-trade" type="button"><span aria-hidden="true">↺</span> Clear trade</button>
    </div>
+   <p id="trade-share-status" class="sub share-status" role="status"></p>
+   <input id="trade-share-url" aria-label="Shareable trade link" class="share-url" type="url" readonly hidden>
    <div class="trade-sides">
     <section class="trade-side panel" aria-labelledby="trade-a-title">
      <div class="trade-side-head"><div><h2 id="trade-a-title">Manager A</h2><span>Trades away</span></div><span id="trade-a-total"></span></div>
@@ -73,10 +77,12 @@
     <h2 id="trade-context-title">Trade breakdown</h2>
     <div id="trade-scenarios"></div>
     <div id="trade-analysis"></div>
+    <div id="trade-weekly"></div>
     <div id="trade-outlook"></div>
     <div id="trade-risk-sides" class="trade-risk-sides"></div>
     <p id="trade-roster-note" class="sub"></p>
     <p id="trade-injury-source" class="sub"></p>
+    <div id="trade-injury-history"></div>
    </section>
    <section id="trade-assistant" class="panel panel-body trade-balance" aria-labelledby="assistant-title" hidden>
     <h2 id="assistant-title">Ask the trade desk</h2>
@@ -85,6 +91,8 @@
      <button class="button" type="button" data-question="Is this fair?">Is this fair?</button>
      <button class="button" type="button" data-question="Who has the better floor and ceiling?">Floor &amp; ceiling</button>
      <button class="button" type="button" data-question="What are the injury risks?">Injury risk</button>
+     <button class="button" type="button" data-question="What does their injury history show?">Injury history</button>
+     <button class="button" type="button" data-question="Who has the edge next week?">Next week</button>
      <button class="button" type="button" data-question="Who has played more games?">Games played</button>
      <button class="button" type="button" data-question="Which stats drive the trade?">Stat drivers</button>
      <button class="button" type="button" data-question="Who are the next opponents?">Next opponents</button>

@@ -192,6 +192,11 @@ body .chat-question .number-token {color:#ffedba}
  box-shadow:0 0 0 1px var(--brand-blush);
 }
 .trade-delta {margin:12px 0 4px}
+.feedback-manager {font-size:1.3em;font-weight:700;overflow-wrap:anywhere}
+.share-status:empty {display:none}
+.share-url {width:100%;margin-bottom:16px}
+.weekly-heading {display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.weekly-feedback {margin:12px 0 0}
 .manager-a-text {color:var(--manager-a-text)}
 .manager-b-text {color:var(--manager-b-text)}
 .manager-impacts {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:12px 0}

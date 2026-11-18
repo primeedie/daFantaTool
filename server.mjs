@@ -52,7 +52,7 @@ if(process.argv.includes('--export-snapshot')){
 }else{
   const accountPath=resolve(privateDir,'manager-accounts.json');
   const auth=existsSync(accountPath)?managerAuth(accountPath):null;
-  const files={'/':'dashboard/index.html','/app.js':'dashboard/app.js','/theme.mjs':'dashboard/theme.mjs','/trading.html':'dashboard/trading.html','/trading.css':'dashboard/trading.css','/trading.mjs':'dashboard/trading.mjs','/trade-model.mjs':'dashboard/trade-model.mjs','/trade-data.json':'dashboard/trade-data.json','/trade-injuries.json':'dashboard/trade-injuries.json','/style.css':'dashboard/style.css','/font.css':'dashboard/font.css','/player-logo.png':'dashboard/player-logo.png','/model.mjs':'dashboard/model.mjs','/public-ui.mjs':'dashboard/public-ui.mjs'};
+  const files={'/':'dashboard/index.html','/app.js':'dashboard/app.js','/theme.mjs':'dashboard/theme.mjs','/trading.html':'dashboard/trading.html','/trading.css':'dashboard/trading.css','/trading.mjs':'dashboard/trading.mjs','/trade-model.mjs':'dashboard/trade-model.mjs','/trade-data.json':'dashboard/trade-data.json','/trade-injuries.json':'dashboard/trade-injuries.json','/trade-injury-history.json':'dashboard/trade-injury-history.json','/style.css':'dashboard/style.css','/font.css':'dashboard/font.css','/player-logo.png':'dashboard/player-logo.png','/dafantatool-wordmark.png':'dashboard/dafantatool-wordmark.png','/model.mjs':'dashboard/model.mjs','/public-ui.mjs':'dashboard/public-ui.mjs'};
   const mime={json:'application/json; charset=utf-8',png:'image/png',html:'text/html; charset=utf-8',js:'text/javascript; charset=utf-8',mjs:'text/javascript; charset=utf-8',css:'text/css; charset=utf-8'};
   const server=http.createServer(async(req,res)=>{
     const host=req.headers.host||'';
@@ -70,8 +70,8 @@ if(process.argv.includes('--export-snapshot')){
       if(req.method!=='GET'){res.writeHead(405,headers);res.end();return;}
       if(['/api/public-feed','/trade-outlook.json'].includes(url.pathname)){
         const {boxCache,possessionCache,...feed}=JSON.parse(readFileSync(resolve(privateDir,'public-feed.json'),'utf8'));
-        const {sourceUrl,updatedAt,window,games,defense}=feed;
-        const data=url.pathname==='/trade-outlook.json'?{sourceUrl,updatedAt,window,games:games.filter(game=>!game.completed),defense}:feed;
+        const {sourceUrl,updatedAt,window,games,defense,refreshedDates}=feed;
+        const data=url.pathname==='/trade-outlook.json'?{sourceUrl,updatedAt,window,games,defense,refreshedDates}:feed;
         res.writeHead(200,{...headers,'Content-Type':'application/json'});res.end(JSON.stringify(data));return;
       }
       if(url.pathname==='/api/snapshot'){

@@ -1,4 +1,59 @@
 export const boxFields={pts:'PTS',reb:'REB',oreb:'OREB',dreb:'DREB',ast:'AST',st:'STL',blk:'BLK',to:'TOV'};
+const easternDate=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'});
+function easternDay(date){
+ const {year,month,day}=Object.fromEntries(easternDate.formatToParts(date).map(part=>[part.type,part.value]));
+ return `${year}-${month}-${day}`;
+}
+
+export function easternWeek(offset=0,now=new Date()){
+ const date=new Date(`${easternDay(now)}T12:00:00Z`);
+ date.setUTCDate(date.getUTCDate()-((date.getUTCDay()+6)%7)+offset*7);
+ return Array.from({length:7},(_,day)=>new Date(+date+day*86400000).toISOString().slice(0,10));
+}
+
+export function weeklyPackage(players,feed,weights,dates){
+ const byDate=new Map(dates.map(date=>[date,[]]));
+ const confirmedDates=new Set(feed.refreshedDates||[]);
+ for(const game of feed.games||[]){
+  const tip=new Date(game.date);
+  if(!Number.isFinite(+tip)||/postpon|cancel/i.test(game.status))continue;
+  byDate.get(easternDay(tip))?.push(game);
+ }
+ const daily=dates.map(date=>{
+  const games=byDate.get(date);
+  const playing=players.flatMap(player=>games.filter(game=>player.nba&&(player.nba===game.home||player.nba===game.away)).map(()=>player));
+  const points=playing.map(player=>tradePoints(player.stats,weights));
+  return {date,games:playing.length,covered:confirmedDates.has(date),points:points.includes(null)?null:points.reduce((sum,value)=>sum+value,0)};
+ });
+ const covered=daily.every(day=>day.covered);
+ const games=daily.reduce((sum,day)=>sum+day.games,0);
+ const total=covered&&games&&players.every(player=>player.nba)&&daily.every(day=>day.points!==null)?daily.reduce((sum,day)=>sum+day.points,0):null;
+ return {daily,total,games,covered};
+}
+
+export function historicalAvailability(player,record,currentSeason,weights){
+ if(!record||!Number.isInteger(currentSeason))return null;
+ const seasons=Object.keys(player.history||{}).filter(year=>+year>=currentSeason-3&&+year<currentSeason);
+ const played=seasons.reduce((sum,year)=>sum+player.history[year],0);
+ const missed=seasons.reduce((sum,year)=>sum+(record.seasons?.[year]?.injury??0),0);
+ const games=played+missed;
+ const points=tradePoints(player.stats,weights);
+ const rate=games>=50?missed/games:null;
+ return {played,missed,games,rate,adjusted:points!==null&&rate!==null?points*(1-rate):null};
+}
+
+export function parseSharedTrade(hash){
+ if(!hash.startsWith('#trade=')||hash.length>36000)return null;
+ try {
+  const [version,values,split,names,a,b]=JSON.parse(decodeURIComponent(hash.slice(7)));
+  if(version!==1||typeof split!=='boolean'||!Array.isArray(names)||!Array.isArray(a)||!Array.isArray(b))return null;
+  const ids=[...a,...b];
+  if(!ids.length||ids.length>200||new Set(ids).size!==ids.length||!ids.every(id=>typeof id==='string'&&/^[a-z0-9]{1,48}$/.test(id)))return null;
+  const scoring=Object.fromEntries(Object.keys(boxFields).map(key=>[key,Number.isFinite(values[key])?values[key]:'']));
+  if(!scoringWeights(scoring,split))return null;
+  return {scoring,split,names,a,b};
+ } catch {return null;}
+}
 
 export function scoringWeights(values,split){
  const rebound=split?['oreb','dreb']:['reb'];
