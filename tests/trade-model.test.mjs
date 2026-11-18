@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext} from '../dashboard/trade-model.mjs';
+import {scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,recentPackagePoints,compareGamesPlayed,statSwings} from '../dashboard/trade-model.mjs';
 
 const base={pts:'1',reb:'1.2',ast:'1.5',st:'3',blk:'3',to:'1.5'};
 const box={pts:20,reb:10,oreb:3,dreb:7,ast:5,st:1,blk:1,to:4};
@@ -50,4 +50,21 @@ test('risk context counts uncertain availability and keeps dated injury notes se
  assert.equal(context.flaggedPoints,35);
  assert.equal(context.entries.find(entry=>entry.player.id==='questionable').smallSample,true);
  assert.equal(context.entries.find(entry=>entry.player.id==='old-note').atRisk,false);
+});
+
+test('manager net and stat swings are based on who receives the players',()=>{
+ assert.deepEqual(managerChanges(20,35),{a:{outgoing:20,incoming:35,net:15},b:{outgoing:35,incoming:20,net:-15}});
+ assert.equal(managerChanges(null,35).b.net,null);
+ const before=[{stats:{pts:20,reb:10}}],after=[{stats:{pts:26,reb:5}}];
+ const weights={pts:1,reb:2};
+ assert.deepEqual(statSwings(before,after,weights),[{stat:'reb',points:-10},{stat:'pts',points:6}]);
+ assert.deepEqual(statSwings(after,before,weights).map(row=>row.points),[10,-6]);
+});
+
+test('availability compares shared seasons and recent FP requires three valid games',()=>{
+ const a={history:{2023:38,2024:41,2025:59},recent:[{pts:6},{pts:10},{pts:14}]};
+ const b={history:{2024:70,2025:75},recent:[{pts:10},{pts:20}]};
+ assert.deepEqual(compareGamesPlayed(a,b),{gameTotals:[{year:'2024',a:41,b:70},{year:'2025',a:59,b:75}],avgA:50,avgB:72.5});
+ assert.equal(recentPackagePoints([a],{pts:2}),20);
+ assert.equal(recentPackagePoints([a,b],{pts:2}),null);
 });

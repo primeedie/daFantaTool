@@ -11,18 +11,22 @@ h2{font-family:SlamDunk,Impact,sans-serif;font-size:20px;font-weight:400;letter-
 @media(max-width:760px){h1{font-size:34px}.logo{font-size:21px}}
 
 :root {
-  --paper:#f8f4e9;
-  --surface:#fffcf8;
+  --brand-black:#000000;
+  --brand-strong:#cf0f47;
+  --brand-hot:#ff0b55;
+  --brand-blush:#ffdede;
+  --paper:var(--brand-blush);
+  --surface:#fff4f4;
   --typeface:SlamDunk,Impact,sans-serif;
   --ink:#000;
   --muted:#000;
-  --line:#e3d7d3;
-  --red:#8d141d;
+  --line:#eab2be;
+  --red:var(--brand-strong);
   --green:#25604d;
   --gold:#8e5d19;
 }
 body {font-size:16px;line-height:1.5}
-.site-header {background:var(--red);color:#fff;border-top:5px solid #000}
+.site-header {background:var(--red);color:#fff;border-top:5px solid var(--brand-black);border-bottom:3px solid var(--brand-hot)}
 .masthead,.site-header nav {max-width:1500px;margin:auto;padding-inline:clamp(18px,4vw,56px)}
 .masthead {display:flex;align-items:center;justify-content:space-between;gap:20px;padding-block:23px}
 .masthead .logo {font-size:clamp(28px,4vw,38px)}
@@ -61,8 +65,14 @@ h3,.player-name,.controls,.field label {font-size:16px}
 .stat {border-top:3px solid var(--red)}
 .stat strong {font-size:40px}
 .panel {overflow:hidden}
-.panel-head {background:#f9eee9}
-.match-card {background:#f5dedc}
+.panel-head {background:var(--brand-blush)}
+.match-card {background:#ffc6d2}
+.match-card:before {border-color:var(--line)}
+th,.metric-row div {background:#ffe6eb}
+tbody tr:hover,.row-mine {background:#ffe3e8}
+.result-box {background:#ffe6eb;border-color:var(--line)}
+.error-box {background:var(--brand-blush);color:var(--ink)}
+.button.primary:hover,.button.primary:focus-visible {background:var(--brand-black);border-color:var(--brand-black)}
 table {font-size:15px}
 th {font-size:12px}
 dialog {max-width:780px;font-family:var(--typeface)}
@@ -86,25 +96,24 @@ dialog {max-width:780px;font-family:var(--typeface)}
 
 :root[data-theme="dark"] {
   color-scheme:dark;
-  --paper:#171412;
-  --surface:#231e1b;
-  --ink:#f8f4e9;
-  --muted:#d9ccc0;
-  --line:#514039;
+  --paper:var(--brand-black);
+  --surface:#190b11;
+  --ink:var(--brand-blush);
+  --muted:#e9b8c6;
+  --line:#58203a;
 }
 [data-theme="dark"] .site-header nav a.active {color:var(--ink)}
-[data-theme="dark"] .player-logo {background:#f8f4e9}
-[data-theme="dark"] .panel-head,[data-theme="dark"] .metric-row div {background:#302621}
-[data-theme="dark"] .match-card {background:#352024}
-[data-theme="dark"] .match-card:before {border-color:#664049}
-[data-theme="dark"] .score-side.mine .score {color:#f38b92}
-[data-theme="dark"] .result-box,[data-theme="dark"] .error-box {background:#352024;border-color:#664049;color:var(--ink)}
+[data-theme="dark"] .player-logo {background:var(--brand-blush)}
+[data-theme="dark"] .panel-head,[data-theme="dark"] .metric-row div {background:#290c1a}
+[data-theme="dark"] .match-card {background:#360c1f}
+[data-theme="dark"] .score-side.mine .score {color:#ff6f9a}
+[data-theme="dark"] .result-box,[data-theme="dark"] .error-box {background:#360c1f;border-color:var(--line);color:var(--ink)}
 [data-theme="dark"] .button:not(.primary):not(.dark) {background:var(--surface);color:var(--ink)}
 [data-theme="dark"] #toast,[data-theme="dark"] .skip {background:var(--ink);color:var(--paper)}
 [data-theme="dark"] .nba-picker option {color:var(--ink)}
-[data-theme="dark"] th,[data-theme="dark"] .row-mine,[data-theme="dark"] tbody tr:hover {background:#302621}
-[data-theme="dark"] .tag {background:#382e29;color:var(--ink)}
-[data-theme="dark"] .tag.red {background:#48262c;color:#ffb6bc}
+[data-theme="dark"] th,[data-theme="dark"] .row-mine,[data-theme="dark"] tbody tr:hover {background:#290c1a}
+[data-theme="dark"] .tag {background:#391725;color:var(--ink)}
+[data-theme="dark"] .tag.red {background:#581330;color:var(--brand-blush)}
 [data-theme="dark"] .tag.green {background:#263831;color:#e3f3e8}
 [data-theme="dark"] .tag.gold {background:#42351d;color:#fce7b7}
 [data-theme="dark"] .button.dark {color:var(--paper)}

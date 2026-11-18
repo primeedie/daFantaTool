@@ -46,7 +46,7 @@ function rankRows(html){
 function perGame(data){
  const rows=(data?.basic?.nba?.body||[]).filter(row=>String(row.season).startsWith('2026')&&Number(row.games)>0);
  if(!rows.length)return null;
- const allTeams=rows.find(row=>/^(TOT|\d+TM)$/i.test(row.team));
+ const allTeams=rows.find(row=>/^(TOT|\d+TM)$/i.test(row.team)||String(row.team).includes('/'));
  const season=allTeams?[allTeams]:rows;
  const games=season.reduce((sum,row)=>sum+Number(row.games),0);
  const stats={};
@@ -56,6 +56,27 @@ function perGame(data){
   }
  }
  return Object.keys(stats).length?{games,stats,nba:!allTeams&&rows.length===1?nbaCode(rows[0].team):null}:null;
+}
+
+function recentGames(data){
+ return (data?.gl2026?.body||[])
+  .filter(row=>row.gametype==='REGULAR'&&String(row.playedgame)==='1'&&/^\d{4}-\d{2}-\d{2}/.test(row.gamedate))
+  .sort((a,b)=>b.gamedate.localeCompare(a.gamedate))
+  .slice(0,5)
+  .map(row=>Object.fromEntries(Object.entries(statFields).flatMap(([key,field])=>{
+   const raw=row[field];
+   return raw!=null&&String(raw).trim()&&Number.isFinite(Number(raw))?[[key,Number(raw)]]:[];
+  })));
+}
+
+function gamesHistory(data){
+ const history={};
+ for(const year of [2023,2024,2025]){
+  const rows=(data?.basic?.nba?.body||[]).filter(row=>String(row.season).startsWith(String(year))&&Number(row.games)>0);
+  const allTeams=rows.find(row=>/^(TOT|\d+TM)$/i.test(row.team)||String(row.team).includes('/'));
+  if(rows.length)history[year]=allTeams?Number(allTeams.games):rows.reduce((sum,row)=>sum+Number(row.games),0);
+ }
+ return history;
 }
 
 const root=dirname(fileURLToPath(import.meta.url));
@@ -93,7 +114,10 @@ await limit(players,5,async player=>{
  try {
   const url=new URL('/basketball/ajax/player-page-data.php',origin);
   url.search=new URLSearchParams({id,team:player.nba,nba:'true'}).toString();
-  const row=perGame(await request(url,'json'));
+  const data=await request(url,'json');
+  const row=perGame(data);
+  player.history=gamesHistory(data);
+  player.recent=recentGames(data);
   if(row){
    player.nba=row.nba||player.nba;
    player.games=row.games;
@@ -103,9 +127,11 @@ await limit(players,5,async player=>{
   }
  } catch {}
  if(old?.stats){player.games=old.games;player.stats=old.stats;player.nba=old.nba||player.nba;retained++;}
+ if(!player.history&&old?.history)player.history=old.history;
+ if(!player.recent&&old?.recent)player.recent=old.recent;
 });
 if((missingOnly?updated+retained:updated)<100)throw new Error(`Only ${updated} active-season RotoWire stats rows updated. Keeping the existing dataset.`);
-const result={rankUrl,statsUrl,rankDate:'Oct 19, 2026',updatedAt:new Date().toISOString(),players};
+const result={analysisVersion:1,rankUrl,statsUrl,rankDate:'Oct 19, 2026',updatedAt:new Date().toISOString(),players};
 await mkdir(dirname(resolve(output)),{recursive:true});
 await writeFile(output+'.tmp',JSON.stringify(result,null,2)+'\n');
 await rename(output+'.tmp',output);

@@ -9,8 +9,11 @@ await copyFile(resolve(root,'dashboard/entry.html'),resolve(out,'index.html'));
 const html=await readFile(resolve(root,'dashboard/index.html'),'utf8');
 await writeFile(resolve(out,'dashboard.html'),html.replace('<html lang="en">','<html lang="en" data-public-league>'));
 const folder=process.env.FANTASY_DATA_DIR||resolve(root,'../../data/private');
-const tradeData=await readFile(resolve(folder,'trade-data.json'),'utf8').catch(()=>readFile(resolve(root,'dashboard/trade-data.json'),'utf8'));
-await writeFile(resolve(out,'trade-data.json'),tradeData);
+const tradeSeed=JSON.parse(await readFile(resolve(root,'dashboard/trade-data.json'),'utf8'));
+let tradeCache;
+try {tradeCache=JSON.parse(await readFile(resolve(folder,'trade-data.json'),'utf8'));} catch {}
+const useTradeCache=tradeCache?.analysisVersion===tradeSeed.analysisVersion&&tradeCache?.updatedAt>tradeSeed.updatedAt;
+await writeFile(resolve(out,'trade-data.json'),JSON.stringify(useTradeCache?tradeCache:tradeSeed));
 const tradeInjuries=await readFile(resolve(folder,'trade-injuries.json'),'utf8').catch(()=>readFile(resolve(root,'dashboard/trade-injuries.json'),'utf8'));
 await writeFile(resolve(out,'trade-injuries.json'),tradeInjuries);
 const feed=JSON.parse(await readFile(resolve(folder,'public-feed.json'),'utf8'));

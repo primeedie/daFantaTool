@@ -54,6 +54,41 @@ export function tradeBalance(sideA,sideB){
  };
 }
 
+export function managerChanges(outgoingA,outgoingB){
+ const net=Number.isFinite(outgoingA)&&Number.isFinite(outgoingB)?Number((outgoingB-outgoingA).toFixed(2)):null;
+ return {
+  a:{outgoing:outgoingA,incoming:outgoingB,net},
+  b:{outgoing:outgoingB,incoming:outgoingA,net:net===null?null:-net}
+ };
+}
+
+export function recentPackagePoints(players,weights){
+ let total=0;
+ for(const player of players){
+  const sample=(player.recent||[]).map(box=>tradePoints(box,weights)).filter(points=>points!==null);
+  if(sample.length<3)return null;
+  total+=sample.reduce((sum,points)=>sum+points,0)/sample.length;
+ }
+ return total;
+}
+
+export function compareGamesPlayed(playerA,playerB){
+ const years=Object.keys(playerA.history||{}).filter(year=>Number.isFinite(playerA.history[year])&&Number.isFinite(playerB.history?.[year])).sort();
+ if(!years.length)return null;
+ const gameTotals=years.map(year=>({year,a:playerA.history[year],b:playerB.history[year]}));
+ return {gameTotals,avgA:gameTotals.reduce((sum,season)=>sum+season.a,0)/years.length,avgB:gameTotals.reduce((sum,season)=>sum+season.b,0)/years.length};
+}
+
+export function statSwings(outgoing,incoming,weights){
+ const totalFor=(players,key)=>players.every(player=>Number.isFinite(player.stats?.[key]))?
+  players.reduce((sum,player)=>sum+player.stats[key],0):null;
+ return Object.entries(weights).flatMap(([stat,weight])=>{
+  if(!weight)return [];
+  const before=totalFor(outgoing,stat),after=totalFor(incoming,stat);
+  return before===null||after===null?[]:[{stat,points:Number(((after-before)*weight).toFixed(2))}];
+ }).filter(change=>change.points!==0).sort((a,b)=>Math.abs(b.points)-Math.abs(a.points));
+}
+
 export function tradeContext(players,injuryRecords,weights){
  const entries=players.map(player=>{
   const profileId=/-([0-9]+)$/.exec(player.profile||'')?.[1];

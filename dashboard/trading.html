@@ -4,7 +4,7 @@
  <meta charset="utf-8">
  <meta name="viewport" content="width=device-width, initial-scale=1">
  <title>Trading Tool / REAL BALLIGGAS</title>
- <link rel="icon" href="./player-logo.png">
+ <link rel="icon" href="./player-logo.png?v=3">
  <link rel="stylesheet" href="./style.css">
  <link rel="stylesheet" href="./font.css">
  <link rel="stylesheet" href="./trading.css">
@@ -13,7 +13,7 @@
 </head>
 <body>
  <header class="site-header"><div class="masthead">
-  <a class="logo" href="./"><img class="player-logo" src="./player-logo.png" alt="" width="64" height="64"><span>REAL BALLIGGAS</span></a>
+  <a class="logo" href="./"><img class="player-logo" src="./player-logo.png?v=3" alt="" width="64" height="64"><span>REAL BALLIGGAS</span></a>
   <button class="button theme-toggle" type="button" data-theme-toggle>Dark mode</button>
  </div></header>
  <main class="trade-tool" id="trade-tool">
@@ -47,12 +47,12 @@
    </div>
    <div class="trade-sides">
     <section class="trade-side panel" aria-labelledby="trade-a-title">
-     <div class="trade-side-head"><h2 id="trade-a-title">Side A</h2><span id="trade-a-total"></span></div>
+     <div class="trade-side-head"><div><h2 id="trade-a-title">Manager A</h2><span>Trades away</span></div><span id="trade-a-total"></span></div>
      <div id="trade-a-players" class="trade-players"></div>
      <button class="button trade-add" type="button" data-pick="a">+ Add player</button>
     </section>
     <section class="trade-side panel" aria-labelledby="trade-b-title">
-     <div class="trade-side-head"><h2 id="trade-b-title">Side B</h2><span id="trade-b-total"></span></div>
+     <div class="trade-side-head"><div><h2 id="trade-b-title">Manager B</h2><span>Trades away</span></div><span id="trade-b-total"></span></div>
      <div id="trade-b-players" class="trade-players"></div>
      <button class="button trade-add" type="button" data-pick="b">+ Add player</button>
     </section>
@@ -60,14 +60,16 @@
    <section id="trade-balance" class="panel panel-body trade-balance" aria-labelledby="trade-balance-title" hidden>
     <div class="balance-heading"><h2 id="trade-balance-title">Trade balance</h2><strong id="trade-verdict" aria-live="polite"></strong></div>
     <div class="balance-scale" id="trade-scale" role="img" aria-label="Trade balance scale">
-     <div class="balance-labels" aria-hidden="true"><span>Side A</span><span>Even</span><span>Side B</span></div>
+     <div class="balance-labels" aria-hidden="true"><span class="manager-a-text">Manager A</span><span>Even</span><span class="manager-b-text">Manager B</span></div>
      <div class="balance-track"><span id="balance-marker"></span></div>
     </div>
     <p id="trade-delta" class="trade-delta"></p>
-    <p class="sub">Fair within 10%. Based on the gap in FP per game relative to the larger total. Roster spots and injury risk are separate.</p>
+    <div id="manager-impacts" class="manager-impacts"></div>
+    <p class="sub">On season FP per game: fair within 10%, edge through 20%, lopsided above 20%. The gap is measured against the larger package.</p>
    </section>
    <section id="trade-context" class="panel panel-body trade-balance" aria-labelledby="trade-context-title" hidden>
     <h2 id="trade-context-title">What could swing it?</h2>
+    <div id="trade-analysis"></div>
     <div id="trade-risk-sides" class="trade-risk-sides"></div>
     <p id="trade-roster-note" class="sub"></p>
     <p id="trade-injury-source" class="sub"></p>

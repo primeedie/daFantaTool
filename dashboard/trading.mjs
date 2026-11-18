@@ -1,10 +1,13 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
-import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext} from './trade-model.mjs';
+import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,recentPackagePoints,compareGamesPlayed,statSwings} from './trade-model.mjs';
 
 const $=selector=>document.querySelector(selector);
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const number=new Intl.NumberFormat('en-US',{maximumFractionDigits:2});
 const format=value=>value===null?'—':number.format(value);
+const signed=value=>value===null?'—':`${value>0?'+':''}${format(value)}`;
+const tone=value=>value>0?'fp-gain':value<0?'fp-loss':'';
+const manager=key=>`Manager ${key.toUpperCase()}`;
 const form=$('#scoring-form');
 const input=name=>form.elements.namedItem(name);
 const settings=$('#trade-settings');
@@ -99,7 +102,7 @@ function renderTrade(){
   }).join(''):'<p class="trade-empty sub">No players selected.</p>';
  }
  renderBalance(totals);
- renderContext(selected);
+ renderContext(selected,totals);
 }
 
 function renderBalance(totals){
@@ -107,7 +110,9 @@ function renderBalance(totals){
  panel.hidden=!picks.a.length||!picks.b.length;
  if(panel.hidden)return;
  const scale=$('#trade-scale'),verdict=$('#trade-verdict'),delta=$('#trade-delta');
- const balance=tradeBalance(totals.a,totals.b);
+ const changes=managerChanges(totals.a,totals.b);
+ $('#manager-impacts').innerHTML=Object.entries(changes).map(([key,{incoming,outgoing,net}])=>`<section class="manager-impact"><h3 class="manager-${key}-text">${manager(key)}</h3><strong class="manager-net ${tone(net)}">${signed(net)} FP</strong><span class="sub">Net per game</span><dl><div><dt>Receives</dt><dd>${format(incoming)} FP</dd></div><div><dt>Sends</dt><dd>${format(outgoing)} FP</dd></div></dl></section>`).join('');
+ const balance=tradeBalance(totals.b,totals.a);
  scale.hidden=!balance;
  if(!balance){
   verdict.textContent='Not enough stats';
@@ -115,8 +120,12 @@ function renderBalance(totals){
   return;
  }
  const {gap,percentage,level,leader,position}=balance;
- verdict.textContent=level==='fair'?'Fair on FP / game':level==='edge'?`Side ${leader} has the edge`:`Lopsided toward Side ${leader}`;
- delta.textContent=leader?`Side ${leader} leads by ${format(gap)} FP / game (${format(percentage)}%).`:'Both sides have the same FP / game.';
+ const winner=leader&&manager(leader),other=leader&&manager(leader==='A'?'B':'A');
+ if(!winner)verdict.textContent='Dead even. Nobody gets bragging rights.';
+ else if(level==='fair')verdict.textContent=`Fair deal on paper. ${winner} gets the small edge.`;
+ else if(level==='edge')verdict.textContent=`${winner} got the better end of the deal.`;
+ else verdict.textContent=`${winner} is trying to fleece ${other}!`;
+ delta.textContent=winner?`${winner} gains ${format(gap)} FP / game on season averages. The packages are ${format(percentage)}% apart.`:'Both packages have the same FP per game.';
  scale.setAttribute('aria-label',`${verdict.textContent}. ${delta.textContent}`);
  $('#balance-marker').style.left=`${position}%`;
 }
@@ -131,13 +140,16 @@ async function loadInjuries(){
  return injuryRequest;
 }
 
-function renderContext(selected){
+function renderContext(selected,totals){
  const section=$('#trade-context');
  const a=selected.a.length,b=selected.b.length;
  section.hidden=!a&&!b;
  if(section.hidden)return;
- $('#trade-risk-sides').innerHTML=['a','b'].filter(key=>selected[key].length).map(key=>{
-  const context=tradeContext(selected[key],injuryData?.players,weights);
+ const incoming={a:selected.b,b:selected.a};
+ const risks={a:tradeContext(incoming.a,injuryData?.players,weights),b:tradeContext(incoming.b,injuryData?.players,weights)};
+ $('#trade-analysis').innerHTML=a&&b?analysisNotes(selected,totals,risks):'';
+ $('#trade-risk-sides').innerHTML=['a','b'].filter(key=>incoming[key].length).map(key=>{
+  const context=risks[key];
   const {flagged,flaggedPoints,entries}=context;
   const summary=flagged?`${flagged} with uncertain availability${flaggedPoints===null?'':` · ${format(flaggedPoints)} FP / game from those players`}`:
    injuryData?'No out, doubtful, or questionable flags found.':'Injury data unavailable.';
@@ -148,14 +160,45 @@ function renderContext(selected){
    const sample=smallSample?(player.games>0?`Only ${player.games} GP`:'No season sample in this data'):'';
    return `<li><strong>${esc(player.name)}</strong><div class="sub">${[status,note,sample].filter(Boolean).join(' · ')}</div></li>`;
   }).join('');
-  return `<section class="trade-risk-side"><h3>Side ${key.toUpperCase()}</h3><p class="sub risk-summary">${summary}</p>${details?`<ul>${details}</ul>`:''}</section>`;
+  return `<section class="trade-risk-side"><h3 class="manager-${key}-text">${manager(key)} receives</h3><p class="sub risk-summary">${summary}</p>${details?`<ul>${details}</ul>`:''}</section>`;
  }).join('');
  const gap=Math.abs(a-b);
  $('#trade-roster-note').textContent=a&&b&&gap?
-  `Roster spots: the manager receiving Side ${a>b?'A':'B'} gets ${gap} extra player${gap===1?'':'s'}. If their roster is full, compare the player${gap===1?'':'s'} they’d cut with what the other manager could add off waivers.`:'';
+  `Roster spots: ${manager(a>b?'b':'a')} receives ${gap} extra player${gap===1?'':'s'}. If their roster is full, compare the player${gap===1?'':'s'} they’d cut with what the other manager could add off waivers.`:'';
  const checked=injuryData?new Date(injuryData.updatedAt).toLocaleString('en-PH',{timeZone:'Asia/Manila',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'';
  $('#trade-injury-source').innerHTML=injuryData?
   `<a href="${esc(injuryData.lineupsUrl)}" target="_blank" rel="noopener noreferrer">RotoWire lineups</a> and <a href="${esc(injuryData.reportUrl)}" target="_blank" rel="noopener noreferrer">injury reports</a> · checked ${esc(checked)} Manila time. Check the latest report before accepting.`:'';
+}
+
+function analysisNotes(selected,totals,risks){
+ const notes=[];
+ const best=players=>players.filter(player=>fp(player)!==null).sort((a,b)=>fp(b)-fp(a))[0]||players[0];
+ const playerA=best(selected.b),playerB=best(selected.a);
+ const availability=compareGamesPlayed(playerA,playerB);
+ if(availability){
+  const {gameTotals,avgA,avgB}=availability;
+  const yearLabel=year=>`${year}–${String(Number(year)+1).slice(-2)}`;
+  const years=gameTotals.map(row=>yearLabel(row.year)).join(', ');
+  const edge=Math.abs(avgA-avgB)>=5?` ${esc(avgA>avgB?playerA.name:playerB.name)} played ${format(Math.abs(avgA-avgB))} more games per season on average.`:'';
+  notes.push(`<strong>Games played.</strong> In ${years}, ${esc(playerA.name)} (to Manager A) played ${gameTotals.map(row=>row.a).join(' / ')} games and ${esc(playerB.name)} (to Manager B) played ${gameTotals.map(row=>row.b).join(' / ')}.${edge} Games missed can include injuries, rest, or other absences.`);
+ }
+ const recentA=recentPackagePoints(selected.a,weights),recentB=recentPackagePoints(selected.b,weights);
+ if(recentA!==null&&recentB!==null){
+  const gap=Number((recentB-recentA).toFixed(2));
+  const before=managerChanges(totals.a,totals.b).a.net;
+  const reversal=before!==null&&gap*before<0?' The recent sample flips the season-average edge.':'';
+  notes.push(`<strong>Recent form.</strong> Using up to five games per player, Manager A nets <b class="${tone(gap)}">${signed(gap)} FP / game</b> and Manager B nets <b class="${tone(-gap)}">${signed(-gap)} FP / game</b>.${reversal}`);
+ }
+ if(Number.isFinite(totals.a)&&Number.isFinite(totals.b)){
+  const changes=statSwings(selected.a,selected.b,weights);
+  const swings=changes.slice(0,3).map(({stat,points})=>`${boxFields[stat]} <b class="${tone(points)}">${signed(points)} FP</b>`).join(' · ');
+  if(swings)notes.push(`<strong>What moves the score.</strong> Manager A’s biggest gains or losses per game: ${swings}. Manager B gets the inverse.`);
+  if((risks.a.flagged||risks.b.flagged)&&risks.a.flaggedPoints!==null&&risks.b.flaggedPoints!==null){
+   const a=totals.b-risks.a.flaggedPoints,b=totals.a-risks.b.flaggedPoints;
+   notes.push(`<strong>If the flagged players sit.</strong> The incoming packages would be worth ${format(a)} FP / game for Manager A and ${format(b)} for Manager B before any replacement players.`);
+  }
+ }
+ return notes.length?`<ul>${notes.map(note=>`<li>${note}</li>`).join('')}</ul>`:'';
 }
 
 async function loadPlayers(){
@@ -210,7 +253,7 @@ board.addEventListener('click',async event=>{
  }
  if(!add)return;
  side=add.dataset.pick;
- $('#picker-title').textContent=`Add to Side ${side.toUpperCase()}`;
+ $('#picker-title').textContent=`Add outgoing player for ${manager(side)}`;
  search.value='';
  $('#picker-status').textContent='Loading players…';
  $('#picker-results').innerHTML='';
