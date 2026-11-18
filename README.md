@@ -8,7 +8,7 @@ Planned: daily briefing, lineups, waiver picks, weekly matchups, and streaming.
 
 The dashboard is published with GitHub Pages. ESPN games and player logs refresh hourly through GitHub Actions. Scheduled runs can be delayed by GitHub.
 
-Pages loads the public Yahoo league snapshot automatically. Use the team picker to choose a roster. The Yahoo snapshot was captured November 18, 2026. ESPN updates separately.
+Sign in on Pages with your Yahoo team name and app password to open your team. The snapshot and salted password hashes are public. Use passwords dedicated to this app. The Yahoo snapshot was captured November 18, 2026. ESPN updates separately.
 
 Dashboard: `npm start`, then open http://127.0.0.1:4173.
 

@@ -1,0 +1,62 @@
+[
+  {
+    "teamId": "4",
+    "name": "John NBA",
+    "salt": "cf77b256f36a244d02085905a251ecf0",
+    "hash": "7f4333f394c3cf744db7ddd8224c1702f009dfe946aeeef1e73fb83eaf12e955"
+  },
+  {
+    "teamId": "2",
+    "name": "Alien Kalbo",
+    "salt": "b58ff0bf5309f49e1a8b1ebd59173321",
+    "hash": "d669e8c53240317d8ca67537cca1db051e1c3b7ad73ac56649d09c974ab7f37e"
+  },
+  {
+    "teamId": "1",
+    "name": "Wolfgang",
+    "salt": "4db3149a81b679e12b5d48abb3f5d978",
+    "hash": "0ac3413f63a23a346ab7c5593d9d4b4d76c01459a6b650028be72e06456a8f44"
+  },
+  {
+    "teamId": "3",
+    "name": "The Cool Cubs",
+    "salt": "012a90b333625a4374acc1d69a2c75a4",
+    "hash": "33444c3362dcca7bc24a3a013b9946227b77b1a652361cff3da9366f55f03f33"
+  },
+  {
+    "teamId": "6",
+    "name": "Vinscoksukrz",
+    "salt": "ec8864811dcc6c6f3a7d2957294df9d7",
+    "hash": "726e5b1ada7a94dcb0115941d0f4fb99204a55f159bd0e9e59c135b711357aa0"
+  },
+  {
+    "teamId": "8",
+    "name": "The Black C0ks",
+    "salt": "7feef23e72721ef422c150658da1468e",
+    "hash": "bcb7bad86784f8ea42eb6235d3d2361e51dbf0cd0125e2de6cc7a9fbbd982018"
+  },
+  {
+    "teamId": "9",
+    "name": "Winter Ball",
+    "salt": "24ccfa79f3d6df68a7fa282ee2d384d0",
+    "hash": "c74cc1a0c617026b93740347f244fd76846be51f5849e46d149163d15fecbadd"
+  },
+  {
+    "teamId": "7",
+    "name": "Night Night",
+    "salt": "4268fa7113adddb18d5d5a3f278b33bf",
+    "hash": "08039f8444515964998fe44a415c2a9bbd67e5e9e0673dad9bb1ce2ec6f003e1"
+  },
+  {
+    "teamId": "10",
+    "name": "Matts666",
+    "salt": "11a9519962c499818d07b54dc2cb8ec7",
+    "hash": "985abda3283aa197a081922bd1006a3704ffb34aad1c4fcbeebe40d863684b20"
+  },
+  {
+    "teamId": "5",
+    "name": "Ryan Boy Toys",
+    "salt": "529b4a9f35a9b6912ce49a228271d4a9",
+    "hash": "3bfe11c10ca6aceda27d5aa7299e38efc7057a7646b3ee5aff0146bea41f82ed"
+  }
+]

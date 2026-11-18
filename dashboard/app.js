@@ -74,7 +74,6 @@ document.addEventListener('click',e=>{const p=e.target.closest('[data-player]');
 const publicLeague=document.documentElement.hasAttribute('data-public-league');
 $('#team-select').addEventListener('change',e=>{
  teamId=e.target.value;
- if(publicLeague)try {localStorage.setItem('shohoku-team',teamId);} catch {}
  render();
 });
 window.addEventListener('hashchange',render);
@@ -83,10 +82,6 @@ let publicFeed;
 function acceptSnapshot(snapshot){
  if(!validateSnapshot(snapshot))throw new Error('Invalid league file');
  data=snapshot;if(publicFeed)data.publicFeed=publicFeed;teamId=data.manager?.teamId ?? (data.teams.some(t=>t.id===data.ownerTeam)?data.ownerTeam:data.teams[0].id);
- if(publicLeague)try {
-  const saved=localStorage.getItem('shohoku-team');
-  if(data.teams.some(team=>team.id===saved))teamId=saved;
- } catch {}
  $('#manager-name').textContent=data.manager?.name ?? '';
  $('#manager-name').hidden=!data.manager;
  $('#sign-out').hidden=!data.manager;
@@ -104,13 +99,22 @@ async function loadPublicFeed(){try{let response=await fetch('./public-feed.json
 await loadPublicFeed();
 function showSignIn(){
  $('.top-actions').hidden=true;
- $('#content').innerHTML=`<section class="signin"><h1>Manager sign-in</h1><form id="sign-in-form" class="panel panel-body"><div class="field"><label for="username">Username</label><input id="username" name="username" autocomplete="username" maxlength="80" required></div><div class="field"><label for="password">Password</label><input id="password" type="password" name="password" autocomplete="current-password" maxlength="128" required></div><button class="button primary" type="submit">Sign in</button><p id="sign-in-status" role="status"></p></form></section>`;
+ $('#content').innerHTML=`<section class="signin"><h1>Manager sign-in</h1><form id="sign-in-form" class="panel panel-body"><div class="field"><label for="username">Yahoo team name</label><input id="username" name="username" autocomplete="username" maxlength="80" required></div><div class="field"><label for="password">App password</label><input id="password" type="password" name="password" autocomplete="current-password" maxlength="128" required></div><button class="button primary" type="submit">Sign in</button><p id="sign-in-status" role="status"></p>${publicLeague?'<p class="sub">Sign in to open your team. League data is public.</p>':''}</form></section>`;
  $('#sign-in-form').addEventListener('submit',async event=>{
   event.preventDefault();
   const form=event.currentTarget,button=form.querySelector('button'),status=$('#sign-in-status');
   button.disabled=true;
   status.textContent='';
   try {
+   if(publicLeague){
+    const fields=new FormData(form);
+    const manager=await verifyPagesLogin(fields.get('username'),fields.get('password'));
+    if(!manager){status.textContent='Check your Yahoo team name and app password.';return;}
+    pagesManager=manager;
+    try {sessionStorage.setItem('shohoku-manager',manager.teamId);} catch {}
+    await loadLeague();
+    return;
+   }
    const response=await fetch('./api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.fromEntries(new FormData(form)))});
    if(response.ok){location.reload();return;}
    status.textContent=response.status===429?'Too many attempts. Try again in 15 minutes.':response.status===401?'Check your username and password.':'Sign-in is unavailable.';
@@ -119,18 +123,49 @@ function showSignIn(){
  });
 }
 $('#sign-out').addEventListener('click',async ()=>{
+ if(publicLeague){
+  data=undefined;
+  pagesManager=undefined;
+  try {sessionStorage.removeItem('shohoku-manager');} catch {}
+  showSignIn();
+  return;
+ }
  try {
   const response=await fetch('./api/logout',{method:'POST'});
   if(response.ok){location.reload();return;}
  } catch {}
  toast('Could not sign out. Try again.');
 });
+let pagesManager;
+let managerRecords;
+async function getManagerRecords(){
+ if(managerRecords)return managerRecords;
+ const response=await fetch('./manager-verifiers.json');
+ if(!response.ok)throw new Error('Cannot load manager accounts');
+ managerRecords=await response.json();
+ return managerRecords;
+}
+const managerKey=name=>name.normalize('NFKC').trim().replace(/\s+/g,' ').toLowerCase();
+async function verifyPagesLogin(username,password){
+ const records=await getManagerRecords();
+ const record=records.find(entry=>managerKey(entry.name)===managerKey(username));
+ if(!record)return null;
+ const encoder=new TextEncoder();
+ const key=await crypto.subtle.importKey('raw',encoder.encode(password),'PBKDF2',false,['deriveBits']);
+ const bits=await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:encoder.encode(record.salt),iterations:600000},key,256);
+ const hash=Array.from(new Uint8Array(bits),byte=>byte.toString(16).padStart(2,'0')).join('');
+ return hash===record.hash?{teamId:record.teamId,name:record.name}:null;
+}
 async function loadLeague(){
+ if(publicLeague&&!pagesManager){showSignIn();return;}
  try {
   const response=await fetch(publicLeague?'./public-league.json':'./api/snapshot');
   if(!publicLeague&&response.status===401){showSignIn();return;}
   if(!response.ok)throw new Error('League data unavailable');
-  acceptSnapshot(await response.json());
+  const snapshot=await response.json();
+  if(publicLeague)snapshot.manager=pagesManager;
+  acceptSnapshot(snapshot);
+  $('.top-actions').hidden=false;
  } catch {
   if(publicLeague)$('#content').textContent='The league snapshot could not load. Please refresh the page.';
   else welcome();
@@ -139,6 +174,13 @@ async function loadLeague(){
 if(publicLeague){
  $('#import-snapshot').hidden=true;
  $('#team-select').title='Choose fantasy team';
+ try {
+  const saved=sessionStorage.getItem('shohoku-manager');
+  if(saved){
+   const record=(await getManagerRecords()).find(entry=>entry.teamId===saved);
+   if(record)pagesManager={teamId:record.teamId,name:record.name};
+  }
+ } catch {}
 }
 await loadLeague();
-setInterval(async()=>{await loadPublicFeed();if(data){if(!$('#player-dialog').open&&page==='briefing')render();}else if(publicLeague)await loadLeague();else if(!$('#sign-in-form'))welcome();},300000);
+setInterval(async()=>{await loadPublicFeed();if(data){if(!$('#player-dialog').open&&page==='briefing')render();}else if(pagesManager)await loadLeague();else if(!publicLeague&&!$('#sign-in-form'))welcome();},300000);
