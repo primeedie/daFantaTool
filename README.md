@@ -8,13 +8,13 @@ Planned: daily briefing, lineups, waiver picks, weekly matchups, and streaming.
 
 The dashboard is published with GitHub Pages. ESPN games and player logs refresh hourly through GitHub Actions. Scheduled runs can be delayed by GitHub.
 
-Pages serves the app and public NBA data. Use **Open league** to load a local JSON snapshot; league data stays in that browser tab. Yahoo sync is still pending.
+Pages loads the public Yahoo league snapshot automatically. Use the team picker to choose a roster. The Yahoo snapshot was captured November 18, 2026. ESPN updates separately.
 
 Dashboard: `npm start`, then open http://127.0.0.1:4173.
 
-For manager sign-in, place `manager-accounts.json` in the private data folder. Generate each entry with `makeAccount({id, name}, password)` from `manager-auth.mjs` and save the entries as a JSON array. Use the Yahoo team name as the username. The server binds to loopback for local use. Pages supports browser-local snapshot import.
+For local manager sign-in, place `manager-accounts.json` in the private data folder. Generate each entry with `makeAccount({id, name}, password)` from `manager-auth.mjs` and save the entries as a JSON array. Use the Yahoo team name as the username. The server binds to loopback for local use.
 
-Data stays outside this repo in `../../data/private`. Set `FANTASY_DATA_DIR` to use a different folder. No Yahoo credentials are stored.
+Raw captures and manager accounts stay outside this repo in `../../data/private`. Set `FANTASY_DATA_DIR` to use a different folder. The reviewed public snapshot is `dashboard/public-league.json`.
 
 `npm test` checks the lineup and streaming calculations. `npm run check` checks the snapshot.
 
