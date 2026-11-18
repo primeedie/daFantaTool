@@ -27,6 +27,8 @@
 .split-fields .sub {grid-column:1/-1}
 #trade-settings [type=submit] {margin-top:12px}
 .trade-toolbar,.picker-controls,.picker-head {display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+.trade-toolbar {justify-content:flex-start;flex-wrap:wrap}
+#clear-trade {margin-inline-start:auto}
 .trade-sides {position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px}
 .trade-side {
  --side-accent:var(--manager-a);
@@ -98,6 +100,61 @@
 .trade-card h3 {margin:0;overflow-wrap:anywhere}
 .trade-card .trade-stats {grid-column:1/-1;display:flex;gap:7px 12px;flex-wrap:wrap}
 .trade-card .trade-stats span {white-space:nowrap}
+.trade-fp {
+ display:inline-flex;
+ align-items:baseline;
+ gap:5px;
+ align-self:start;
+ justify-self:end;
+ padding:3px 8px;
+ border:1px solid color-mix(in srgb,var(--brand-strong) 26%,var(--line));
+ border-radius:7px;
+ background:var(--brand-blush);
+ color:var(--brand-strong);
+ font-variant-numeric:tabular-nums;
+ white-space:nowrap;
+}
+.trade-fp span {font-size:.78em;color:inherit}
+[data-theme="dark"] .trade-fp {background:color-mix(in srgb,var(--surface) 78%,var(--brand-strong));color:var(--brand-light)}
+.metric-pill {
+ --stat-color:var(--ink);
+ display:inline-flex;
+ align-items:baseline;
+ gap:5px;
+ padding:3px 8px;
+ border:1px solid color-mix(in srgb,var(--stat-color) 22%,var(--line));
+ border-radius:6px;
+ background:color-mix(in srgb,var(--stat-color) 10%,var(--surface));
+ color:var(--stat-color);
+ white-space:nowrap;
+ line-height:1.4;
+}
+.metric-label {font-size:.75em;letter-spacing:.05em}
+.metric-pill b {font-size:16px;font-variant-numeric:tabular-nums}
+.metric-pill[data-stat="pts"] {--stat-color:#8a4614}
+.metric-pill:is([data-stat="reb"],[data-stat="oreb"],[data-stat="dreb"]) {--stat-color:#115f57}
+.metric-pill[data-stat="ast"] {--stat-color:#245394}
+.metric-pill[data-stat="st"] {--stat-color:#754398}
+.metric-pill[data-stat="blk"] {--stat-color:#45601a}
+.metric-pill[data-stat="to"] {--stat-color:#9d2e48}
+[data-theme="dark"] .metric-pill[data-stat="pts"] {--stat-color:#ffc58a}
+[data-theme="dark"] .metric-pill:is([data-stat="reb"],[data-stat="oreb"],[data-stat="dreb"]) {--stat-color:#9be2d7}
+[data-theme="dark"] .metric-pill[data-stat="ast"] {--stat-color:#abcfff}
+[data-theme="dark"] .metric-pill[data-stat="st"] {--stat-color:#e0bcff}
+[data-theme="dark"] .metric-pill[data-stat="blk"] {--stat-color:#c8e78c}
+[data-theme="dark"] .metric-pill[data-stat="to"] {--stat-color:#ffb6c8}
+.net-pill {display:inline-block;padding:3px 8px;border-radius:6px;background:var(--paper)}
+.net-pill.fp-gain {background:color-mix(in srgb,var(--fp-gain) 13%,var(--surface))}
+.net-pill.fp-loss {background:color-mix(in srgb,var(--fp-loss) 13%,var(--surface))}
+.trade-tool :is(.trade-subsection>p,.trade-insight p,.trade-risk-side p,.trade-risk-side li .sub,.chat-answer,#trade-roster-note,#trade-delta) {
+ text-align:justify;
+ text-justify:inter-word;
+ hyphens:auto;
+}
+#manager-dialog {width:min(450px,calc(100% - 24px));color:var(--ink)}
+.manager-form {display:grid;gap:16px;margin-top:14px}
+.manager-form label {display:grid;gap:5px}
+.manager-form input {width:100%}
 .trade-balance {margin-top:24px}
 .balance-heading,.balance-labels {display:flex;justify-content:space-between;align-items:center;gap:12px}
 .balance-heading strong {text-align:right}

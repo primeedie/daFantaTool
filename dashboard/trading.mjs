@@ -7,7 +7,15 @@ const number=new Intl.NumberFormat('en-US',{maximumFractionDigits:2});
 const format=value=>value===null?'—':number.format(value);
 const signed=value=>value===null?'—':`${value>0?'+':''}${format(value)}`;
 const tone=value=>value>0?'fp-gain':value<0?'fp-loss':'';
-const manager=key=>`Manager ${key.toUpperCase()}`;
+const managerNamesKey='real-balliggas-manager-names';
+const managerNames={a:'',b:''};
+const cleanName=value=>typeof value==='string'?value.replace(/\s+/g,' ').trim().slice(0,24):'';
+const manager=key=>managerNames[key.toLowerCase()]||`Manager ${key.toUpperCase()}`;
+const managerLabel=key=>esc(manager(key));
+try {
+ const saved=JSON.parse(localStorage.getItem(managerNamesKey)||'null');
+ for(const key of ['a','b'])managerNames[key]=cleanName(saved?.[key]);
+} catch {}
 const form=$('#scoring-form');
 const input=name=>form.elements.namedItem(name);
 const settings=$('#trade-settings');
@@ -74,10 +82,28 @@ $('#clear-trade').addEventListener('click',()=>{
  picks.b.length=0;
  renderTrade();
 });
+const managerDialog=$('#manager-dialog');
+$('#rename-managers').addEventListener('click',()=>{
+ for(const key of ['a','b'])$(`#manager-${key}-name`).value=managerNames[key];
+ managerDialog.showModal();
+ $('#manager-a-name').focus();
+});
+$('#cancel-manager-names').addEventListener('click',()=>managerDialog.close());
+$('#manager-form').addEventListener('submit',event=>{
+ event.preventDefault();
+ for(const key of ['a','b'])managerNames[key]=cleanName($(`#manager-${key}-name`).value);
+ try {localStorage.setItem(managerNamesKey,JSON.stringify(managerNames));} catch {}
+ managerDialog.close();
+ renderTrade();
+});
+
+function statPill(key,shown,extraClass=''){
+ return `<span class="metric-pill ${extraClass}" data-stat="${key}"><span class="metric-label">${boxFields[key]}</span><b>${shown}</b></span>`;
+}
 
 function playerStats(player){
  const keys=input('split').checked?Object.keys(boxFields):['pts','reb','ast','st','blk','to'];
- return keys.map(key=>`<span>${boxFields[key]} ${format(player.stats?.[key]??null)}</span>`).join('');
+ return keys.map(key=>statPill(key,format(player.stats?.[key]??null))).join('');
 }
 const rankText=rank=>rank==null?'—':`#${rank}`;
 const seasonRank=player=>currentRanks.get(player.id);
@@ -89,6 +115,8 @@ function renderTrade(){
  const totals={};
  const selected={};
  for(const key of ['a','b']){
+  $(`#trade-${key}-title`).textContent=manager(key);
+  $(`#balance-${key}-name`).textContent=manager(key);
   const players=picks[key].map(id=>dataset?.players.find(player=>player.id===id)).filter(Boolean);
   selected[key]=players;
   const scores=players.map(fp);
@@ -99,7 +127,7 @@ function renderTrade(){
   $(`#trade-${key}-players`).innerHTML=players.length?players.map(player=>{
    const points=fp(player);
    const profile=player.profile?` · <a href="${esc(player.profile)}" target="_blank" rel="noopener noreferrer">RotoWire</a>`:'';
-   return `<article class="trade-card"><h3>${nbaBadge(player.nba,player.name)}</h3><button class="button" type="button" data-remove="${esc(player.id)}" data-side="${key}" aria-label="Remove ${esc(player.name)}">×</button><span class="sub">${esc(player.position)} · ${rankSummary(player)}${profile}</span><strong>${points===null?'No score':`${format(points)} FP / game`}</strong><div class="trade-stats sub">${playerStats(player)}</div></article>`;
+   return `<article class="trade-card"><h3>${nbaBadge(player.nba,player.name)}</h3><button class="button" type="button" data-remove="${esc(player.id)}" data-side="${key}" aria-label="Remove ${esc(player.name)}">×</button><span class="sub">${esc(player.position)} · ${rankSummary(player)}${profile}</span><strong class="trade-fp">${points===null?'No score':`${format(points)} <span>FP / game</span>`}</strong><div class="trade-stats">${playerStats(player)}</div></article>`;
   }).join(''):'<p class="trade-empty sub">No players selected.</p>';
  }
  renderBalance(totals);
@@ -112,7 +140,7 @@ function renderBalance(totals){
  if(panel.hidden)return;
  const scale=$('#trade-scale'),verdict=$('#trade-verdict'),delta=$('#trade-delta');
  const changes=managerChanges(totals.a,totals.b);
- $('#manager-impacts').innerHTML=Object.entries(changes).map(([key,{incoming,outgoing,net}])=>`<section class="manager-impact"><h3 class="manager-${key}-text">${manager(key)}</h3><strong class="manager-net ${tone(net)}">${signed(net)} FP</strong><span class="sub">Net per game</span><dl><div><dt>Receives</dt><dd>${format(incoming)} FP</dd></div><div><dt>Sends</dt><dd>${format(outgoing)} FP</dd></div></dl></section>`).join('');
+ $('#manager-impacts').innerHTML=Object.entries(changes).map(([key,{incoming,outgoing,net}])=>`<section class="manager-impact"><h3 class="manager-${key}-text">${managerLabel(key)}</h3><strong class="manager-net ${tone(net)}">${signed(net)} FP</strong><span class="sub">Net per game</span><dl><div><dt>Receives</dt><dd class="trade-fp">${format(incoming)} FP</dd></div><div><dt>Sends</dt><dd class="trade-fp">${format(outgoing)} FP</dd></div></dl></section>`).join('');
  const balance=tradeBalance(totals.b,totals.a);
  scale.hidden=!balance;
  if(!balance){
@@ -144,7 +172,7 @@ async function loadInjuries(){
 function renderContext(selected,totals){
  const section=$('#trade-context');
  const a=selected.a.length,b=selected.b.length;
- const version=JSON.stringify([picks.a,picks.b,weights]);
+ const version=JSON.stringify([picks.a,picks.b,weights,managerNames]);
  if(version!==chatVersion){$('#trade-chat-log').textContent='';chatVersion=version;}
  $('#trade-assistant').hidden=!a||!b;
  section.hidden=!a&&!b;
@@ -174,7 +202,7 @@ function renderContext(selected,totals){
    const sample=smallSample?(player.games>0?`Only ${player.games} GP`:'No season sample in this data'):'';
    return `<li><strong>${esc(player.name)}</strong><div class="sub">${[status,note,sample].filter(Boolean).join(' · ')}</div></li>`;
   }).join('');
-  return `<section class="trade-risk-side"><h3 class="manager-${key}-text">${manager(key)} receives</h3><p class="sub risk-summary">${summary}</p>${details?`<ul>${details}</ul>`:''}</section>`;
+  return `<section class="trade-risk-side"><h3 class="manager-${key}-text">${managerLabel(key)} receives</h3><p class="sub risk-summary">${summary}</p>${details?`<ul>${details}</ul>`:''}</section>`;
  }).join('');
  const gap=Math.abs(a-b);
  $('#trade-roster-note').textContent=a&&b&&gap?
@@ -189,16 +217,16 @@ function scenarioTable(scenarios,totals){
  const table=rows.map(([label,key])=>{
   const a=key==='average'?totals.b:scenarios.a?.[key]??null;
   const b=key==='average'?totals.a:scenarios.b?.[key]??null;
-  return `<tr><th scope="row">${label}</th><td class="num">${format(a)}</td><td class="num">${format(b)}</td></tr>`;
+  return `<tr><th scope="row">${label}</th><td class="num"><b class="trade-fp">${format(a)}</b></td><td class="num"><b class="trade-fp">${format(b)}</b></td></tr>`;
  }).join('');
  const scales=[['Floor','floor'],['Ceiling','ceiling']].map(([label,key])=>scenarioScale(label,tradeBalance(scenarios.a?.[key],scenarios.b?.[key]))).join('');
- return `<section class="trade-subsection"><h3>Scoring range</h3><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Scenario</th><th class="num">Manager A receives</th><th class="num">Manager B receives</th></tr></thead><tbody>${table}</tbody></table></div><div class="scenario-scales">${scales}</div><p class="sub">FP per game. Floor and ceiling add up each player’s low or high game-log estimates. At least five complete games per player are needed.</p></section>`;
+ return `<section class="trade-subsection"><h3>Scoring range</h3><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Scenario</th><th class="num">${managerLabel('a')} receives</th><th class="num">${managerLabel('b')} receives</th></tr></thead><tbody>${table}</tbody></table></div><div class="scenario-scales">${scales}</div><p class="sub">FP per game. Floor and ceiling add up each player’s low or high game-log estimates. At least five complete games per player are needed.</p></section>`;
 }
 
 function scenarioScale(label,balance){
  if(!balance)return `<section class="scenario-scale"><h4>${label} balance</h4><p class="sub">Not enough games to compare.</p></section>`;
- const edge=balance.leader?`${manager(balance.leader)} +${format(balance.gap)} FP / game (${format(balance.percentage)}%)`:'Even';
- return `<section class="scenario-scale"><h4>${label} balance</h4><div class="balance-scale" aria-hidden="true"><div class="balance-labels"><span class="manager-a-text">Manager A</span><span>Even</span><span class="manager-b-text">Manager B</span></div><div class="balance-track"><span class="balance-marker" data-position="${balance.position}"></span></div></div><p class="sub">${edge}</p></section>`;
+ const edge=balance.leader?`${managerLabel(balance.leader)} <strong class="fp-gain">+${format(balance.gap)} FP / game</strong> (${format(balance.percentage)}%)`:'Even';
+ return `<section class="scenario-scale"><h4>${label} balance</h4><div class="balance-scale" aria-hidden="true"><div class="balance-labels"><span class="manager-a-text">${managerLabel('a')}</span><span>Even</span><span class="manager-b-text">${managerLabel('b')}</span></div><div class="balance-track"><span class="balance-marker" data-position="${balance.position}"></span></div></div><p class="sub">${edge}</p></section>`;
 }
 
 function gamesPlayedTable(selected){
@@ -206,14 +234,14 @@ function gamesPlayedTable(selected){
  const years=[...new Set(rows.flatMap(({player})=>Object.keys(player.history||{})))].sort();
  if(!years.length)return '';
  const heading=year=>`${year}–${String(Number(year)+1).slice(-2)}`;
- return `<section class="trade-subsection"><h3>Games played by season</h3><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Player</th><th>Goes to</th>${years.map(year=>`<th class="num">${heading(year)}</th>`).join('')}<th class="num">This season</th></tr></thead><tbody>${rows.map(({key,player})=>`<tr><th scope="row">${esc(player.name)}</th><td class="manager-${key}-text">${manager(key)}</td>${years.map(year=>`<td class="num">${player.history?.[year]??'—'}</td>`).join('')}<td class="num">${player.games??'—'}</td></tr>`).join('')}</tbody></table></div><p class="sub">Games played measures availability. It doesn’t tell us why someone missed time.</p></section>`;
+ return `<section class="trade-subsection"><h3>Games played by season</h3><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Player</th><th>Goes to</th>${years.map(year=>`<th class="num">${heading(year)}</th>`).join('')}<th class="num">This season</th></tr></thead><tbody>${rows.map(({key,player})=>`<tr><th scope="row">${esc(player.name)}</th><td class="manager-${key}-text">${managerLabel(key)}</td>${years.map(year=>`<td class="num">${player.history?.[year]??'—'}</td>`).join('')}<td class="num">${player.games??'—'}</td></tr>`).join('')}</tbody></table></div><p class="sub">Games played measures availability. It doesn’t tell us why someone missed time.</p></section>`;
 }
 
 function formTable(rows){
- const totalCell=(sample,window)=>sample?`${format(sample.points)}${sample.shortest<window?`<small class="sub form-coverage">Shortest sample: ${sample.shortest}/${window}</small>`:''}`:'—';
- return `<section class="trade-subsection"><h3>Recent form</h3><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Games</th><th class="num">A receives</th><th class="num">B receives</th><th class="num">A net</th><th class="num">B net</th></tr></thead><tbody>${rows.map(({window,a,b})=>{
+ const totalCell=(sample,window)=>sample?`<b class="trade-fp">${format(sample.points)}</b>${sample.shortest<window?`<small class="sub form-coverage">Shortest sample: ${sample.shortest}/${window}</small>`:''}`:'—';
+ return `<section class="trade-subsection"><h3>Recent form</h3><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Games</th><th class="num">${managerLabel('a')} receives</th><th class="num">${managerLabel('b')} receives</th><th class="num">${managerLabel('a')} net</th><th class="num">${managerLabel('b')} net</th></tr></thead><tbody>${rows.map(({window,a,b})=>{
   const changes=managerChanges(b?.points??null,a?.points??null);
-  return `<tr><th scope="row">Last ${window}</th><td class="num">${totalCell(a,window)}</td><td class="num">${totalCell(b,window)}</td><td class="num ${tone(changes.a.net)}">${signed(changes.a.net)}</td><td class="num ${tone(changes.b.net)}">${signed(changes.b.net)}</td></tr>`;
+  return `<tr><th scope="row">Last ${window}</th><td class="num">${totalCell(a,window)}</td><td class="num">${totalCell(b,window)}</td><td class="num"><b class="net-pill ${tone(changes.a.net)}">${signed(changes.a.net)}</b></td><td class="num"><b class="net-pill ${tone(changes.b.net)}">${signed(changes.b.net)}</b></td></tr>`;
  }).join('')}</tbody></table></div><p class="sub">FP per game from each player’s latest appearances this season. A shorter sample is labeled. A dash means at least one player had no complete games in the window.</p></section>`;
 }
 
@@ -226,9 +254,9 @@ function driversTable(selected,rows){
  const gains=(changes,direction)=>{
   if(!changes)return '—';
   const notable=changes.filter(({points})=>points*direction>0).slice(0,3);
-  return notable.length?`<div class="driver-stats">${notable.map(({stat,points})=>`<span>${boxFields[stat]} <b class="fp-gain">${signed(points*direction)}</b></span>`).join('')}</div>`:'—';
+  return notable.length?`<div class="driver-stats">${notable.map(({stat,points})=>statPill(stat,signed(points*direction),'driver-gain')).join('')}</div>`:'—';
  };
- return `<section class="trade-subsection"><h3>What moves the score</h3><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Games</th><th>Manager A’s biggest gains</th><th>Manager B’s biggest gains</th></tr></thead><tbody>${windows.map(({label,changes,partial})=>`<tr><th scope="row">${label}${partial?'<small class="sub form-coverage">Partial sample</small>':''}</th><td>${gains(changes,1)}</td><td>${gains(changes,-1)}</td></tr>`).join('')}</tbody></table></div><p class="sub">Each number is the stat’s contribution to FP per game under your rules. A gain for one manager is the other manager’s loss.</p></section>`;
+ return `<section class="trade-subsection"><h3>What moves the score</h3><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Games</th><th>${managerLabel('a')}’s biggest gains</th><th>${managerLabel('b')}’s biggest gains</th></tr></thead><tbody>${windows.map(({label,changes,partial})=>`<tr><th scope="row">${label}${partial?'<small class="sub form-coverage">Partial sample</small>':''}</th><td>${gains(changes,1)}</td><td>${gains(changes,-1)}</td></tr>`).join('')}</tbody></table></div><p class="sub">Each number is the stat’s contribution to FP per game under your rules. A gain for one manager is the other manager’s loss.</p></section>`;
 }
 
 function analysisNotes(selected,totals,risks,formRows){
@@ -236,7 +264,7 @@ function analysisNotes(selected,totals,risks,formRows){
  if(Number.isFinite(totals.a)&&Number.isFinite(totals.b)){
   if((risks.a.flagged||risks.b.flagged)&&risks.a.flaggedPoints!==null&&risks.b.flaggedPoints!==null){
    const a=totals.b-risks.a.flaggedPoints,b=totals.a-risks.b.flaggedPoints;
-   notes.push(['If flagged players sit',`Manager A’s package would be worth ${format(a)} FP / game and Manager B’s ${format(b)} before any replacements.`]);
+   notes.push(['If flagged players sit',`${managerLabel('a')}’s package would be worth ${format(a)} FP / game and ${managerLabel('b')}’s ${format(b)} before any replacements.`]);
   }
  }
  return formTable(formRows)+driversTable(selected,formRows)+gamesPlayedTable(selected)+(notes.length?`<div class="trade-insights">${notes.map(([heading,body])=>`<article class="trade-insight"><h3>${heading}</h3><p>${body}</p></article>`).join('')}</div>`:'');
@@ -252,7 +280,7 @@ function tradeAnswer(question){
   const result=tradeBalance(a,b);
   if(!result)return 'Some players are missing the stats needed for this comparison.';
   const verdict=result.leader?`${manager(result.leader)} leads by ${format(result.gap)} FP per game.`:'The packages are even.';
-  return `Manager A receives ${format(a)} FP per game and Manager B receives ${format(b)}. ${verdict}`;
+  return `${manager('a')} receives ${format(a)} FP per game and ${manager('b')} receives ${format(b)}. ${verdict}`;
  };
  if(/\b(floor|ceiling|quartile|variance|range|upside)\b/.test(q)){
   if(!scenarios.a||!scenarios.b)return 'Every player needs five complete season games before both packages can be compared at the floor and ceiling.';
@@ -282,7 +310,7 @@ function tradeAnswer(question){
  if(/stats?|drive|\bwhy\b|categor/.test(q)){
   if(requestedWindow&&(!recent.a||!recent.b))return 'At least one player is missing complete game stats for that window.';
   const changes=(requestedWindow?statSwings(recent.b.averages,recent.a.averages,weights):statSwings(selected.a,selected.b,weights)).slice(0,3);
-  return changes.length?`${requestedWindow?`Last ${requestedWindow} (using available games): `:''}Manager A’s biggest changes are ${changes.map(({stat,points})=>`${boxFields[stat]} ${signed(points)} FP`).join(', ')} per game. Manager B gets the opposite changes.`:'No weighted stat difference is available for these packages.';
+  return changes.length?`${requestedWindow?`Last ${requestedWindow} (using available games): `:''}${manager('a')}’s biggest changes are ${changes.map(({stat,points})=>`${boxFields[stat]} ${signed(points)} FP`).join(', ')} per game. ${manager('b')} gets the opposite changes.`:'No weighted stat difference is available for these packages.';
  }
  if(requestedWindow||/recent|form|last five|trend/.test(q)){
   if(!recent.a||!recent.b)return 'At least one player is missing complete game stats for that window.';
@@ -365,7 +393,7 @@ function renderPicker(){
   const points=fp(player);
   const selected=occupied(player.id);
   const lead=sort.value==='draft'?rankText(player.rank):rankText(seasonRank(player));
-  return `<button class="picker-row" type="button" data-player-id="${esc(player.id)}" ${selected?'disabled':''}><span>${lead}</span><span><strong>${esc(player.name)}</strong><span class="sub">${nbaBadge(player.nba)} ${esc(player.position)} · ${rankSummary(player)}</span></span><span>${selected?'Added':points===null?'No stats':`${format(points)} FP`}</span></button>`;
+  return `<button class="picker-row" type="button" data-player-id="${esc(player.id)}" ${selected?'disabled':''}><span>${lead}</span><span><strong>${esc(player.name)}</strong><span class="sub">${nbaBadge(player.nba)} ${esc(player.position)} · ${rankSummary(player)}</span></span><span class="${!selected&&points!==null?'trade-fp':''}">${selected?'Added':points===null?'No stats':`${format(points)} FP`}</span></button>`;
  }).join('');
 }
 

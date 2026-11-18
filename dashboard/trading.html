@@ -43,6 +43,7 @@
   <section id="trade-board" hidden>
    <div class="trade-toolbar">
     <button class="button trade-command" id="edit-scoring" type="button"><span aria-hidden="true">≡</span> Edit scoring</button>
+    <button class="button trade-command" id="rename-managers" type="button">Rename managers</button>
     <button class="button trade-command" id="clear-trade" type="button"><span aria-hidden="true">↺</span> Clear trade</button>
    </div>
    <div class="trade-sides">
@@ -61,7 +62,7 @@
    <section id="trade-balance" class="panel panel-body trade-balance" aria-labelledby="trade-balance-title" hidden>
     <div class="balance-heading"><h2 id="trade-balance-title">Trade balance</h2><strong id="trade-verdict" aria-live="polite"></strong></div>
     <div class="balance-scale" id="trade-scale" role="img" aria-label="Trade balance scale">
-     <div class="balance-labels" aria-hidden="true"><span class="manager-a-text">Manager A</span><span>Even</span><span class="manager-b-text">Manager B</span></div>
+     <div class="balance-labels" aria-hidden="true"><span class="manager-a-text" id="balance-a-name">Manager A</span><span>Even</span><span class="manager-b-text" id="balance-b-name">Manager B</span></div>
      <div class="balance-track"><span class="balance-marker" id="balance-marker"></span></div>
     </div>
     <p id="trade-delta" class="trade-delta"></p>
@@ -96,6 +97,14 @@
    <p id="trade-sources" class="sub"></p>
   </section>
  </main>
+ <dialog id="manager-dialog" aria-labelledby="manager-dialog-title">
+  <h2 id="manager-dialog-title">Rename managers</h2>
+  <form id="manager-form" class="manager-form">
+   <label class="field" for="manager-a-name">Manager A<input id="manager-a-name" maxlength="24" autocomplete="off"></label>
+   <label class="field" for="manager-b-name">Manager B<input id="manager-b-name" maxlength="24" autocomplete="off"></label>
+   <div class="entry-actions"><button class="button primary" type="submit">Save names</button><button class="button" id="cancel-manager-names" type="button">Cancel</button></div>
+  </form>
+ </dialog>
  <dialog id="player-picker" class="picker" aria-labelledby="picker-title">
   <div class="picker-head"><h2 id="picker-title">Add player</h2><form method="dialog"><button class="button" aria-label="Close player picker">×</button></form></div>
   <div class="picker-controls">
