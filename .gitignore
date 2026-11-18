@@ -6,3 +6,6 @@ tokens/
 node_modules/
 .DS_Store
 Thumbs.db
+data/
+private/
+*.log

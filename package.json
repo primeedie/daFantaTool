@@ -1,0 +1,1 @@
+{"name":"shohoku-fantasy","private":true,"type":"module","engines":{"node":">=24"},"scripts":{"start":"node server.mjs","test":"node --test --test-isolation=none tests/*.test.mjs","check":"node server.mjs --check-data"}}
