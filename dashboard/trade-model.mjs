@@ -22,3 +22,19 @@ export function tradePoints(stats,weights){
  }
  return Number.isFinite(total)?total:null;
 }
+
+export function seasonRanks(players,weights){
+ const scored=players.flatMap(player=>{
+  if(!(player.games>0))return [];
+  const points=tradePoints(player.stats,weights);
+  return points===null?[]:[{id:player.id,points:Number(points.toFixed(2))}];
+ }).sort((a,b)=>b.points-a.points);
+ const ranks=new Map();
+ let priorPoints,rank;
+ for(const [index,player] of scored.entries()){
+  if(player.points!==priorPoints)rank=index+1;
+  ranks.set(player.id,rank);
+  priorPoints=player.points;
+ }
+ return ranks;
+}

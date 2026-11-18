@@ -1,5 +1,5 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
-import {boxFields,scoringWeights,tradePoints} from './trade-model.mjs';
+import {boxFields,scoringWeights,tradePoints,seasonRanks} from './trade-model.mjs';
 
 const $=selector=>document.querySelector(selector);
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -15,6 +15,7 @@ const sort=$('#picker-sort');
 const picks={a:[],b:[]};
 const settingsKey='real-balliggas-trade-weights';
 let weights,side='a',dataset,dataRequest;
+let currentRanks=new Map();
 let totalRebound='';
 
 try {
@@ -48,6 +49,7 @@ form.addEventListener('submit',event=>{
  const split=input('split').checked;
  weights=scoringWeights(values,split);
  if(!weights)return;
+ if(dataset)currentRanks=seasonRanks(dataset.players,weights);
  input('to').value=weights.to;
  try {localStorage.setItem(settingsKey,JSON.stringify({...values,reb:split?totalRebound:values.reb,to:weights.to,split}));} catch {}
  settings.hidden=true;
@@ -71,7 +73,9 @@ function playerStats(player){
  const keys=input('split').checked?Object.keys(boxFields):['pts','reb','ast','st','blk','to'];
  return keys.map(key=>`<span>${boxFields[key]} ${format(player.stats?.[key]??null)}</span>`).join('');
 }
-const rwRank=player=>player.rank==null?'Unranked':`RW #${player.rank}`;
+const rankText=rank=>rank==null?'—':`#${rank}`;
+const seasonRank=player=>currentRanks.get(player.id);
+const rankSummary=player=>`Season ${rankText(seasonRank(player))} · Draft ${rankText(player.rank)}${player.games>0?` · ${player.games} GP`:''}`;
 const fp=player=>tradePoints(player.stats,weights);
 const occupied=id=>picks.a.includes(id)||picks.b.includes(id);
 
@@ -87,7 +91,7 @@ function renderTrade(){
   $(`#trade-${key}-players`).innerHTML=players.length?players.map(player=>{
    const points=fp(player);
    const profile=player.profile?` · <a href="${esc(player.profile)}" target="_blank" rel="noopener noreferrer">RotoWire</a>`:'';
-   return `<article class="trade-card"><h3>${nbaBadge(player.nba,player.name)}</h3><button class="button" type="button" data-remove="${esc(player.id)}" data-side="${key}" aria-label="Remove ${esc(player.name)}">×</button><span class="sub">${esc(player.position)} · ${rwRank(player)}${profile}</span><strong>${points===null?'No score':`${format(points)} FP / game`}</strong><div class="trade-stats sub">${playerStats(player)}</div></article>`;
+   return `<article class="trade-card"><h3>${nbaBadge(player.nba,player.name)}</h3><button class="button" type="button" data-remove="${esc(player.id)}" data-side="${key}" aria-label="Remove ${esc(player.name)}">×</button><span class="sub">${esc(player.position)} · ${rankSummary(player)}${profile}</span><strong>${points===null?'No score':`${format(points)} FP / game`}</strong><div class="trade-stats sub">${playerStats(player)}</div></article>`;
   }).join(''):'<p class="trade-empty sub">No players selected.</p>';
  }
  const delta=$('#trade-delta');
@@ -105,6 +109,7 @@ async function loadPlayers(){
   const data=await response.json();
   if(!data.players?.length)throw new Error('Empty player data');
   dataset=data;
+  currentRanks=seasonRanks(data.players,weights);
   const asOf=new Date(data.updatedAt).toLocaleDateString('en-PH',{timeZone:'Asia/Manila',month:'short',day:'numeric'});
   $('#trade-sources').innerHTML=`<a href="${esc(data.statsUrl)}" target="_blank" rel="noopener noreferrer">RotoWire season stats</a> · checked ${esc(asOf)} · <a href="${esc(data.rankUrl)}" target="_blank" rel="noopener noreferrer">Draft ranks</a> (${esc(data.rankDate)})`;
   return data;
@@ -122,13 +127,18 @@ function renderPicker(){
  if(!dataset){status.textContent='Player data unavailable. Close the picker and try again.';results.innerHTML='';return;}
  const query=playerKey(search.value);
  const players=dataset.players.filter(player=>!query||playerKey(player.name).includes(query)||player.nba?.toLowerCase().includes(query));
- const rank=(a,b)=>(a.rank??Infinity)-(b.rank??Infinity)||a.name.localeCompare(b.name);
- players.sort((a,b)=>sort.value==='fpts'?(fp(b)??-Infinity)-(fp(a)??-Infinity)||rank(a,b):sort.value==='name'?a.name.localeCompare(b.name):rank(a,b));
- status.textContent=players.length>100?`Showing 100 of ${players.length}. Search for a player to narrow the list.`:players.length?'':'No matching players.';
+ const nameOrder=(a,b)=>a.name.localeCompare(b.name);
+ const byRank=(a,b,getRank)=>(getRank(a)??Infinity)-(getRank(b)??Infinity)||nameOrder(a,b);
+ players.sort(sort.value==='draft'?(a,b)=>byRank(a,b,player=>player.rank):sort.value==='name'?nameOrder:(a,b)=>byRank(a,b,seasonRank));
+ const notes=[`Season rank uses your FP per game rules across ${currentRanks.size} players with stats.`];
+ if(players.length>100)notes.push(`Showing 100 of ${players.length}. Search to narrow the list.`);
+ if(!players.length)notes.push('No matching players.');
+ status.textContent=notes.join(' ');
  results.innerHTML=players.slice(0,100).map(player=>{
   const points=fp(player);
   const selected=occupied(player.id);
-  return `<button class="picker-row" type="button" data-player-id="${esc(player.id)}" ${selected?'disabled':''}><span>${player.rank==null?'—':`#${player.rank}`}</span><span><strong>${esc(player.name)}</strong><span class="sub">${nbaBadge(player.nba)} ${esc(player.position)}</span></span><span>${selected?'Added':points===null?'No stats':`${format(points)} FP`}</span></button>`;
+  const lead=sort.value==='draft'?rankText(player.rank):rankText(seasonRank(player));
+  return `<button class="picker-row" type="button" data-player-id="${esc(player.id)}" ${selected?'disabled':''}><span>${lead}</span><span><strong>${esc(player.name)}</strong><span class="sub">${nbaBadge(player.nba)} ${esc(player.position)} · ${rankSummary(player)}</span></span><span>${selected?'Added':points===null?'No stats':`${format(points)} FP`}</span></button>`;
  }).join('');
 }
 
