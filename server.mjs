@@ -3,6 +3,7 @@ import {readFileSync,existsSync,writeFileSync} from 'node:fs';
 import {dirname,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {managerAuth} from './manager-auth.mjs';
+import {leaguePositions} from './dashboard/model.mjs';
 
 const root=dirname(fileURLToPath(import.meta.url));
 const privateDir=process.env.FANTASY_DATA_DIR || resolve(root,'../../data/private');
@@ -71,7 +72,9 @@ if(process.argv.includes('--export-snapshot')){
       if(['/api/public-feed','/trade-outlook.json'].includes(url.pathname)){
         const {boxCache,possessionCache,...feed}=JSON.parse(readFileSync(resolve(privateDir,'public-feed.json'),'utf8'));
         const {sourceUrl,updatedAt,window,games,defense,refreshedDates}=feed;
-        const data=url.pathname==='/trade-outlook.json'?{sourceUrl,updatedAt,window,games,defense,refreshedDates}:feed;
+        const data=url.pathname==='/trade-outlook.json'
+          ?{sourceUrl,updatedAt,window,games,defense,refreshedDates,positions:leaguePositions(JSON.parse(readFileSync(resolve(root,'dashboard/public-league.json'),'utf8')))}
+          :feed;
         res.writeHead(200,{...headers,'Content-Type':'application/json'});res.end(JSON.stringify(data));return;
       }
       if(url.pathname==='/api/snapshot'){

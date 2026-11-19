@@ -54,6 +54,16 @@
 .suggestion-offer {border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--paper)}
 .suggestion-offer header {display:flex;align-items:baseline;justify-content:space-between;gap:8px 12px;flex-wrap:wrap}
 .suggestion-offer p {margin:6px 0}
+.lineup-fit-card {min-width:0}
+.lineup-fit-card h3 {overflow-wrap:anywhere}
+.lineup-fit-card details {margin-top:14px}
+.lineup-fit-card summary {cursor:pointer}
+.lineup-fit-card table {width:100%;border-collapse:collapse;margin-top:10px}
+.lineup-fit-card :is(th,td) {padding:8px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+.lineup-fit-card thead th {white-space:nowrap;font-size:var(--trade-label)}
+.lineup-fit-card tbody td:last-child {min-width:11ch}
+.lineup-fit-card tbody td strong {display:block}
+.lineup-fit-card .table-wrap {overflow:auto}
 .trade-toolbar,.picker-controls,.picker-head {display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
 .trade-toolbar {justify-content:flex-start;flex-wrap:wrap}
 #clear-trade {margin-inline-start:auto}
@@ -344,7 +354,7 @@ body .chat-question .number-token {color:#ffedba}
  .trade-tabs {grid-template-columns:repeat(2,minmax(0,1fr))}
  #suggestion-pools {grid-template-columns:1fr}
  .trade-sides,.trade-risk-sides,.scenario-scales {grid-template-columns:1fr}
- #roster-results,.saved-roster-fields {grid-template-columns:1fr}
+#roster-results,.saved-roster-fields,.lineup-fit-grid {grid-template-columns:1fr}
  .balance-heading {flex-wrap:wrap}
  .balance-heading strong {text-align:start}
  .trade-side {min-height:185px}

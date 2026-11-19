@@ -20,6 +20,11 @@ export function optimizeLineup(players,{playingTeams=null,includeQ=true,occupied
 }
 export const playerKey=name=>name.normalize('NFD').replace(/\p{Diacritic}/gu,'').toLowerCase().replace(/\b(jr|iii|ii|iv)\b/g,'').replace(/[^a-z0-9]/g,'');
 
+export function leaguePositions(snapshot){
+  const players=[...snapshot.available,...snapshot.teams.flatMap(team=>team.players)];
+  return Object.fromEntries(players.filter(player=>player.positions?.length).map(player=>[playerKey(player.name),player.positions]));
+}
+
 export function scoreBox(log,scoring){
   let score=0;
   for(const [stat,weight] of Object.entries(scoring)){

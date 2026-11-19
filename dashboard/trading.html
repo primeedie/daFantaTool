@@ -7,9 +7,9 @@
  <link rel="icon" href="./player-logo.png?v=3">
  <link rel="stylesheet" href="./style.css">
  <link rel="stylesheet" href="./font.css?v=logo-contrast">
- <link rel="stylesheet" href="./trading.css?v=larger-trade-type">
+ <link rel="stylesheet" href="./trading.css?v=lineup-fit">
  <script type="module" src="./theme.mjs?v=logo-contrast"></script>
- <script type="module" src="./trading.mjs?v=big-balls-nov19"></script>
+ <script type="module" src="./trading.mjs?v=lineup-fit"></script>
 </head>
 <body class="trade-page">
  <header class="site-header"><div class="masthead">
@@ -110,6 +110,10 @@
      </details>
      <div id="roster-results" class="manager-impacts"></div>
     </section>
+    <section id="lineup-fit" class="panel panel-body trade-balance" aria-labelledby="lineup-fit-title" hidden>
+     <div class="roster-heading"><h2 id="lineup-fit-title">Lineup fit</h2><span class="sub" id="lineup-week"></span></div>
+     <div id="lineup-results"></div>
+    </section>
     <section id="trade-summary" class="panel panel-body trade-balance" aria-labelledby="trade-summary-title" hidden>
      <h2 id="trade-summary-title">TL;DR</h2>
      <p id="trade-summary-result"></p>
@@ -167,6 +171,11 @@
      <div class="manager-impacts" id="suggestion-pools"></div>
      <p class="sub" id="suggestion-status" role="status"></p>
      <div id="suggestion-results" class="suggestion-results"></div>
+    </section>
+    <section class="panel panel-body trade-balance" aria-labelledby="lineup-targets-title">
+     <div class="roster-heading"><h2 id="lineup-targets-title">Trade targets by need</h2><span class="sub" id="target-week"></span></div>
+     <p class="sub" id="target-status"></p>
+     <div id="target-results" class="suggestion-results"></div>
     </section>
    </div>
    <p id="trade-sources" class="sub"></p>

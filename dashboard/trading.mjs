@@ -1,7 +1,7 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
 import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=big-balls-nov19';
 import {bigBalls} from './big-balls.mjs?v=2026-11-19';
-import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=trade-suggestions';
+import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,lineupWeek,rankLineupTargets,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=lineup-fit';
 
 const $=selector=>document.querySelector(selector);
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -84,7 +84,7 @@ const search=$('#picker-search');
 const sort=$('#picker-sort');
 const picks={a:[],b:[]};
 const candidates={a:new Set(),b:new Set()};
-let offers=[];
+let offers=[],lineupTargets=[];
 const roster={...defaultRoster,a:{open:0,ilOut:0,ilIn:0,players:[]},b:{open:0,ilOut:0,ilIn:0,players:[]}};
 const rosterPanel=$('#trade-roster');
 const settingsKey='real-balliggas-trade-weights';
@@ -93,6 +93,7 @@ let currentRanks=new Map();
 let injuryData,injuryRequest;
 let injuryHistoryData,historyRequest,historyFailed=false;
 let outlookData,outlookRequest,outlookFailed=false;
+let lineupProjection;
 let chatTrade,chatVersion='';
 let weeklyOffset=1;
 let totalRebound='';
@@ -263,6 +264,7 @@ function renderTrade(){
  }
  const balance=renderBalance(totals);
  const rosterResults=renderRoster(selected,totals);
+ renderLineupFit(selected,rosterResults);
  renderContext(selected,totals,balance,rosterResults);
  if(!suggestionsPanel.hidden)renderSuggestions();
  shareButton.disabled=!dataset||!(selected.a.length||selected.b.length);
@@ -299,6 +301,7 @@ function renderSuggestions(){
   const offerSide=(key,pkg)=>`<p>${feedbackManager(key)} sends ${pkg.players.map(player=>nbaBadge(player.nba,player.name)).join(' ')} · <strong class="trade-fp">${format(pkg.points)} FP/game</strong></p>`;
   return `<article class="suggestion-offer"><header><strong>${a.players.length}-for-${b.players.length} · ${format(balance.percentage)}% gap</strong><button type="button" class="button" data-load-offer="${index}">Load in Hub</button></header>${offerSide('a',a)}${offerSide('b',b)}</article>`;
  }).join('');
+ renderLineupTargets(selected,byName);
  colorNumbers(suggestionsPanel);
 }
 
@@ -314,13 +317,14 @@ suggestionsPanel.addEventListener('change',event=>{
 });
 
 suggestionsPanel.addEventListener('click',event=>{
- const action=event.target.closest('[data-load-offer], [data-suggestion-pick]');
+ const action=event.target.closest('[data-load-offer], [data-load-target], [data-suggestion-pick]');
  if(!action)return;
- if(action.dataset.loadOffer!==undefined){
-  const offer=offers[Number(action.dataset.loadOffer)];
-  if(!offer)return;
+ if(action.dataset.loadOffer!==undefined||action.dataset.loadTarget!==undefined){
+  const offer=offers[Number(action.dataset.loadOffer)],target=lineupTargets[Number(action.dataset.loadTarget)];
+  if(!offer&&!target)return;
   for(const key of ['a','b']){
-   picks[key]=offer[key].players.map(player=>player.id);
+   const players=offer?offer[key].players:[key==='a'?target.send:target.target];
+   picks[key]=players.map(player=>player.id);
    Object.assign(roster[key],{ilOut:0,ilIn:0,players:[]});
   }
   selectTradeTab($('#hub-tab'));
@@ -469,7 +473,7 @@ function injuryHistoryTable(incoming){
 function loadOutlook(){
  if(outlookRequest)return outlookRequest;
  outlookFailed=false;
- outlookRequest=fetch('./trade-outlook.json').then(async response=>{
+ outlookRequest=fetch('./trade-outlook.json?v=lineup-fit').then(async response=>{
   if(!response.ok)throw new Error('NBA schedule unavailable');
   const feed=await response.json();
   if(!Array.isArray(feed.games))throw new Error('Invalid NBA schedule');
@@ -481,6 +485,113 @@ function loadOutlook(){
 const shortDate=new Intl.DateTimeFormat('en-US',{timeZone:'UTC',month:'short',day:'numeric'});
 const weekdayDate=new Intl.DateTimeFormat('en-US',{timeZone:'UTC',weekday:'short',month:'short',day:'numeric'});
 const slateDate=date=>new Date(`${date}T12:00:00Z`);
+
+function nextLineupWeek(){
+ const dates=easternWeek(1);
+ if(lineupProjection?.feed!==outlookData||lineupProjection?.weights!==weights||lineupProjection?.dates[0]!==dates[0]){
+  lineupProjection={
+   feed:outlookData,weights,dates,
+   project:outlookData?lineupWeek(outlookData,weights,dates):null
+  };
+ }
+ return lineupProjection;
+}
+
+const lineupDateLabel=dates=>`Next week · ${shortDate.format(slateDate(dates[0]))} – ${shortDate.format(slateDate(dates.at(-1)))} ET`;
+const lineupScheduleStatus=()=>outlookData?'The NBA schedule for next week is incomplete.':outlookFailed?'NBA schedule unavailable.':'Loading NBA schedule…';
+const rosterPlayers=(team,byName)=>team.players.map(name=>byName.get(playerKey(name))||{id:`missing:${playerKey(name)}`,name});
+const lineupAssumptions=teams=>[
+ 'Uses season averages and the Big Balls starting slots. Saved IL players sit.',
+ teams.some(team=>team.unassigned?.length)?'Players with unconfirmed roster spots are excluded.':''
+].filter(Boolean).join(' ');
+
+function renderLineupFit(selected,adjustments){
+ const section=$('#lineup-fit');
+ section.hidden=!adjustments;
+ if(!adjustments)return;
+ const {dates,project}=nextLineupWeek();
+ $('#lineup-week').textContent=lineupDateLabel(dates);
+ const results=$('#lineup-results');
+ const saved={a:rosterBook.getTeam('a'),b:rosterBook.getTeam('b')};
+ if(!saved.a||!saved.b){results.innerHTML='<p class="sub">Choose both saved teams to compare starting lineups.</p>';return;}
+ if(saved.a.team===saved.b.team){results.innerHTML='<p class="sub">Choose two different saved teams.</p>';return;}
+ if(['a','b'].some(key=>!selected[key].every(savedRosterFilter(saved[key].config,saved[key].team,'trade')))){
+  results.innerHTML='<p class="sub">Each outgoing player must belong to their selected saved team.</p>';
+  return;
+ }
+ if(!project){results.innerHTML=`<p class="sub">${lineupScheduleStatus()}</p>`;return;}
+ const byName=new Map(dataset.players.map(player=>[playerKey(player.name),player]));
+ const cards=['a','b'].map(key=>{
+  const {team,config}=saved[key],opponent=saved[other(key)].team;
+  const before=project(rosterPlayers(team,byName));
+  const heading=`<h3 class="manager-${key}-text">${managerLabel(key)}</h3><p class="sub">${esc(team.name)}</p>`;
+  const fail=reason=>`${heading}<p class="sub">${reason}</p>`;
+  if([...selected[key],...selected[other(key)]].some(player=>[...(team.unassigned||[]),...(opponent.unassigned||[])].some(name=>playerKey(name)===playerKey(player.name))))return fail('Confirm the roster spots of the traded players to compare this lineup.');
+  const injured=new Set(opponent.injured.map(playerKey));
+  const incoming=selected[other(key)].filter(player=>!injured.has(playerKey(player.name)));
+  const nonRegular=new Set([...team.injured,...(team.unassigned||[])].map(playerKey));
+  if(incoming.some(player=>nonRegular.has(playerKey(player.name))))return fail('An incoming player is already on this saved team.');
+  if(roster[key].ilIn>selected[other(key)].length-incoming.length)return fail('The incoming IL spots include a player listed as active on the saved roster.');
+  const adjustment=adjustments[key];
+  const removed=new Set([...selected[key],...(adjustment.mode==='Cut'?adjustment.players:[])].map(player=>player.id));
+  const afterPlayers=[
+   ...rosterPlayers(team,byName).filter(player=>!removed.has(player.id)),
+   ...incoming,...(adjustment.mode==='Pickup'?adjustment.players:[])
+  ];
+  if(new Set(afterPlayers.map(player=>player.id)).size!==afterPlayers.length)return fail('An incoming player is already on this saved team.');
+  if(afterPlayers.length>config.regular)return fail('Choose the remaining cuts in Roster adjustments.');
+  const after=project(afterPlayers);
+  const gain=Math.round((after.points-before.points)*100)/100;
+  const missing=[...new Set([...before.missing,...after.missing])];
+  const rows=before.daily.map((day,index)=>{
+   const next=after.daily[index];
+   const bench=next.bench.length?next.bench.map(player=>esc(player.name)).join(', '):'—';
+   return `<tr><th scope="row">${shortDate.format(slateDate(day.date))}</th><td>${format(day.score)}</td><td>${format(next.score)}</td><td>${bench}</td></tr>`;
+  }).join('');
+  return `${heading}<strong class="manager-net ${tone(gain)}">${signed(gain)} FP</strong>
+   <dl><div><dt>Before</dt><dd>${format(before.points)} FP</dd></div><div><dt>After</dt><dd>${format(after.points)} FP</dd></div><div><dt>Benched games</dt><dd>${before.benched} → ${after.benched}</dd></div></dl>
+   ${missing.length?`<p class="sub">Partial estimate. Missing projection data for ${missing.map(esc).join(', ')}.</p>`:''}
+   <details><summary>Daily lineup fit</summary><div class="table-wrap"><table aria-label="Daily projected starter points and bench after trade"><thead><tr><th scope="col">ET date</th><th scope="col">Before FP</th><th scope="col">After FP</th><th scope="col">Bench after trade</th></tr></thead><tbody>${rows}</tbody></table></div></details>`;
+ });
+ results.innerHTML=`<p class="sub">${lineupAssumptions([saved.a.team,saved.b.team])} Includes any selected cuts and pickups.</p>
+  <div class="manager-impacts lineup-fit-grid">${cards.map(card=>`<section class="manager-impact lineup-fit-card">${card}</section>`).join('')}</div>`;
+}
+
+function renderLineupTargets(selected,byName){
+ const {dates,project}=nextLineupWeek();
+ const status=$('#target-status'),results=$('#target-results');
+ $('#target-week').textContent=lineupDateLabel(dates);
+ results.innerHTML='';
+ lineupTargets=[];
+ const {team:teamA}=rosterScope('a','trade'),{team:teamB}=rosterScope('b','trade');
+ if(!teamA||!teamB||teamA===teamB){status.textContent='Choose two different saved teams above.';return;}
+ if(!project){status.textContent=lineupScheduleStatus();return;}
+ const regular={
+  a:rosterPlayers(teamA,byName),
+  b:rosterPlayers(teamB,byName)
+ };
+ const pool=key=>regular[key].filter(player=>player.nba&&(!selected[key].length||candidates[key].has(player.id)));
+ const outgoing=pool('a'),targets=pool('b');
+ const owned=new Set([...teamA.players,...teamA.injured,...(teamA.unassigned||[])].map(playerKey));
+ lineupTargets=rankLineupTargets(project,regular.a,outgoing,targets.filter(player=>!owned.has(playerKey(player.name)))).slice(0,6);
+ const missing=project(regular.a).missing;
+ const note=missing.length?` Partial estimate. Missing projection data for ${missing.join(', ')}.`:'';
+ status.textContent=`Best one-for-one swaps for ${teamA.name} by added starter FP. ${lineupAssumptions([teamA,teamB])}${note}`;
+ if(!lineupTargets.length)status.textContent+=' No projected lineup gains among these players.';
+ results.innerHTML=lineupTargets.map(({target,send,gain,starts},index)=>{
+  const extra=starts.filter(start=>start.extra);
+  const reason=extra.length?`Fills ${extra.map(({date,slot})=>`${shortDate.format(slateDate(date))} ${slot}`).join(', ')}.`:
+   `Projects to start in ${starts.length} games.`;
+  const balance=tradeBalance(fp(send),fp(target));
+  const gap=balance?` · ${format(balance.percentage)}% season FP/game gap`:'';
+  return `<article class="suggestion-offer">
+   <header><h3>${nbaBadge(target.nba,target.name)}</h3><strong class="fp-gain">${signed(gain)} starter FP</strong></header>
+   <p>Send ${nbaBadge(send.nba,send.name)}${gap}</p><p class="sub">${reason}</p>
+   <button class="button" type="button" data-load-target="${index}">Load in Hub</button>
+  </article>`;
+ }).join('');
+}
+
 function weekComparison(incoming,offset){
  if(!outlookData)return null;
  const dates=easternWeek(offset);

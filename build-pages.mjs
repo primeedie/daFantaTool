@@ -1,6 +1,7 @@
 import {mkdir,copyFile,readFile,writeFile} from 'node:fs/promises';
 import {resolve,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {leaguePositions} from './dashboard/model.mjs';
 const root=dirname(fileURLToPath(import.meta.url)),out=resolve(root,'dist');
 await mkdir(resolve(out,'fonts'),{recursive:true});
 // Only ship the reviewed public snapshot and the listed assets.
@@ -23,6 +24,7 @@ const feed=JSON.parse(await readFile(resolve(folder,'public-feed.json'),'utf8'))
 const {source,sourceUrl,updatedAt,nbaDate,window,refreshIntervalMinutes,partial,refreshedDates,games,logs,defense}=feed;
 if(!Array.isArray(games)||!Array.isArray(logs)||!updatedAt)throw new Error('No valid public feed');
 await writeFile(resolve(out,'public-feed.json'),JSON.stringify({source,sourceUrl,updatedAt,nbaDate,window,refreshIntervalMinutes,partial,refreshedDates,games,logs}));
-await writeFile(resolve(out,'trade-outlook.json'),JSON.stringify({sourceUrl,updatedAt,window,games,defense,refreshedDates}));
+const positions=leaguePositions(JSON.parse(await readFile(resolve(root,'dashboard/public-league.json'),'utf8')));
+await writeFile(resolve(out,'trade-outlook.json'),JSON.stringify({sourceUrl,updatedAt,window,games,defense,refreshedDates,positions}));
 await writeFile(resolve(out,'.nojekyll'),'');
 console.log(`Pages ready: league snapshot, ${games.length} games, ${logs.length} player logs.`);

@@ -3,12 +3,38 @@ import assert from 'node:assert/strict';
 import {scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,packageForm,compareGamesPlayed,statSwings,packageScenarios,nextOpponents,easternWeek,weeklyPackage,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,rosterSpots,rosterSettings,rosterAdjustment} from '../dashboard/trade-model.mjs';
 import {normalizeRosterConfig,savedRosterFilter,rosterConfigHash,parseRosterConfig} from '../dashboard/saved-rosters.mjs';
 import {injuryHistory} from '../refresh-injury-history.mjs';
-import {pickerMatch,suggestFairTrades} from '../dashboard/trade-model.mjs';
+import {pickerMatch,suggestFairTrades,lineupWeek,rankLineupTargets} from '../dashboard/trade-model.mjs';
 import {playerKey} from '../dashboard/model.mjs';
 import {bigBalls} from '../dashboard/big-balls.mjs';
 
 const base={pts:'1',reb:'1.2',ast:'1.5',st:'3',blk:'3',to:'1.5'};
 const box={pts:20,reb:10,oreb:3,dreb:7,ast:5,st:1,blk:1,to:4};
+
+test('lineup targets favor usable starts and apply league eligibility across the full Eastern week',()=>{
+ const dates=easternWeek(1,new Date('2026-11-19T11:00Z'));
+ const player=(id,nba,position,pts)=>({id,name:id,nba,position,stats:{pts}});
+ const centers=[40,35,30,25].map(pts=>player(`center${pts}`,'DEN','C',pts));
+ const send=player('send','LAC','PG',12);
+ const center=player('center24','DEN','C',24);
+ const guard=player('guard','BOS','F',20);
+ const games=[
+  {date:'2026-11-24T02:00Z',home:'DEN',away:'LAC'},
+  {date:'2026-11-30T04:30Z',home:'BOS',away:'NYK'},
+  {date:'2026-11-28T02:00Z',home:'BOS',away:'NYK',status:'Postponed'}
+ ];
+ const feed={refreshedDates:dates,games,positions:{guard:['PG']}};
+ const project=lineupWeek(feed,{pts:2},dates);
+ assert.equal(project([...centers,send]).points,284);
+ assert.equal(project([...centers,center]).benched,1);
+ assert.equal(project([...centers,center]).daily[0].starters.filter(row=>row.slot==='C').length,2);
+ assert.deepEqual(project([{id:'unknown',name:'Unknown'}]).missing,['Unknown']);
+ const [best,other]=rankLineupTargets(project,[...centers,send],[send],[center,guard]);
+ assert.equal(other,undefined);
+ assert.equal(best.target.id,'guard');
+ assert.equal(best.gain,16);
+ assert.deepEqual(best.starts,[{date:dates.at(-1),slot:'PG',extra:true}]);
+ assert.equal(lineupWeek({...feed,refreshedDates:dates.slice(0,-1)},{pts:2},dates),null);
+});
 
 test('the public Big Balls preset has its league scoring and ten non-overlapping rosters',()=>{
  const league=normalizeRosterConfig(bigBalls);

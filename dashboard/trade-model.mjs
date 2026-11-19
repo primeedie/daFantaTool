@@ -1,4 +1,4 @@
-import {playerKey} from './model.mjs';
+import {optimizeLineup,playerKey,slots} from './model.mjs';
 
 export const boxFields={pts:'PTS',reb:'REB',oreb:'OREB',dreb:'DREB',ast:'AST',st:'STL',blk:'BLK',to:'TOV'};
 const playerAliases=new Map([
@@ -30,14 +30,19 @@ export function easternWeek(offset=0,now=new Date()){
  return Array.from({length:7},(_,day)=>new Date(+date+day*86400000).toISOString().slice(0,10));
 }
 
-export function weeklyPackage(players,feed,weights,dates){
+function weeklySlates(feed,dates){
  const byDate=new Map(dates.map(date=>[date,[]]));
- const confirmedDates=new Set(feed.refreshedDates||[]);
  for(const game of feed.games||[]){
   const tip=new Date(game.date);
   if(!Number.isFinite(+tip)||/postpon|cancel/i.test(game.status))continue;
   byDate.get(easternDay(tip))?.push(game);
  }
+ return byDate;
+}
+
+export function weeklyPackage(players,feed,weights,dates){
+ const byDate=weeklySlates(feed,dates);
+ const confirmedDates=new Set(feed.refreshedDates||[]);
  const daily=dates.map(date=>{
   const games=byDate.get(date);
   const playing=players.flatMap(player=>games.filter(game=>player.nba&&(player.nba===game.home||player.nba===game.away)).map(()=>player));
@@ -48,6 +53,65 @@ export function weeklyPackage(players,feed,weights,dates){
  const games=daily.reduce((sum,day)=>sum+day.games,0);
  const total=covered&&games&&players.every(player=>player.nba)&&daily.every(day=>day.points!==null)?daily.reduce((sum,day)=>sum+day.points,0):null;
  return {daily,total,games,covered};
+}
+
+export function lineupWeek(feed,weights,dates){
+ const confirmedDates=new Set(feed.refreshedDates||[]);
+ if(!dates.every(date=>confirmedDates.has(date)))return null;
+ const slates=[...weeklySlates(feed,dates)].map(([date,games])=>({
+  date,teams:new Set(games.flatMap(game=>[game.home,game.away]))
+ }));
+ const optimized=new Map();
+ const playerValues=new Map();
+ return players=>{
+  const missing=[];
+  const eligiblePlayers=[];
+  for(const player of players){
+   if(!playerValues.has(player.id)){
+    const positions=feed.positions?.[playerKey(player.name)]||player.positions||player.position?.match(/PG|SG|SF|PF|G|F|C/g)||[];
+    const fpts=tradePoints(player.stats,weights);
+    playerValues.set(player.id,player.nba&&positions.length&&fpts!==null?{...player,positions,fpts}:null);
+   }
+   const value=playerValues.get(player.id);
+   if(value)eligiblePlayers.push(value);
+   else missing.push(player.name);
+  }
+  const daily=slates.map(({date,teams})=>{
+   const playing=eligiblePlayers.filter(player=>teams.has(player.nba));
+   const key=JSON.stringify(playing.map(player=>player.id));
+   if(!optimized.has(key)){
+    if(optimized.size>=2048)optimized.clear();
+    const {score,assignment}=optimizeLineup(playing);
+    const starters=assignment.flatMap((player,index)=>player?[{player,slot:slots[index]}]:[]);
+    const bench=playing.filter(player=>!assignment.includes(player));
+    optimized.set(key,{score,starters,bench});
+   }
+   return {date,...optimized.get(key)};
+  });
+  return {daily,missing,points:daily.reduce((total,day)=>total+day.score,0),benched:daily.reduce((total,day)=>total+day.bench.length,0)};
+ };
+}
+
+export function rankLineupTargets(project,players,outgoing,targets){
+ const before=project(players);
+ const available=outgoing.filter(player=>!before.missing.includes(player.name));
+ const ranked=[];
+ for(const target of targets){
+  let best;
+  for(const send of available){
+   const after=project(players.map(player=>player.id===send.id?target:player));
+   if(after.missing.includes(target.name))break;
+   const gain=after.points-before.points;
+   if(gain<=1e-6||best&&gain<=best.gain)continue;
+   const starts=after.daily.flatMap((day,index)=>{
+    const start=day.starters.find(({player})=>player.id===target.id);
+    return start?[{date:day.date,slot:start.slot,extra:day.starters.length>before.daily[index].starters.length}]:[];
+   });
+   best={target,send,gain,starts};
+  }
+  if(best)ranked.push(best);
+ }
+ return ranked.sort((a,b)=>b.gain-a.gain||a.target.name.localeCompare(b.target.name));
 }
 
 export function historicalAvailability(player,record,currentSeason,weights){
