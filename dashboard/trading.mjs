@@ -1,6 +1,6 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
-import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=public-big-balls';
-import {bigBalls} from './big-balls.mjs?v=2026-11-18';
+import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=big-balls-nov19';
+import {bigBalls} from './big-balls.mjs?v=2026-11-19';
 import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=trade-suggestions';
 
 const $=selector=>document.querySelector(selector);
@@ -277,19 +277,19 @@ function renderSuggestions(){
  const selected={};
  pools.innerHTML=['a','b'].map(key=>{
   const {team,allows}=rosterScope(key,'trade');
-  const rosterRows=team?[...team.players.map(name=>({name,injured:false})),...team.injured.map(name=>({name,injured:true}))]:
-   [...candidates[key]].map(id=>({name:dataset.players.find(player=>player.id===id)?.name||'',injured:false}));
+  const rosterRows=team?[...team.players.map(name=>({name})),...team.injured.map(name=>({name,slot:'IL'})),...(team.unassigned||[]).map(name=>({name,slot:'Slot unconfirmed'}))]:
+   [...candidates[key]].map(id=>({name:dataset.players.find(player=>player.id===id)?.name||''}));
   const rows=rosterRows.map(row=>({...row,player:byName.get(playerKey(row.name))}));
   const valid=new Set(rows.map(row=>row.player).filter(player=>player&&allows(player)).map(player=>player.id));
   for(const id of candidates[key])if(!valid.has(id))candidates[key].delete(id);
   selected[key]=rows.map(row=>row.player).filter(player=>player&&candidates[key].has(player.id));
   const heading=key==='a'?`${managerLabel('a')} is willing to send`:`Targets from ${managerLabel('b')}`;
-  const list=rows.map(({name,injured,player})=>{
+  const list=rows.map(({name,slot,player})=>{
    const id=player?.id||'';
    const checked=candidates[key].has(id);
    const points=player?fp(player):null;
    const disabled=points===null||candidates[other(key)].has(id)||!checked&&candidates[key].size>=suggestionPoolLimit;
-   return `<label><input type="checkbox" data-candidate="${esc(id)}" data-side="${key}" ${checked?'checked':''} ${disabled?'disabled':''}><span>${esc(name)}${injured?' <small class="sub">IL</small>':''}</span><small class="${points!==null?'trade-fp':'sub'}">${points!==null?`${format(points)} FP`:'No stats'}</small></label>`;
+   return `<label><input type="checkbox" data-candidate="${esc(id)}" data-side="${key}" ${checked?'checked':''} ${disabled?'disabled':''}><span>${esc(name)}${slot?` <small class="sub">${esc(slot)}</small>`:''}</span><small class="${points!==null?'trade-fp':'sub'}">${points!==null?`${format(points)} FP`:'No stats'}</small></label>`;
   }).join('');
   return `<section class="manager-impact"><h3 class="manager-${key}-text">${heading}</h3>${team?`<p class="sub">${esc(team.name)} · ${candidates[key].size} marked</p>`:''}<div class="suggestion-pool-list">${list}</div>${team?'':`<button class="button" type="button" data-suggestion-pick="${key}" ${candidates[key].size>=suggestionPoolLimit?'disabled':''}>${key==='a'?'Choose players to offer':'Choose targets'}</button>`}</section>`;
  }).join('');
@@ -358,7 +358,8 @@ function renderRoster(selected,totals){
   const state=roster[key];
   const outgoing=selected[key].length,incoming=selected[other(key)].length;
   const savedTeam=rosterBook?.getTeam(key)?.team;
-  if(savedTeam){
+  const verifiedSlots=savedTeam&&!savedTeam.unassigned?.length;
+  if(verifiedSlots){
    state.open=Math.max(0,roster.regular-savedTeam.players.length);
    const injured=new Set(savedTeam.injured.map(playerKey));
    state.ilOut=selected[key].filter(player=>injured.has(playerKey(player.name))).length;
@@ -367,13 +368,13 @@ function renderRoster(selected,totals){
   for(const name of ['open','ilOut','ilIn'])state[name]=options[name];
   const controls=rosterPanel.querySelector(`[data-roster-team="${key}"]`);
   controls.querySelector('legend').textContent=manager(key);
-  const room=savedTeam?Math.max(0,roster.il-savedTeam.injured.length+state.ilOut):roster.il;
+  const room=verifiedSlots?Math.max(0,roster.il-savedTeam.injured.length+state.ilOut):roster.il;
   const maxima={open:roster.regular,ilOut:Math.min(outgoing,roster.il),ilIn:Math.min(incoming,roster.il,room)};
   state.ilIn=Math.min(state.ilIn,maxima.ilIn);
   for(const field of controls.querySelectorAll('[data-roster-option]')){
    field.max=maxima[field.dataset.rosterOption];
    field.value=state[field.dataset.rosterOption];
-   field.disabled=Boolean(savedTeam)&&field.dataset.rosterOption!=='ilIn';
+   field.disabled=Boolean(verifiedSlots)&&field.dataset.rosterOption!=='ilIn';
   }
   const spots=rosterSpots(outgoing,incoming,state);
   const mode=spots.cuts?'Cut':'Pickup';
@@ -392,7 +393,8 @@ function renderRoster(selected,totals){
   const action=result.remaining?`<button type="button" class="button" data-roster-pick="${key}">${spots.cuts?'Choose cut':'Choose pickup'}</button>`:'';
   const breakEven=result.breakEven===null?'':result.breakEven===0?'<p class="sub roster-break-even">Already at or above break-even.</p>':
    `<p class="sub roster-break-even">Break-even · <strong>${format(result.breakEven)} FP/game</strong>${result.remaining>1?` combined across ${result.remaining} open spots`:''}</p>`;
-  return `<section class="manager-impact"><h3 class="manager-${key}-text">${managerLabel(key)}</h3><strong class="manager-net ${tone(result.net)}">${signed(result.net)} FP</strong><div class="sub">${status}</div><p class="sub">${detail}</p>${playerRows?`<div class="roster-actions">${playerRows}</div>`:''}${action}${breakEven}</section>`;
+  const slotNote=savedTeam?.unassigned?.length?'<p class="sub">Slot assignments are unconfirmed. Check Roster settings before comparing cuts.</p>':'';
+  return `<section class="manager-impact"><h3 class="manager-${key}-text">${managerLabel(key)}</h3><strong class="manager-net ${tone(result.net)}">${signed(result.net)} FP</strong><div class="sub">${status}</div><p class="sub">${detail}</p>${slotNote}${playerRows?`<div class="roster-actions">${playerRows}</div>`:''}${action}${breakEven}</section>`;
  });
  $('#roster-results').innerHTML=cards.join('');
  return results;
@@ -814,7 +816,7 @@ function renderPicker(){
  const players=matches.map(row=>row.player);
  const notes=[];
  if(entry)notes.push(`${entry.remaining()} ${suggesting?'more you can mark':'open spots'} · Select players, then click Done.`);
- else if(action==='pickup')notes.push(config?`Excludes regular and IL players across ${config.teams.length} saved team${config.teams.length===1?'':'s'} in ${config.name}.`:'Check pickup availability in your league.');
+ else if(action==='pickup')notes.push(config?`Excludes rostered players across ${config.teams.length} saved team${config.teams.length===1?'':'s'} in ${config.name}.`:'Check pickup availability in your league.');
  else if(team)notes.push(action==='cut'?`Regular roster for ${team.name}.`:`Regular roster and IL for ${team.name}.`);
  else notes.push(`Season rank uses your FP per game rules across ${currentRanks.size} players with stats.`);
  if(players.length>100)notes.push(`Showing 100 of ${players.length}. Search to narrow the list.`);

@@ -16,7 +16,11 @@ test('the public Big Balls preset has its league scoring and ten non-overlapping
  assert.equal(league.regular,13);
  assert.equal(league.il,3);
  assert.equal(league.teams.reduce((sum,team)=>sum+team.players.length,0),128);
- assert.equal(league.teams.reduce((sum,team)=>sum+team.injured.length,0),21);
+ assert.equal(league.teams.reduce((sum,team)=>sum+team.injured.length,0),20);
+ const wolfgang=league.teams.find(team=>team.name==='Wolfgang');
+ assert.equal(wolfgang.unassigned.length,2);
+ assert.equal(savedRosterFilter(league,wolfgang,'trade')({name:'Brayden Burries'}),true);
+ assert.equal(savedRosterFilter(league,null,'pickup')({name:'Brayden Burries'}),false);
  assert.deepEqual(bigBalls.scoring,scoringWeights(base,false));
  assert.equal(savedRosterFilter(league,null,'pickup')({name:'Stephen Curry'}),false);
 });

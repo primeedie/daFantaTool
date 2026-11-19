@@ -1,12 +1,12 @@
 import {playerKey} from './public-ui.mjs';
-import {bigBalls} from './big-balls.mjs?v=2026-11-18';
+import {bigBalls} from './big-balls.mjs?v=2026-11-19';
 
 const storageKey='dafantatool.saved-rosters.v1';
 const keys=['a','b'];
 const clean=(value,max=60)=>typeof value==='string'?value.replace(/\s+/g,' ').trim().slice(0,max):'';
 const numeric=(value,min)=>Number.isInteger(value)&&value>=min&&value<=99;
 const playerList=text=>text.split(/[,\n]/).map(value=>clean(value)).filter(Boolean);
-const members=team=>[...team.players,...team.injured].map(playerKey);
+const members=team=>[...team.players,...team.injured,...(team.unassigned||[])].map(playerKey);
 
 export function normalizeRosterConfig(value){
  if(!value||!numeric(value.regular,1)||!numeric(value.il,0)||!Array.isArray(value.teams)||!value.teams.length||value.teams.length>30)return null;
@@ -19,6 +19,10 @@ export function normalizeRosterConfig(value){
   if(!teamName||usedTeams.has(teamName.toLowerCase())||!Array.isArray(team.players)||!Array.isArray(team.injured)||team.players.length>value.regular||team.injured.length>value.il)return null;
   usedTeams.add(teamName.toLowerCase());
   const people={name:teamName,players:team.players.map(value=>clean(value)),injured:team.injured.map(value=>clean(value))};
+  if(team.unassigned!==undefined){
+   if(!Array.isArray(team.unassigned)||team.players.length+team.injured.length+team.unassigned.length>value.regular+value.il)return null;
+   if(team.unassigned.length)people.unassigned=team.unassigned.map(value=>clean(value));
+  }
   for(const id of members(people)){
    if(!id||usedPlayers.has(id))return null;
    usedPlayers.add(id);
@@ -92,6 +96,8 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker){
   value('teamName').value=team?.name||'';
   value('regularPlayers').value=team?.players.join('\n')||'';
   value('injuredPlayers').value=team?.injured.join('\n')||'';
+  value('unassignedPlayers').value=team?.unassigned?.join('\n')||'';
+  $('#unassigned-roster-field').hidden=!team?.unassigned?.length;
   $('#share-saved-team').disabled=!team;
  }
  function selectConfig(index='',teamIndex='0'){
@@ -149,6 +155,8 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker){
   const teamList=[...(existing?.teams||[])];
   const teamIndex=teams.value===''?teamList.length:Number(teams.value);
   teamList[teamIndex]={name:value('teamName').value,players:playerList(value('regularPlayers').value),injured:playerList(value('injuredPlayers').value)};
+  const unassigned=playerList(value('unassignedPlayers').value);
+  if(unassigned.length)teamList[teamIndex].unassigned=unassigned;
   const config=normalizeRosterConfig({name:value('configName').value,regular:Number(value('regular').value),il:Number(value('il').value),teams:teamList});
   if(!config){status.textContent='Check roster limits and use each player and team name once per configuration.';return;}
   if(save(config,index)){selectConfig(String(index),String(teamIndex));status.textContent='Saved on this browser.';}
@@ -170,7 +178,7 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker){
   if(!numeric(limit,group==='il'?0:1)){value(group).reportValidity();return;}
   if(names.length>=limit){status.textContent=group==='il'?'The injured list has no open spots.':'The regular roster has no open spots.';return;}
   const otherTeams=(current()?.teams||[]).filter((_team,index)=>String(index)!==teams.value);
-  const entered=['regularPlayers','injuredPlayers'].flatMap(name=>playerList(value(name).value)).map(playerKey);
+  const entered=['regularPlayers','injuredPlayers','unassignedPlayers'].flatMap(name=>playerList(value(name).value)).map(playerKey);
   const taken=new Set([...entered,...otherTeams.flatMap(members)]);
   const rostered=player=>taken.has(playerKey(player.name));
   const remaining=()=>limit-names.length;

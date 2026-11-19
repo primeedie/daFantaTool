@@ -11,7 +11,8 @@ const linkedRankings=origin+'/basketball/article/updated-2026-27-fantasy-basketb
 const depthCharts=origin+'/basketball/nba-depth-charts/';
 const teamIndex=origin+'/basketball/team/los-angeles-lakers-lal';
 const profileFallbacks={krisdunn:'/basketball/player/kris-dunn-3854',jimmybutler:'/basketball/player/jimmy-butler-3231',
- klaythompson:'/basketball/player/klay-thompson-3197',jaredmccain:'/basketball/player/jared-mccain-6266'};
+ klaythompson:'/basketball/player/klay-thompson-3197',jaredmccain:'/basketball/player/jared-mccain-6266',
+ yanickonanniederhauser:'/basketball/player/yanic-konan-niederhauser-6616'};
 const codes={SAN:'SAS',SA:'SAS',NY:'NYK',NO:'NOP',GS:'GSW',PHO:'PHX',UTAH:'UTA',WSH:'WAS'};
 const nbaCode=code=>codes[code]||code;
 const statFields={pts:'pts',reb:'reb',oreb:'oreb',dreb:'dreb',ast:'ast',st:'stl',blk:'blk',to:'to'};
