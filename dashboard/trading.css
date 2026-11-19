@@ -64,6 +64,12 @@
 .lineup-fit-card tbody td:last-child {min-width:11ch}
 .lineup-fit-card tbody td strong {display:block}
 .lineup-fit-card .table-wrap {overflow:auto}
+.lineup-fit-card .lineup-totals td {white-space:nowrap;text-align:right}
+.lineup-fit-card .lineup-totals th:first-child {min-width:13ch}
+.lineup-fit-card .lineup-totals tfoot {font-weight:bold;background:var(--surface)}
+.lineup-fit-card .lineup-tips {padding-inline-start:1.3em;line-height:1.65}
+.lineup-tips li+li {margin-top:8px}
+#rank-lineup-targets {margin-bottom:14px}
 .trade-toolbar,.picker-controls,.picker-head {display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
 .trade-toolbar {justify-content:flex-start;flex-wrap:wrap}
 #clear-trade {margin-inline-start:auto}

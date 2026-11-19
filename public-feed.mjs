@@ -13,8 +13,9 @@ export function normalizeEvent(event,gameDate){
  const competition=event.competitions?.[0],home=competition?.competitors?.find(c=>c.homeAway==='home'),away=competition?.competitors?.find(c=>c.homeAway==='away');
  if(!event.id||!home?.team?.abbreviation||!away?.team?.abbreviation||!event.date||!Number.isFinite(Date.parse(event.date)))return null;
  const completed=event.status?.type?.completed===true;
+ const nbaCupFinal=competition.notes?.some(note=>/\bNBA Cup\s+(?:-\s*)?Championship\b/i.test(note.headline));
  const score=c=>c.score===undefined||c.score===''?null:Number(c.score);
- return {id:event.id,date:event.date,gameDate,home:teamCode(home.team.abbreviation),away:teamCode(away.team.abbreviation),homeScore:score(home),awayScore:score(away),seasonType:Number(event.season?.type)||null,completed,status:event.status?.type?.shortDetail||'Scheduled',sourceUrl:event.links?.find(l=>l.rel?.includes('summary'))?.href||`https://www.espn.com/nba/game/_/gameId/${event.id}`};
+ return {id:event.id,date:event.date,gameDate,home:teamCode(home.team.abbreviation),away:teamCode(away.team.abbreviation),homeScore:score(home),awayScore:score(away),seasonType:Number(event.season?.type)||null,completed,status:event.status?.type?.shortDetail||'Scheduled',...(nbaCupFinal?{nbaCupFinal:true}:{}),sourceUrl:event.links?.find(l=>l.rel?.includes('summary'))?.href||`https://www.espn.com/nba/game/_/gameId/${event.id}`};
 }
 export function estimateGamePossessions(summary){
  const teams=summary.boxscore?.teams;
@@ -84,7 +85,8 @@ export async function refreshPublicFeed(){
  const file=resolve(dataDir,'public-feed.json'),old=await readJson(file,{games:[],logs:[],boxCache:{}});
  const today=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
  const anchor=new Date(`${today}T12:00:00Z`),dates=[];
- for(let offset=-30;offset<=14;offset++){const d=new Date(anchor);d.setUTCDate(d.getUTCDate()+offset);dates.push(d.toISOString().slice(0,10));}
+ // Monday through the fifth Sunday can be 34 days from today's slate.
+ for(let offset=-30;offset<=34;offset++){const d=new Date(anchor);d.setUTCDate(d.getUTCDate()+offset);dates.push(d.toISOString().slice(0,10));}
  const errors=[],refreshedDates=[];
  const boards=await mapLimit(dates,3,async(date)=>{try{const json=await fetchJson(base+'scoreboard?dates='+date.replaceAll('-',''));if(!Array.isArray(json.events))throw new Error('Invalid scoreboard schema');refreshedDates.push(date);return json.events.map(e=>normalizeEvent(e,date)).filter(Boolean);}catch{errors.push({date,message:'Scoreboard unavailable'});return []}});
  const byId=new Map(old.games.filter(g=>dates.includes(g.gameDate)&&!refreshedDates.includes(g.gameDate)).map(g=>[g.id,g]));

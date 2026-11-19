@@ -7,9 +7,9 @@
  <link rel="icon" href="./player-logo.png?v=3">
  <link rel="stylesheet" href="./style.css">
  <link rel="stylesheet" href="./font.css?v=logo-contrast">
- <link rel="stylesheet" href="./trading.css?v=lineup-fit">
+ <link rel="stylesheet" href="./trading.css?v=five-weeks">
  <script type="module" src="./theme.mjs?v=logo-contrast"></script>
- <script type="module" src="./trading.mjs?v=lineup-fit"></script>
+ <script type="module" src="./trading.mjs?v=five-weeks"></script>
 </head>
 <body class="trade-page">
  <header class="site-header"><div class="masthead">
@@ -111,7 +111,7 @@
      <div id="roster-results" class="manager-impacts"></div>
     </section>
     <section id="lineup-fit" class="panel panel-body trade-balance" aria-labelledby="lineup-fit-title" hidden>
-     <div class="roster-heading"><h2 id="lineup-fit-title">Lineup fit</h2><span class="sub" id="lineup-week"></span></div>
+     <div class="roster-heading"><h2 id="lineup-fit-title">Five-week lineup fit</h2><span class="sub" id="lineup-week"></span></div>
      <div id="lineup-results"></div>
     </section>
     <section id="trade-summary" class="panel panel-body trade-balance" aria-labelledby="trade-summary-title" hidden>
@@ -174,7 +174,8 @@
     </section>
     <section class="panel panel-body trade-balance" aria-labelledby="lineup-targets-title">
      <div class="roster-heading"><h2 id="lineup-targets-title">Trade targets by need</h2><span class="sub" id="target-week"></span></div>
-     <p class="sub" id="target-status"></p>
+     <p class="sub" id="target-status" role="status"></p>
+     <button id="rank-lineup-targets" class="button primary" type="button" disabled>Rank swaps</button>
      <div id="target-results" class="suggestion-results"></div>
     </section>
    </div>

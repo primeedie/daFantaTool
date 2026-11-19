@@ -3,12 +3,36 @@ import assert from 'node:assert/strict';
 import {scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,packageForm,compareGamesPlayed,statSwings,packageScenarios,nextOpponents,easternWeek,weeklyPackage,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,rosterSpots,rosterSettings,rosterAdjustment} from '../dashboard/trade-model.mjs';
 import {normalizeRosterConfig,savedRosterFilter,rosterConfigHash,parseRosterConfig} from '../dashboard/saved-rosters.mjs';
 import {injuryHistory} from '../refresh-injury-history.mjs';
-import {pickerMatch,suggestFairTrades,lineupWeek,rankLineupTargets} from '../dashboard/trade-model.mjs';
+import {pickerMatch,suggestFairTrades,lineupWeek,lineupHorizon,rankLineupTargets} from '../dashboard/trade-model.mjs';
 import {playerKey} from '../dashboard/model.mjs';
 import {bigBalls} from '../dashboard/big-balls.mjs';
 
 const base={pts:'1',reb:'1.2',ast:'1.5',st:'3',blk:'3',to:'1.5'};
 const box={pts:20,reb:10,oreb:3,dreb:7,ast:5,st:1,blk:1,to:4};
+
+test('five-week forecasts exclude locked slates and the Cup final, and flag pending and missing matchups',()=>{
+ const now=new Date('2026-11-20T01:00Z');
+ const dates=Array.from({length:5},(_,index)=>easternWeek(index,now));
+ const game=(date,away='BOS',extra={})=>({date,home:'LAL',away,...extra});
+ const feed={
+  refreshedDates:dates.flat().filter(date=>date!=='2026-12-08'),
+  games:[
+   game('2026-11-20T00:00Z'),game('2026-11-20T02:00Z'),
+   game('2026-11-21T02:00Z'),game('2026-12-06T02:00Z','TBD'),
+   game('2026-12-12T02:00Z','BOS',{nbaCupFinal:true}),game('2026-12-21T02:00Z')
+  ]
+ };
+ const {weeks,project}=lineupHorizon(feed,{pts:1},now);
+ assert.equal(weeks.length,5);
+ assert.deepEqual(weeks[0].remaining,['2026-11-20','2026-11-21','2026-11-22']);
+ assert.equal(weeks[2].tbd,true);
+ assert.equal(weeks[3].covered,false);
+ const player={id:'p',name:'Player',nba:'LAL',position:'PG',stats:{pts:20}};
+ assert.equal(project([player]).points,40);
+ assert.equal(project([player]).daily.at(-1).date,'2026-12-20');
+ assert.equal(project([player]).daily.find(day=>day.date==='2026-12-05').gameCount,0);
+ assert.equal(lineupHorizon({...feed,refreshedDates:dates.flat()},{pts:1},now).project([player]).points,40);
+});
 
 test('lineup targets favor usable starts and apply league eligibility across the full Eastern week',()=>{
  const dates=easternWeek(1,new Date('2026-11-19T11:00Z'));

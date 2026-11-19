@@ -29,12 +29,14 @@ export function easternWeek(offset=0,now=new Date()){
  date.setUTCDate(date.getUTCDate()-((date.getUTCDay()+6)%7)+offset*7);
  return Array.from({length:7},(_,day)=>new Date(+date+day*86400000).toISOString().slice(0,10));
 }
+export const lineupWeekCount=5;
 
+const matchupPending=game=>game.home==='TBD'||game.away==='TBD';
 function weeklySlates(feed,dates){
  const byDate=new Map(dates.map(date=>[date,[]]));
  for(const game of feed.games||[]){
   const tip=new Date(game.date);
-  if(!Number.isFinite(+tip)||/postpon|cancel/i.test(game.status))continue;
+  if(game.nbaCupFinal||!Number.isFinite(+tip)||/postpon|cancel/i.test(game.status))continue;
   byDate.get(easternDay(tip))?.push(game);
  }
  return byDate;
@@ -44,7 +46,7 @@ export function weeklyPackage(players,feed,weights,dates){
  const byDate=weeklySlates(feed,dates);
  const confirmedDates=new Set(feed.refreshedDates||[]);
  const daily=dates.map(date=>{
-  const games=byDate.get(date);
+  const games=byDate.get(date).filter(game=>!matchupPending(game));
   const playing=players.flatMap(player=>games.filter(game=>player.nba&&(player.nba===game.home||player.nba===game.away)).map(()=>player));
   const points=playing.map(player=>tradePoints(player.stats,weights));
   return {date,games:playing.length,covered:confirmedDates.has(date),points:points.includes(null)?null:points.reduce((sum,value)=>sum+value,0)};
@@ -58,9 +60,10 @@ export function weeklyPackage(players,feed,weights,dates){
 export function lineupWeek(feed,weights,dates){
  const confirmedDates=new Set(feed.refreshedDates||[]);
  if(!dates.every(date=>confirmedDates.has(date)))return null;
- const slates=[...weeklySlates(feed,dates)].map(([date,games])=>({
-  date,teams:new Set(games.flatMap(game=>[game.home,game.away]))
- }));
+ const slates=[...weeklySlates(feed,dates)].map(([date,games])=>{
+  const known=games.filter(game=>!matchupPending(game));
+  return {date,gameCount:known.length,teams:new Set(known.flatMap(game=>[game.home,game.away]))};
+ });
  const optimized=new Map();
  const playerValues=new Map();
  return players=>{
@@ -76,20 +79,37 @@ export function lineupWeek(feed,weights,dates){
    if(value)eligiblePlayers.push(value);
    else missing.push(player.name);
   }
-  const daily=slates.map(({date,teams})=>{
+  const daily=slates.map(({date,gameCount,teams})=>{
    const playing=eligiblePlayers.filter(player=>teams.has(player.nba));
    const key=JSON.stringify(playing.map(player=>player.id));
    if(!optimized.has(key)){
-    if(optimized.size>=2048)optimized.clear();
+    if(optimized.size>=8192)optimized.clear();
     const {score,assignment}=optimizeLineup(playing);
     const starters=assignment.flatMap((player,index)=>player?[{player,slot:slots[index]}]:[]);
     const bench=playing.filter(player=>!assignment.includes(player));
-    optimized.set(key,{score,starters,bench});
+    const open=assignment.flatMap((player,index)=>player?[]:[slots[index]]);
+    optimized.set(key,{score,starters,bench,open});
    }
-   return {date,...optimized.get(key)};
+   return {date,gameCount,...optimized.get(key)};
   });
   return {daily,missing,points:daily.reduce((total,day)=>total+day.score,0),benched:daily.reduce((total,day)=>total+day.bench.length,0)};
  };
+}
+
+export function lineupHorizon(feed,weights,now=new Date()){
+ const today=easternDay(now);
+ const dateGroups=Array.from({length:lineupWeekCount},(_,offset)=>easternWeek(offset,now));
+ const slates=weeklySlates(feed,dateGroups.flat());
+ const todayGames=slates.get(today);
+ const locked=todayGames.some(game=>!matchupPending(game)&&(game.completed||Date.parse(game.date)<=+now));
+ const refreshed=new Set(feed.refreshedDates||[]);
+ const weeks=dateGroups.map(dates=>{
+  const remaining=dates.filter(date=>date>today||date===today&&!locked);
+  return {dates,remaining,covered:remaining.every(date=>refreshed.has(date)),tbd:remaining.some(date=>slates.get(date).some(matchupPending))};
+ });
+ const scoredDates=weeks.flatMap(week=>week.covered?week.remaining:[]);
+ const project=scoredDates.length?lineupWeek(feed,weights,scoredDates):null;
+ return {weeks,project,scope:scoredDates.join(',')};
 }
 
 export function rankLineupTargets(project,players,outgoing,targets){

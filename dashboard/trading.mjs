@@ -1,7 +1,7 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
 import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=big-balls-nov19';
 import {bigBalls} from './big-balls.mjs?v=2026-11-19';
-import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,lineupWeek,rankLineupTargets,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=lineup-fit';
+import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,lineupHorizon,lineupWeekCount,rankLineupTargets,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=five-weeks';
 
 const $=selector=>document.querySelector(selector);
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -84,7 +84,7 @@ const search=$('#picker-search');
 const sort=$('#picker-sort');
 const picks={a:[],b:[]};
 const candidates={a:new Set(),b:new Set()};
-let offers=[],lineupTargets=[];
+let offers=[],lineupTargets=[],targetRanking;
 const roster={...defaultRoster,a:{open:0,ilOut:0,ilIn:0,players:[]},b:{open:0,ilOut:0,ilIn:0,players:[]}};
 const rosterPanel=$('#trade-roster');
 const settingsKey='real-balliggas-trade-weights';
@@ -145,7 +145,7 @@ function activateTrade(save){
  settings.hidden=true;
  board.hidden=false;
  renderTrade();
- loadPlayers();
+ loadPlayers().then(data=>{if(data)renderTrade();});
  loadInjuries();
  loadInjuryHistory();
  loadOutlook();
@@ -271,7 +271,7 @@ function renderTrade(){
  colorNumbers(board);
 }
 
-function renderSuggestions(){
+function renderSuggestions(rank=false){
  if(suggestionsPanel.hidden)return;
  const status=$('#suggestion-status'),results=$('#suggestion-results'),pools=$('#suggestion-pools');
  if(!dataset){status.textContent='Loading players…';return;}
@@ -301,7 +301,7 @@ function renderSuggestions(){
   const offerSide=(key,pkg)=>`<p>${feedbackManager(key)} sends ${pkg.players.map(player=>nbaBadge(player.nba,player.name)).join(' ')} · <strong class="trade-fp">${format(pkg.points)} FP/game</strong></p>`;
   return `<article class="suggestion-offer"><header><strong>${a.players.length}-for-${b.players.length} · ${format(balance.percentage)}% gap</strong><button type="button" class="button" data-load-offer="${index}">Load in Hub</button></header>${offerSide('a',a)}${offerSide('b',b)}</article>`;
  }).join('');
- renderLineupTargets(selected,byName);
+ renderLineupTargets(selected,byName,rank);
  colorNumbers(suggestionsPanel);
 }
 
@@ -317,6 +317,13 @@ suggestionsPanel.addEventListener('change',event=>{
 });
 
 suggestionsPanel.addEventListener('click',event=>{
+ if(event.target.closest('#rank-lineup-targets')){
+  const button=$('#rank-lineup-targets');
+  button.disabled=true;
+  $('#target-status').textContent='Checking five weeks of lineup fits…';
+  setTimeout(()=>renderSuggestions(true),50);
+  return;
+ }
  const action=event.target.closest('[data-load-offer], [data-load-target], [data-suggestion-pick]');
  if(!action)return;
  if(action.dataset.loadOffer!==undefined||action.dataset.loadTarget!==undefined){
@@ -473,7 +480,7 @@ function injuryHistoryTable(incoming){
 function loadOutlook(){
  if(outlookRequest)return outlookRequest;
  outlookFailed=false;
- outlookRequest=fetch('./trade-outlook.json?v=lineup-fit').then(async response=>{
+ outlookRequest=fetch('./trade-outlook.json?v=five-weeks').then(async response=>{
   if(!response.ok)throw new Error('NBA schedule unavailable');
   const feed=await response.json();
   if(!Array.isArray(feed.games))throw new Error('Invalid NBA schedule');
@@ -486,46 +493,90 @@ const shortDate=new Intl.DateTimeFormat('en-US',{timeZone:'UTC',month:'short',da
 const weekdayDate=new Intl.DateTimeFormat('en-US',{timeZone:'UTC',weekday:'short',month:'short',day:'numeric'});
 const slateDate=date=>new Date(`${date}T12:00:00Z`);
 
-function nextLineupWeek(){
- const dates=easternWeek(1);
- if(lineupProjection?.feed!==outlookData||lineupProjection?.weights!==weights||lineupProjection?.dates[0]!==dates[0]){
-  lineupProjection={
-   feed:outlookData,weights,dates,
-   project:outlookData?lineupWeek(outlookData,weights,dates):null
-  };
+function currentHorizon(){
+ const now=new Date();
+ if(lineupProjection?.feed!==outlookData||lineupProjection?.weights!==weights||lineupProjection?.minute!==Math.floor(+now/60000)){
+  const horizon=lineupHorizon(outlookData||{},weights,now);
+  const prior=lineupProjection;
+  const project=prior?.feed===outlookData&&prior?.weights===weights&&prior?.scope===horizon.scope?prior.project:horizon.project;
+  lineupProjection={...horizon,feed:outlookData,weights,minute:Math.floor(+now/60000),project};
  }
  return lineupProjection;
 }
 
-const lineupDateLabel=dates=>`Next week · ${shortDate.format(slateDate(dates[0]))} – ${shortDate.format(slateDate(dates.at(-1)))} ET`;
-const lineupScheduleStatus=()=>outlookData?'The NBA schedule for next week is incomplete.':outlookFailed?'NBA schedule unavailable.':'Loading NBA schedule…';
+const lineupDateLabel=(first,last=first)=>`${shortDate.format(slateDate(first[0]))} – ${shortDate.format(slateDate(last.at(-1)))} ET`;
+const lineupScheduleStatus=()=>outlookData?'Schedule coverage is incomplete.':outlookFailed?'NBA schedule unavailable.':'Loading NBA schedule…';
+const weekName=index=>index===0?'This week, remaining':index===1?'Next week':`In ${index} weeks`;
 const rosterPlayers=(team,byName)=>team.players.map(name=>byName.get(playerKey(name))||{id:`missing:${playerKey(name)}`,name});
 const lineupAssumptions=teams=>[
  'Uses season averages and the Big Balls starting slots. Saved IL players sit.',
  teams.some(team=>team.unassigned?.length)?'Players with unconfirmed roster spots are excluded.':''
 ].filter(Boolean).join(' ');
 
+function lineupTips(daily){
+ const slates=daily.filter(day=>day.gameCount);
+ const busy=[...slates].sort((a,b)=>b.bench.length-a.bench.length).find(day=>day.bench.length);
+ const light=[...slates].sort((a,b)=>b.open.length-a.open.length||b.gameCount-a.gameCount).find(day=>day.open.length);
+ const label=day=>weekdayDate.format(slateDate(day.date));
+ const tips=[
+  busy&&`Set your lineup for <strong>${label(busy)}</strong>. Bench ${busy.bench.map(player=>esc(player.name)).join(', ')} to use the higher projected starters below.`,
+  light&&`Check streamers for <strong>${label(light)}</strong>. Open slots: ${[...new Set(light.open)].map(slot=>`${slot} ×${light.open.filter(value=>value===slot).length}`).join(' · ')}.`
+ ].filter(Boolean);
+ return tips.length?`<ul class="lineup-tips">${tips.map(tip=>`<li>${tip}</li>`).join('')}</ul>`:'';
+}
+
+function lineupForecast(before,after,weeks){
+ const beforeDays=new Map(before?.daily.map(day=>[day.date,day]));
+ const afterDays=new Map(after?.daily.map(day=>[day.date,day]));
+ const score=days=>days.reduce((sum,day)=>sum+day.score,0);
+ const rows=weeks.map(({dates,remaining,covered,tbd},index)=>{
+  const heading=`<th scope="row">${weekName(index)}<small class="sub form-coverage">${lineupDateLabel(dates)}${tbd?' · Matchups TBD':''}</small></th>`;
+  if(!covered||!remaining.length)return `<tr>${heading}<td colspan="3">${covered?'No slates left':'Schedule incomplete'}</td></tr>`;
+  const base=score(remaining.map(date=>beforeDays.get(date)));
+  const newPoints=after?score(remaining.map(date=>afterDays.get(date))):null;
+  const delta=newPoints===null?null:Math.round((newPoints-base)*100)/100;
+  return `<tr>${heading}<td>${format(base)}</td><td>${format(newPoints)}</td><td class="${tone(delta)}">${signed(delta)}</td></tr>`;
+ }).join('');
+ const focus=after||before;
+ const groups=weeks.map(({remaining,covered},index)=>{
+  if(!covered||!remaining.length)return '';
+  const days=remaining.map(date=>(after?afterDays:beforeDays).get(date));
+  const daily=days.map(day=>{
+   const starters=day.starters.map(({player,slot})=>`${slot} ${esc(player.name)}`).join(' · ');
+   const bench=day.bench.map(player=>esc(player.name)).join(', ');
+   return `<tr><th scope="row">${shortDate.format(slateDate(day.date))}</th><td>${format(day.score)}</td><td>${starters||'—'}</td><td>${bench||'—'}</td></tr>`;
+  }).join('');
+  return `<details><summary>${weekName(index)} · Best daily starts</summary><div class="table-wrap"><table><thead><tr><th scope="col">ET date</th><th scope="col">FP</th><th scope="col">Start</th><th scope="col">Bench</th></tr></thead><tbody>${daily}</tbody></table></div></details>`;
+ }).join('');
+ const missing=[...new Set([...(before?.missing||[]),...(after?.missing||[])])];
+ const delta=after?Math.round((after.points-before.points)*100)/100:null;
+ const total=before?`<tfoot><tr><th scope="row">${weeks.every(week=>week.covered)?'Total':'Covered total'}</th><td>${format(before.points)}</td><td>${format(after?.points??null)}</td><td class="${tone(delta)}">${signed(delta)}</td></tr></tfoot>`:'';
+ return `<div class="table-wrap"><table class="lineup-totals"><thead><tr><th scope="col">Week</th><th scope="col">Before FP</th><th scope="col">After FP</th><th scope="col">Net FP</th></tr></thead><tbody>${rows}</tbody>${total}</table></div>
+  ${missing.length?`<p class="sub">Partial estimate. Missing projection data for ${missing.map(esc).join(', ')}.</p>`:''}
+  ${focus?lineupTips(focus.daily):''}${groups}`;
+}
+
 function renderLineupFit(selected,adjustments){
  const section=$('#lineup-fit');
- section.hidden=!adjustments;
- if(!adjustments)return;
- const {dates,project}=nextLineupWeek();
- $('#lineup-week').textContent=lineupDateLabel(dates);
  const results=$('#lineup-results');
  const saved={a:rosterBook.getTeam('a'),b:rosterBook.getTeam('b')};
- if(!saved.a||!saved.b){results.innerHTML='<p class="sub">Choose both saved teams to compare starting lineups.</p>';return;}
- if(saved.a.team===saved.b.team){results.innerHTML='<p class="sub">Choose two different saved teams.</p>';return;}
- if(['a','b'].some(key=>!selected[key].every(savedRosterFilter(saved[key].config,saved[key].team,'trade')))){
-  results.innerHTML='<p class="sub">Each outgoing player must belong to their selected saved team.</p>';
-  return;
- }
- if(!project){results.innerHTML=`<p class="sub">${lineupScheduleStatus()}</p>`;return;}
+ section.hidden=!adjustments&&!saved.a&&!saved.b;
+ if(section.hidden)return;
+ const {weeks,project}=currentHorizon();
+ $('#lineup-week').textContent=lineupDateLabel(weeks[0].dates,weeks.at(-1).dates);
+ if(!saved.a&&!saved.b){results.innerHTML='<p class="sub">Choose saved teams to see their legal starting lineup projections.</p>';return;}
+ if(saved.a?.team===saved.b?.team){results.innerHTML='<p class="sub">Choose two different saved teams.</p>';return;}
+ if(!dataset||!outlookData){results.innerHTML=`<p class="sub">${!dataset?'Player stats loading…':lineupScheduleStatus()}</p>`;return;}
+ const canTrade=adjustments&&saved.a&&saved.b&&['a','b'].every(key=>selected[key].every(savedRosterFilter(saved[key].config,saved[key].team,'trade')));
  const byName=new Map(dataset.players.map(player=>[playerKey(player.name),player]));
- const cards=['a','b'].map(key=>{
-  const {team,config}=saved[key],opponent=saved[other(key)].team;
-  const before=project(rosterPlayers(team,byName));
+ const cards=['a','b'].filter(key=>saved[key]).map(key=>{
+  const {team,config}=saved[key];
+  const active=rosterPlayers(team,byName);
+  const before=project?.(active);
   const heading=`<h3 class="manager-${key}-text">${managerLabel(key)}</h3><p class="sub">${esc(team.name)}</p>`;
-  const fail=reason=>`${heading}<p class="sub">${reason}</p>`;
+  const fail=reason=>`${heading}<p class="sub">${reason}</p>${lineupForecast(before,null,weeks)}`;
+  if(!canTrade||!project)return heading+lineupForecast(before,null,weeks);
+  const opponent=saved[other(key)].team;
   if([...selected[key],...selected[other(key)]].some(player=>[...(team.unassigned||[]),...(opponent.unassigned||[])].some(name=>playerKey(name)===playerKey(player.name))))return fail('Confirm the roster spots of the traded players to compare this lineup.');
   const injured=new Set(opponent.injured.map(playerKey));
   const incoming=selected[other(key)].filter(player=>!injured.has(playerKey(player.name)));
@@ -535,32 +586,25 @@ function renderLineupFit(selected,adjustments){
   const adjustment=adjustments[key];
   const removed=new Set([...selected[key],...(adjustment.mode==='Cut'?adjustment.players:[])].map(player=>player.id));
   const afterPlayers=[
-   ...rosterPlayers(team,byName).filter(player=>!removed.has(player.id)),
+   ...active.filter(player=>!removed.has(player.id)),
    ...incoming,...(adjustment.mode==='Pickup'?adjustment.players:[])
   ];
   if(new Set(afterPlayers.map(player=>player.id)).size!==afterPlayers.length)return fail('An incoming player is already on this saved team.');
   if(afterPlayers.length>config.regular)return fail('Choose the remaining cuts in Roster adjustments.');
   const after=project(afterPlayers);
-  const gain=Math.round((after.points-before.points)*100)/100;
-  const missing=[...new Set([...before.missing,...after.missing])];
-  const rows=before.daily.map((day,index)=>{
-   const next=after.daily[index];
-   const bench=next.bench.length?next.bench.map(player=>esc(player.name)).join(', '):'—';
-   return `<tr><th scope="row">${shortDate.format(slateDate(day.date))}</th><td>${format(day.score)}</td><td>${format(next.score)}</td><td>${bench}</td></tr>`;
-  }).join('');
-  return `${heading}<strong class="manager-net ${tone(gain)}">${signed(gain)} FP</strong>
-   <dl><div><dt>Before</dt><dd>${format(before.points)} FP</dd></div><div><dt>After</dt><dd>${format(after.points)} FP</dd></div><div><dt>Benched games</dt><dd>${before.benched} → ${after.benched}</dd></div></dl>
-   ${missing.length?`<p class="sub">Partial estimate. Missing projection data for ${missing.map(esc).join(', ')}.</p>`:''}
-   <details><summary>Daily lineup fit</summary><div class="table-wrap"><table aria-label="Daily projected starter points and bench after trade"><thead><tr><th scope="col">ET date</th><th scope="col">Before FP</th><th scope="col">After FP</th><th scope="col">Bench after trade</th></tr></thead><tbody>${rows}</tbody></table></div></details>`;
+  return heading+lineupForecast(before,after,weeks);
  });
- results.innerHTML=`<p class="sub">${lineupAssumptions([saved.a.team,saved.b.team])} Includes any selected cuts and pickups.</p>
+ const tradeNote=!saved.a||!saved.b?'Choose two saved teams and a trade to see after-trade totals.':adjustments&&!canTrade?'Each outgoing player must belong to their selected saved team.':'';
+ results.innerHTML=`<p class="sub">${lineupAssumptions(Object.values(saved).filter(Boolean).map(item=>item.team))} This week starts with the next slate that has yet to tip. TBD matchups appear as ESPN schedules them. ${canTrade?'Includes selected cuts and pickups.':tradeNote}</p>
   <div class="manager-impacts lineup-fit-grid">${cards.map(card=>`<section class="manager-impact lineup-fit-card">${card}</section>`).join('')}</div>`;
 }
 
-function renderLineupTargets(selected,byName){
- const {dates,project}=nextLineupWeek();
+function renderLineupTargets(selected,byName,rank){
+ const {weeks,project}=currentHorizon();
  const status=$('#target-status'),results=$('#target-results');
- $('#target-week').textContent=lineupDateLabel(dates);
+ const button=$('#rank-lineup-targets');
+ button.disabled=true;
+ $('#target-week').textContent=lineupDateLabel(weeks[0].dates,weeks.at(-1).dates);
  results.innerHTML='';
  lineupTargets=[];
  const {team:teamA}=rosterScope('a','trade'),{team:teamB}=rosterScope('b','trade');
@@ -571,16 +615,27 @@ function renderLineupTargets(selected,byName){
   b:rosterPlayers(teamB,byName)
  };
  const pool=key=>regular[key].filter(player=>player.nba&&(!selected[key].length||candidates[key].has(player.id)));
- const outgoing=pool('a'),targets=pool('b');
+ const outgoing=pool('a');
  const owned=new Set([...teamA.players,...teamA.injured,...(teamA.unassigned||[])].map(playerKey));
- lineupTargets=rankLineupTargets(project,regular.a,outgoing,targets.filter(player=>!owned.has(playerKey(player.name)))).slice(0,6);
+ const targets=pool('b').filter(player=>!owned.has(playerKey(player.name)));
+ const key=JSON.stringify([regular.a,outgoing,targets].map(group=>group.map(player=>player.id)));
+ const coverage=weeks.filter(week=>week.covered).length;
+ const scope=coverage===lineupWeekCount?'five weeks':`${coverage} weeks with schedule coverage`;
+ if(!outgoing.length||!targets.length){status.textContent='Choose regular-roster players on both sides to rank swaps.';return;}
+ button.disabled=false;
+ if(rank)targetRanking={key,project,results:rankLineupTargets(project,regular.a,outgoing,targets).slice(0,6)};
+ if(targetRanking?.key!==key||targetRanking.project!==project){
+  status.textContent=`Rank one-for-one swaps for ${teamA.name} by added starter FP across ${scope}.`;
+  return;
+ }
+ lineupTargets=targetRanking.results;
  const missing=project(regular.a).missing;
  const note=missing.length?` Partial estimate. Missing projection data for ${missing.join(', ')}.`:'';
- status.textContent=`Best one-for-one swaps for ${teamA.name} by added starter FP. ${lineupAssumptions([teamA,teamB])}${note}`;
+ status.textContent=`Best one-for-one swaps for ${teamA.name} across ${scope}. ${lineupAssumptions([teamA,teamB])}${note}`;
  if(!lineupTargets.length)status.textContent+=' No projected lineup gains among these players.';
  results.innerHTML=lineupTargets.map(({target,send,gain,starts},index)=>{
   const extra=starts.filter(start=>start.extra);
-  const reason=extra.length?`Fills ${extra.map(({date,slot})=>`${shortDate.format(slateDate(date))} ${slot}`).join(', ')}.`:
+  const reason=extra.length?`Adds ${extra.length} starts on dates with room, including ${extra.slice(0,3).map(({date,slot})=>`${shortDate.format(slateDate(date))} ${slot}`).join(', ')}.`:
    `Projects to start in ${starts.length} games.`;
   const balance=tradeBalance(fp(send),fp(target));
   const gap=balance?` · ${format(balance.percentage)}% season FP/game gap`:'';
@@ -612,7 +667,7 @@ function renderWeekly(incoming){
  const feedback=margin===null?'Full-week totals are unavailable for one or both sides.':Math.abs(margin)<.005?'Even on the weekly projection.':`${feedbackManager(leader)} gains <strong class="fp-gain">${format(Math.abs(margin))} projected FP</strong> for the week.`;
  const cell=({games,points,covered=true})=>`<td class="num">${covered?games:'—'}</td><td class="num"><b class="trade-fp">${format(covered?points:null)}</b></td>`;
  const rows=dates.map((date,index)=>`<tr><th scope="row">${weekdayDate.format(slateDate(date))}</th>${cell(a.daily[index])}${cell(b.daily[index])}</tr>`).join('');
- target.innerHTML=`<section class="trade-subsection"><div class="weekly-heading"><h3>Weekly comparison</h3><select id="trade-week-offset" aria-label="Comparison week"><option value="0" ${weeklyOffset===0?'selected':''}>This week</option><option value="1" ${weeklyOffset===1?'selected':''}>Next week</option></select></div><p class="sub">${shortDate.format(slateDate(dates[0]))}–${shortDate.format(slateDate(dates[6]))} ET · Monday–Sunday Eastern, typically Tuesday–Monday Manila.</p><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th scope="col" rowspan="2">NBA slate (ET)</th><th class="num" colspan="2" scope="colgroup">${managerLabel('a')} receives</th><th class="num" colspan="2" scope="colgroup">${managerLabel('b')} receives</th></tr><tr><th scope="col" class="num">Player-games</th><th scope="col" class="num">Proj. FP</th><th scope="col" class="num">Player-games</th><th scope="col" class="num">Proj. FP</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><th scope="row">Week total</th>${cell({games:a.games,points:a.total})}${cell({games:b.games,points:b.total})}</tr></tfoot></table></div><p class="weekly-feedback">${feedback}</p><p class="sub">Season FP per game × scheduled games for the players received. Assumes each player plays every listed game, including earlier slates in this week’s comparison. ${a.covered?'':'Schedule coverage is incomplete for this week.'}</p></section>`;
+ target.innerHTML=`<section class="trade-subsection"><div class="weekly-heading"><h3>Incoming player schedule</h3><select id="trade-week-offset" aria-label="Comparison week">${Array.from({length:lineupWeekCount},(_,index)=>`<option value="${index}" ${weeklyOffset===index?'selected':''}>${index===0?'This week':weekName(index)}</option>`).join('')}</select></div><p class="sub">${shortDate.format(slateDate(dates[0]))}–${shortDate.format(slateDate(dates[6]))} ET · Monday–Sunday Eastern, typically Tuesday–Monday Manila.</p><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th scope="col" rowspan="2">NBA slate (ET)</th><th class="num" colspan="2" scope="colgroup">${managerLabel('a')} receives</th><th class="num" colspan="2" scope="colgroup">${managerLabel('b')} receives</th></tr><tr><th scope="col" class="num">Player-games</th><th scope="col" class="num">Proj. FP</th><th scope="col" class="num">Player-games</th><th scope="col" class="num">Proj. FP</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><th scope="row">Week total</th>${cell({games:a.games,points:a.total})}${cell({games:b.games,points:b.total})}</tr></tfoot></table></div><p class="weekly-feedback">${feedback}</p><p class="sub">Season FP per game × scheduled games for the players received. Includes all scheduled games for the incoming players. See Lineup Fit for starting-slot limits and remaining slates. ${a.covered?'':'Schedule coverage is incomplete for this week.'}</p></section>`;
 }
 
 $('#trade-weekly').addEventListener('change',event=>{
