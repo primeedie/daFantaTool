@@ -55,6 +55,10 @@
 .suggestion-offer {border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--paper)}
 .suggestion-offer header {display:flex;align-items:baseline;justify-content:space-between;gap:8px 12px;flex-wrap:wrap}
 .suggestion-offer p {margin:6px 0}
+.swap-impacts {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,19rem),1fr));gap:12px;margin:12px 0 16px}
+.swap-impacts > div {min-width:0;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.swap-impacts dt {display:flex;align-items:baseline;justify-content:space-between;gap:4px 10px;flex-wrap:wrap}
+.swap-impacts dd {margin:7px 0 0;line-height:1.6}
 .lineup-fit-card {min-width:0}
 .lineup-fit-card h3 {overflow-wrap:anywhere}
 .lineup-fit-card details {margin-top:14px}

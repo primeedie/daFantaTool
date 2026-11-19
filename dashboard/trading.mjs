@@ -1,7 +1,7 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
 import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=desktop-team-colors';
 import {bigBalls} from './big-balls.mjs?v=2026-11-19';
-import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,lineupHorizon,lineupWeekCount,rankLineupTargets,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=lineup-planner';
+import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,lineupHorizon,lineupWeekCount,rankLineupTargets,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=swap-explanations';
 
 const $=selector=>document.querySelector(selector);
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -635,18 +635,23 @@ function renderLineupTargets(selected,rank){
  status.textContent=`One-for-one swaps within 10% on season FP/game across ${scope}. ${lineupAssumptions([teamA,teamB])}`;
  if(missing.length)status.insertAdjacentHTML('beforeend',` Partial estimate. Missing projection data for ${missing.map(namedPlayerBadge).join(', ')}.`);
  if(!lineupTargets.length)status.append(' No swaps improve your lineup while preserving the other team’s projected points.');
- results.innerHTML=lineupTargets.map(({target,send,gain,opponentGain,balance,starts},index)=>{
-  const extra=starts.filter(start=>start.extra);
-  const reason=extra.length?`Adds ${extra.length} starts on dates with room, including ${extra.slice(0,3).map(({date,slot})=>`${shortDate.format(slateDate(date))} ${slot}`).join(', ')}.`:
-   `Projects to start in ${starts.length} games.`;
+ results.innerHTML=lineupTargets.map(({target,send,gain,opponentGain,balance,impact},index)=>{
   return `<article class="suggestion-offer">
    <header><h3>Receive ${nbaBadge(target.nba,target.name)}</h3><span class="sub">${format(balance.percentage)}% season FP/game gap</span></header>
    <p>Send ${nbaBadge(send.nba,send.name)}</p>
-   <p>${feedbackManager('a')} <strong class="${tone(gain)}">${signed(gain)} starter FP</strong> · ${feedbackManager('b')} <strong class="${tone(opponentGain)}">${signed(opponentGain)} starter FP</strong></p>
-   <p class="sub">${reason}</p>
+   <dl class="swap-impacts">${swapImpactDetails('a',target,send,gain,impact.a)}${swapImpactDetails('b',send,target,opponentGain,impact.b)}</dl>
    <button class="button" type="button" data-load-target="${index}">Review lineup</button>
   </article>`;
  }).join('');
+}
+
+function swapImpactDetails(key,received,sent,gain,{incomingStarts,outgoingStarts,otherStarterDelta,bestDay,starterShift}){
+ const starts=count=>`${count} projected start${count===1?'':'s'}`;
+ const peak=bestDay?` Biggest lift is <strong>${shortDate.format(slateDate(bestDay.date))} ET</strong> <strong class="fp-gain">(${signed(bestDay.gain)} lineup FP)</strong>${bestDay.slot?` with the incoming player at ${bestDay.slot}`:''}.`:'';
+ const shift=starterShift?`, with ${playerBadge(starterShift.player)} getting ${Math.abs(starterShift.starts)} ${starterShift.starts>0?'more':'fewer'} start${Math.abs(starterShift.starts)===1?'':'s'}`:'';
+ const reshuffle=otherStarterDelta?` Other starters ${otherStarterDelta>0?'gain':'lose'} ${format(Math.abs(otherStarterDelta))} FP overall${shift}.`:'';
+ return `<div><dt>${feedbackManager(key)} <strong class="${tone(gain)}">${signed(gain)} starter FP</strong></dt>
+  <dd>${playerBadge(received)} gets <strong>${starts(incomingStarts)}</strong> vs. ${outgoingStarts} for ${playerBadge(sent)}.${peak}${reshuffle}</dd></div>`;
 }
 
 function weekComparison(incoming,offset){

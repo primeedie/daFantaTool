@@ -61,7 +61,8 @@ test('lineup targets favor usable starts and apply league eligibility across the
  assert.equal(best.target.id,'guard');
  assert.equal(best.gain,2);
  assert.equal(best.opponentGain,38);
- assert.deepEqual(best.starts,[{date:dates.at(-1),slot:'PG',extra:true}]);
+ assert.deepEqual(best.impact.a,{outgoingStarts:1,incomingStarts:1,otherStarterDelta:0,bestDay:{date:dates.at(-1),slot:'PG',gain:40},starterShift:null});
+ assert.deepEqual(best.impact.b,{outgoingStarts:0,incomingStarts:1,otherStarterDelta:0,bestDay:{date:dates[0],slot:'PG',gain:38},starterShift:null});
  assert.equal(lineupWeek({...feed,refreshedDates:dates.slice(0,-1)},{pts:2},dates),null);
 });
 

@@ -112,6 +112,35 @@ export function lineupHorizon(feed,weights,now=new Date()){
  return {weeks,project,scope:scoredDates.join(',')};
 }
 
+function lineupSwapImpact(before,after,sent,received){
+ let outgoingStarts=0,incomingStarts=0,playerDelta=0,bestDay=null;
+ const otherStarts=new Map();
+ const countOtherStarts=(starters,excluded,change)=>{
+  for(const {player} of starters){
+   if(player.id===excluded.id)continue;
+   const starts=(otherStarts.get(player.id)?.starts??0)+change;
+   otherStarts.set(player.id,{player,starts});
+  }
+ };
+ for(const [index,day] of after.daily.entries()){
+  const prior=before.daily[index];
+  const outgoing=prior.starters.find(({player})=>player.id===sent.id);
+  const incoming=day.starters.find(({player})=>player.id===received.id);
+  outgoingStarts+=Number(Boolean(outgoing));
+  incomingStarts+=Number(Boolean(incoming));
+  playerDelta+=(incoming?.player.fpts??0)-(outgoing?.player.fpts??0);
+  countOtherStarts(prior.starters,sent,-1);
+  countOtherStarts(day.starters,received,1);
+  const gain=Math.round((day.score-prior.score)*100)/100;
+  if(gain>(bestDay?.gain??0))bestDay={date:day.date,gain,slot:incoming?.slot??null};
+ }
+ const otherStarterDelta=Math.round((after.points-before.points-playerDelta)*100)/100;
+ const direction=Math.sign(otherStarterDelta);
+ const starterShift=[...otherStarts.values()].filter(({starts,player})=>starts*player.fpts*direction>0)
+  .sort((a,b)=>direction*(b.starts*b.player.fpts-a.starts*a.player.fpts))[0]??null;
+ return {outgoingStarts,incomingStarts,otherStarterDelta,bestDay,starterShift};
+}
+
 export function rankLineupTargets(project,rosters,outgoing,targets,weights){
  const before=project(rosters.a),opponentBefore=project(rosters.b);
  const scores=new Map([...outgoing,...targets].map(player=>[player.id,tradePoints(player.stats,weights)]));
@@ -129,11 +158,10 @@ export function rankLineupTargets(project,rosters,outgoing,targets,weights){
    const opponentAfter=project(rosters.b.map(player=>player.id===target.id?send:player));
    const opponentGain=Math.round((opponentAfter.points-opponentBefore.points)*100)/100;
    if(opponentGain<0||best&&gain===best.gain&&opponentGain<=best.opponentGain)continue;
-   const starts=after.daily.flatMap((day,index)=>{
-    const start=day.starters.find(({player})=>player.id===target.id);
-    return start?[{date:day.date,slot:start.slot,extra:day.starters.length>before.daily[index].starters.length}]:[];
-   });
-   best={target,send,gain,opponentGain,balance,starts};
+   best={target,send,gain,opponentGain,balance,impact:{
+    a:lineupSwapImpact(before,after,send,target),
+    b:lineupSwapImpact(opponentBefore,opponentAfter,target,send)
+   }};
   }
   if(best)ranked.push(best);
  }
