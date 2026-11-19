@@ -112,26 +112,32 @@ export function lineupHorizon(feed,weights,now=new Date()){
  return {weeks,project,scope:scoredDates.join(',')};
 }
 
-export function rankLineupTargets(project,players,outgoing,targets){
- const before=project(players);
+export function rankLineupTargets(project,rosters,outgoing,targets,weights){
+ const before=project(rosters.a),opponentBefore=project(rosters.b);
+ const scores=new Map([...outgoing,...targets].map(player=>[player.id,tradePoints(player.stats,weights)]));
  const available=outgoing.filter(player=>!before.missing.includes(player.name));
  const ranked=[];
  for(const target of targets){
+  if(opponentBefore.missing.includes(target.name))continue;
   let best;
   for(const send of available){
-   const after=project(players.map(player=>player.id===send.id?target:player));
-   if(after.missing.includes(target.name))break;
-   const gain=after.points-before.points;
-   if(gain<=1e-6||best&&gain<=best.gain)continue;
+   const balance=tradeBalance(scores.get(send.id),scores.get(target.id));
+   if(balance?.level!=='fair')continue;
+   const after=project(rosters.a.map(player=>player.id===send.id?target:player));
+   const gain=Math.round((after.points-before.points)*100)/100;
+   if(gain<=0||best&&gain<best.gain)continue;
+   const opponentAfter=project(rosters.b.map(player=>player.id===target.id?send:player));
+   const opponentGain=Math.round((opponentAfter.points-opponentBefore.points)*100)/100;
+   if(opponentGain<0||best&&gain===best.gain&&opponentGain<=best.opponentGain)continue;
    const starts=after.daily.flatMap((day,index)=>{
     const start=day.starters.find(({player})=>player.id===target.id);
     return start?[{date:day.date,slot:start.slot,extra:day.starters.length>before.daily[index].starters.length}]:[];
    });
-   best={target,send,gain,starts};
+   best={target,send,gain,opponentGain,balance,starts};
   }
   if(best)ranked.push(best);
  }
- return ranked.sort((a,b)=>b.gain-a.gain||a.target.name.localeCompare(b.target.name));
+ return ranked.sort((a,b)=>b.gain-a.gain||b.opponentGain-a.opponentGain||a.target.name.localeCompare(b.target.name));
 }
 
 export function historicalAvailability(player,record,currentSeason,weights){

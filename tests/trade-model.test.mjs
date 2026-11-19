@@ -38,9 +38,11 @@ test('lineup targets favor usable starts and apply league eligibility across the
  const dates=easternWeek(1,new Date('2026-11-19T11:00Z'));
  const player=(id,nba,position,pts)=>({id,name:id,nba,position,stats:{pts}});
  const centers=[40,35,30,25].map(pts=>player(`center${pts}`,'DEN','C',pts));
- const send=player('send','LAC','PG',12);
+ const send=player('send','LAC','PG',19);
  const center=player('center24','DEN','C',24);
  const guard=player('guard','BOS','F',20);
+ const costly=player('costly','BOS','PF',20);
+ const uneven=player('uneven','BOS','PG',40);
  const games=[
   {date:'2026-11-24T02:00Z',home:'DEN',away:'LAC'},
   {date:'2026-11-30T04:30Z',home:'BOS',away:'NYK'},
@@ -48,14 +50,17 @@ test('lineup targets favor usable starts and apply league eligibility across the
  ];
  const feed={refreshedDates:dates,games,positions:{guard:['PG']}};
  const project=lineupWeek(feed,{pts:2},dates);
- assert.equal(project([...centers,send]).points,284);
+ assert.equal(project([...centers,send]).points,298);
  assert.equal(project([...centers,center]).benched,1);
  assert.equal(project([...centers,center]).daily[0].starters.filter(row=>row.slot==='C').length,2);
  assert.deepEqual(project([{id:'unknown',name:'Unknown'}]).missing,['Unknown']);
- const [best,other]=rankLineupTargets(project,[...centers,send],[send],[center,guard]);
+ const opponent=Array.from({length:4},(_,index)=>player(`guard${index}`,'BOS','PG',45));
+ const candidates=[center,guard,costly,uneven];
+ const [best,other]=rankLineupTargets(project,{a:[...centers,send],b:[...opponent,...candidates]},[send],candidates,{pts:2});
  assert.equal(other,undefined);
  assert.equal(best.target.id,'guard');
- assert.equal(best.gain,16);
+ assert.equal(best.gain,2);
+ assert.equal(best.opponentGain,38);
  assert.deepEqual(best.starts,[{date:dates.at(-1),slot:'PG',extra:true}]);
  assert.equal(lineupWeek({...feed,refreshedDates:dates.slice(0,-1)},{pts:2},dates),null);
 });

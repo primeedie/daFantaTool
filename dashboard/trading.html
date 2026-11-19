@@ -7,9 +7,9 @@
  <link rel="icon" href="./player-logo.png?v=3">
  <link rel="stylesheet" href="./style.css">
  <link rel="stylesheet" href="./font.css?v=logo-contrast">
- <link rel="stylesheet" href="./trading.css?v=five-weeks">
+ <link rel="stylesheet" href="./trading.css?v=lineup-planner">
  <script type="module" src="./theme.mjs?v=logo-contrast"></script>
- <script type="module" src="./trading.mjs?v=five-weeks"></script>
+ <script type="module" src="./trading.mjs?v=lineup-planner"></script>
 </head>
 <body class="trade-page">
  <header class="site-header"><div class="masthead">
@@ -46,6 +46,7 @@
   <section id="trade-board" hidden>
    <div class="trade-tabs" id="trade-tabs" role="tablist" aria-label="Trade views">
     <button id="hub-tab" class="button" type="button" role="tab" aria-selected="true" aria-controls="hub-panel">Trading Hub</button>
+    <button id="lineup-tab" class="button" type="button" role="tab" aria-selected="false" aria-controls="lineup-panel" tabindex="-1">Lineup Planner</button>
     <button id="breakdown-tab" class="button" type="button" role="tab" aria-selected="false" aria-controls="breakdown-panel" tabindex="-1">Trade Breakdown</button>
     <button id="desk-tab" class="button" type="button" role="tab" aria-selected="false" aria-controls="desk-panel" tabindex="-1">Trade Desk</button>
     <button id="suggestions-tab" class="button" type="button" role="tab" aria-selected="false" aria-controls="suggestions-panel" tabindex="-1">Trade Suggestions</button>
@@ -110,10 +111,6 @@
      </details>
      <div id="roster-results" class="manager-impacts"></div>
     </section>
-    <section id="lineup-fit" class="panel panel-body trade-balance" aria-labelledby="lineup-fit-title" hidden>
-     <div class="roster-heading"><h2 id="lineup-fit-title">Five-week lineup fit</h2><span class="sub" id="lineup-week"></span></div>
-     <div id="lineup-results"></div>
-    </section>
     <section id="trade-summary" class="panel panel-body trade-balance" aria-labelledby="trade-summary-title" hidden>
      <h2 id="trade-summary-title">TL;DR</h2>
      <p id="trade-summary-result"></p>
@@ -124,6 +121,12 @@
       <div><dt>Injury history</dt><dd id="trade-summary-history"></dd></div>
       <div id="trade-summary-roster-row" hidden><dt>Roster-adjusted net</dt><dd id="trade-summary-roster"></dd></div>
      </dl>
+    </section>
+   </div>
+   <div id="lineup-panel" role="tabpanel" aria-labelledby="lineup-tab" tabindex="0" hidden>
+    <section id="lineup-fit" class="panel panel-body trade-balance" aria-labelledby="lineup-fit-title">
+     <div class="roster-heading"><h2 id="lineup-fit-title">Five-week lineup fit</h2><span class="sub" id="lineup-week"></span></div>
+     <div id="lineup-results"></div>
     </section>
    </div>
    <div id="breakdown-panel" role="tabpanel" aria-labelledby="breakdown-tab" tabindex="0" hidden>

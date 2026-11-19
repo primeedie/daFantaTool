@@ -1,7 +1,7 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
 import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=big-balls-nov19';
 import {bigBalls} from './big-balls.mjs?v=2026-11-19';
-import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,lineupHorizon,lineupWeekCount,rankLineupTargets,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=five-weeks';
+import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,lineupHorizon,lineupWeekCount,rankLineupTargets,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=lineup-planner';
 
 const $=selector=>document.querySelector(selector);
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -334,9 +334,10 @@ suggestionsPanel.addEventListener('click',event=>{
    picks[key]=players.map(player=>player.id);
    Object.assign(roster[key],{ilOut:0,ilIn:0,players:[]});
   }
-  selectTradeTab($('#hub-tab'));
+  const tab=offer?$('#hub-tab'):$('#lineup-tab');
+  selectTradeTab(tab);
   renderTrade();
-  $('#hub-tab').focus();
+  tab.focus();
   return;
  }
  const key=action.dataset.suggestionPick;
@@ -557,14 +558,11 @@ function lineupForecast(before,after,weeks){
 }
 
 function renderLineupFit(selected,adjustments){
- const section=$('#lineup-fit');
  const results=$('#lineup-results');
  const saved={a:rosterBook.getTeam('a'),b:rosterBook.getTeam('b')};
- section.hidden=!adjustments&&!saved.a&&!saved.b;
- if(section.hidden)return;
+ if(!saved.a&&!saved.b){results.innerHTML='<p class="sub">Choose a saved team above to see its five-week projection.</p>';return;}
  const {weeks,project}=currentHorizon();
  $('#lineup-week').textContent=lineupDateLabel(weeks[0].dates,weeks.at(-1).dates);
- if(!saved.a&&!saved.b){results.innerHTML='<p class="sub">Choose saved teams to see their legal starting lineup projections.</p>';return;}
  if(saved.a?.team===saved.b?.team){results.innerHTML='<p class="sub">Choose two different saved teams.</p>';return;}
  if(!dataset||!outlookData){results.innerHTML=`<p class="sub">${!dataset?'Player stats loading…':lineupScheduleStatus()}</p>`;return;}
  const canTrade=adjustments&&saved.a&&saved.b&&['a','b'].every(key=>selected[key].every(savedRosterFilter(saved[key].config,saved[key].team,'trade')));
@@ -615,34 +613,36 @@ function renderLineupTargets(selected,byName,rank){
   b:rosterPlayers(teamB,byName)
  };
  const pool=key=>regular[key].filter(player=>player.nba&&(!selected[key].length||candidates[key].has(player.id)));
- const outgoing=pool('a');
- const owned=new Set([...teamA.players,...teamA.injured,...(teamA.unassigned||[])].map(playerKey));
- const targets=pool('b').filter(player=>!owned.has(playerKey(player.name)));
- const key=JSON.stringify([regular.a,outgoing,targets].map(group=>group.map(player=>player.id)));
+ const available=(key,opponent)=>{
+  const owned=new Set([...opponent.players,...opponent.injured,...(opponent.unassigned||[])].map(playerKey));
+  return pool(key).filter(player=>!owned.has(playerKey(player.name)));
+ };
+ const outgoing=available('a',teamB),targets=available('b',teamA);
+ const key=JSON.stringify([regular.a,regular.b,outgoing,targets].map(group=>group.map(player=>player.id)));
  const coverage=weeks.filter(week=>week.covered).length;
  const scope=coverage===lineupWeekCount?'five weeks':`${coverage} weeks with schedule coverage`;
  if(!outgoing.length||!targets.length){status.textContent='Choose regular-roster players on both sides to rank swaps.';return;}
  button.disabled=false;
- if(rank)targetRanking={key,project,results:rankLineupTargets(project,regular.a,outgoing,targets).slice(0,6)};
+ if(rank)targetRanking={key,project,results:rankLineupTargets(project,regular,outgoing,targets,weights).slice(0,6)};
  if(targetRanking?.key!==key||targetRanking.project!==project){
-  status.textContent=`Rank one-for-one swaps for ${teamA.name} by added starter FP across ${scope}.`;
+  status.textContent=`Find one-for-one swaps within 10% on season FP/game that help ${teamA.name} without costing ${teamB.name} starter FP across ${scope}.`;
   return;
  }
  lineupTargets=targetRanking.results;
- const missing=project(regular.a).missing;
+ const missing=[...new Set([...project(regular.a).missing,...project(regular.b).missing])];
  const note=missing.length?` Partial estimate. Missing projection data for ${missing.join(', ')}.`:'';
- status.textContent=`Best one-for-one swaps for ${teamA.name} across ${scope}. ${lineupAssumptions([teamA,teamB])}${note}`;
- if(!lineupTargets.length)status.textContent+=' No projected lineup gains among these players.';
- results.innerHTML=lineupTargets.map(({target,send,gain,starts},index)=>{
+ status.textContent=`One-for-one swaps within 10% on season FP/game across ${scope}. ${lineupAssumptions([teamA,teamB])}${note}`;
+ if(!lineupTargets.length)status.textContent+=' No swaps improve your lineup while preserving the other team’s projected points.';
+ results.innerHTML=lineupTargets.map(({target,send,gain,opponentGain,balance,starts},index)=>{
   const extra=starts.filter(start=>start.extra);
   const reason=extra.length?`Adds ${extra.length} starts on dates with room, including ${extra.slice(0,3).map(({date,slot})=>`${shortDate.format(slateDate(date))} ${slot}`).join(', ')}.`:
    `Projects to start in ${starts.length} games.`;
-  const balance=tradeBalance(fp(send),fp(target));
-  const gap=balance?` · ${format(balance.percentage)}% season FP/game gap`:'';
   return `<article class="suggestion-offer">
-   <header><h3>${nbaBadge(target.nba,target.name)}</h3><strong class="fp-gain">${signed(gain)} starter FP</strong></header>
-   <p>Send ${nbaBadge(send.nba,send.name)}${gap}</p><p class="sub">${reason}</p>
-   <button class="button" type="button" data-load-target="${index}">Load in Hub</button>
+   <header><h3>Receive ${nbaBadge(target.nba,target.name)}</h3><span class="sub">${format(balance.percentage)}% season FP/game gap</span></header>
+   <p>Send ${nbaBadge(send.nba,send.name)}</p>
+   <p>${feedbackManager('a')} <strong class="${tone(gain)}">${signed(gain)} starter FP</strong> · ${feedbackManager('b')} <strong class="${tone(opponentGain)}">${signed(opponentGain)} starter FP</strong></p>
+   <p class="sub">${reason}</p>
+   <button class="button" type="button" data-load-target="${index}">Review lineup</button>
   </article>`;
  }).join('');
 }
