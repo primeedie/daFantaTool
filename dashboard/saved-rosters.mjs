@@ -1,4 +1,4 @@
-import {playerKey} from './public-ui.mjs';
+import {nbaBadge,playerKey} from './public-ui.mjs';
 import {bigBalls} from './big-balls.mjs?v=2026-11-19';
 
 const storageKey='dafantatool.saved-rosters.v1';
@@ -57,7 +57,7 @@ export function parseRosterConfig(hash){
  } catch {return null;}
 }
 
-export function setupRosterBook(onChange,openFreeAgents,openRosterPicker){
+export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPlayers){
  const $=selector=>document.querySelector(selector);
  const dialog=$('#saved-rosters-dialog'),form=$('#saved-rosters-form');
  const configs=$('#saved-config-select'),teams=$('#saved-team-select');
@@ -99,6 +99,22 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker){
   value('unassignedPlayers').value=team?.unassigned?.join('\n')||'';
   $('#unassigned-roster-field').hidden=!team?.unassigned?.length;
   $('#share-saved-team').disabled=!team;
+  const publicView=current()===bigBalls;
+  const previews=[...form.querySelectorAll('[data-roster-preview]')];
+  for(const preview of previews){
+   const field=value(preview.dataset.rosterPreview);
+   field.hidden=publicView;
+   preview.hidden=!publicView;
+   preview.textContent=field.value?'Loading players…':'—';
+  }
+  if(publicView)loadPlayers().then(data=>{
+   if(current()!==bigBalls||currentTeam()!==team)return;
+   const byName=new Map((data?.players||[]).map(player=>[playerKey(player.name),player.nba]));
+   for(const preview of previews){
+    const names=playerList(value(preview.dataset.rosterPreview).value);
+    preview.innerHTML=names.map(name=>nbaBadge(byName.get(playerKey(name)),name)).join(' ')||'—';
+   }
+  });
  }
  function selectConfig(index='',teamIndex='0'){
   configs.replaceChildren(option('New configuration',''),option('Big Balls (public)',bigBalls.id),...library.map((config,i)=>option(`${config.name} (local)`,i)));

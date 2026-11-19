@@ -7,9 +7,9 @@
  <link rel="icon" href="./player-logo.png?v=3">
  <link rel="stylesheet" href="./style.css">
  <link rel="stylesheet" href="./font.css?v=logo-contrast">
- <link rel="stylesheet" href="./trading.css?v=lineup-planner">
+ <link rel="stylesheet" href="./trading.css?v=desktop-team-colors">
  <script type="module" src="./theme.mjs?v=logo-contrast"></script>
- <script type="module" src="./trading.mjs?v=lineup-planner"></script>
+ <script type="module" src="./trading.mjs?v=desktop-team-colors"></script>
 </head>
 <body class="trade-page">
  <header class="site-header"><div class="masthead">
@@ -76,6 +76,7 @@
     <span class="trade-exchange" aria-hidden="true">⇄</span>
    </div>
    <div id="hub-panel" role="tabpanel" aria-labelledby="hub-tab" tabindex="0">
+    <p id="hub-empty" class="trade-tab-empty sub">Add a player from each manager to compare a trade.</p>
     <section id="trade-balance" class="panel panel-body trade-balance" aria-labelledby="trade-balance-title" hidden>
      <div class="balance-heading"><h2 id="trade-balance-title">Trade balance</h2><strong id="trade-verdict" aria-live="polite"></strong></div>
      <div class="balance-scale" id="trade-scale" role="img" aria-label="Trade balance scale">
@@ -200,12 +201,14 @@
     <div class="saved-roster-entry">
      <div><label for="regular-players">Regular roster</label><button class="button" type="button" data-draft-roster="regular" aria-label="Search for regular roster players">Search players</button></div>
      <textarea id="regular-players" name="regularPlayers" rows="6" maxlength="6000"></textarea>
+     <div class="saved-roster-preview" data-roster-preview="regularPlayers" hidden></div>
     </div>
     <div class="saved-roster-entry">
      <div><label for="injured-players">Injured list</label><button class="button" type="button" data-draft-roster="il" aria-label="Search for injured list players">Search players</button></div>
      <textarea id="injured-players" name="injuredPlayers" rows="6" maxlength="6000"></textarea>
+     <div class="saved-roster-preview" data-roster-preview="injuredPlayers" hidden></div>
     </div>
-    <label id="unassigned-roster-field" hidden>Roster slot unconfirmed <textarea name="unassignedPlayers" rows="2" maxlength="6000"></textarea></label>
+    <div id="unassigned-roster-field" hidden><label for="unassigned-players">Roster slot unconfirmed</label> <textarea id="unassigned-players" name="unassignedPlayers" rows="2" maxlength="6000"></textarea><div class="saved-roster-preview" data-roster-preview="unassignedPlayers" hidden></div></div>
    </div>
    <div class="entry-actions">
     <button class="button primary" id="save-roster-team" type="submit">Save team</button>

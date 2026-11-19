@@ -1,10 +1,12 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
-import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=big-balls-nov19';
+import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=desktop-team-colors';
 import {bigBalls} from './big-balls.mjs?v=2026-11-19';
 import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,lineupHorizon,lineupWeekCount,rankLineupTargets,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=lineup-planner';
 
 const $=selector=>document.querySelector(selector);
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+const playerBadge=player=>nbaBadge(player.nba,player.name);
+const namedPlayerBadge=name=>nbaBadge(playersByName.get(playerKey(name))?.nba,name);
 const number=new Intl.NumberFormat('en-US',{maximumFractionDigits:2});
 const format=value=>value===null?'—':number.format(value);
 const signed=value=>value===null?'—':`${value>0?'+':''}${format(value)}`;
@@ -90,6 +92,7 @@ const rosterPanel=$('#trade-roster');
 const settingsKey='real-balliggas-trade-weights';
 let weights,side='a',pickerPurpose='trade',pickerLeague,draftPicker,dataset,dataRequest,rosterBook;
 let currentRanks=new Map();
+let playersByName=new Map();
 let injuryData,injuryRequest;
 let injuryHistoryData,historyRequest,historyFailed=false;
 let outlookData,outlookRequest,outlookFailed=false;
@@ -275,13 +278,12 @@ function renderSuggestions(rank=false){
  if(suggestionsPanel.hidden)return;
  const status=$('#suggestion-status'),results=$('#suggestion-results'),pools=$('#suggestion-pools');
  if(!dataset){status.textContent='Loading players…';return;}
- const byName=new Map(dataset.players.map(player=>[playerKey(player.name),player]));
  const selected={};
  pools.innerHTML=['a','b'].map(key=>{
   const {team,allows}=rosterScope(key,'trade');
   const rosterRows=team?[...team.players.map(name=>({name})),...team.injured.map(name=>({name,slot:'IL'})),...(team.unassigned||[]).map(name=>({name,slot:'Slot unconfirmed'}))]:
    [...candidates[key]].map(id=>({name:dataset.players.find(player=>player.id===id)?.name||''}));
-  const rows=rosterRows.map(row=>({...row,player:byName.get(playerKey(row.name))}));
+  const rows=rosterRows.map(row=>({...row,player:playersByName.get(playerKey(row.name))}));
   const valid=new Set(rows.map(row=>row.player).filter(player=>player&&allows(player)).map(player=>player.id));
   for(const id of candidates[key])if(!valid.has(id))candidates[key].delete(id);
   selected[key]=rows.map(row=>row.player).filter(player=>player&&candidates[key].has(player.id));
@@ -291,7 +293,7 @@ function renderSuggestions(rank=false){
    const checked=candidates[key].has(id);
    const points=player?fp(player):null;
    const disabled=points===null||candidates[other(key)].has(id)||!checked&&candidates[key].size>=suggestionPoolLimit;
-   return `<label><input type="checkbox" data-candidate="${esc(id)}" data-side="${key}" ${checked?'checked':''} ${disabled?'disabled':''}><span>${esc(name)}${slot?` <small class="sub">${esc(slot)}</small>`:''}</span><small class="${points!==null?'trade-fp':'sub'}">${points!==null?`${format(points)} FP`:'No stats'}</small></label>`;
+   return `<label><input type="checkbox" data-candidate="${esc(id)}" data-side="${key}" ${checked?'checked':''} ${disabled?'disabled':''}><span>${nbaBadge(player?.nba,name)}${slot?` <small class="sub">${esc(slot)}</small>`:''}</span><small class="${points!==null?'trade-fp':'sub'}">${points!==null?`${format(points)} FP`:'No stats'}</small></label>`;
   }).join('');
   return `<section class="manager-impact"><h3 class="manager-${key}-text">${heading}</h3>${team?`<p class="sub">${esc(team.name)} · ${candidates[key].size} marked</p>`:''}<div class="suggestion-pool-list">${list}</div>${team?'':`<button class="button" type="button" data-suggestion-pick="${key}" ${candidates[key].size>=suggestionPoolLimit?'disabled':''}>${key==='a'?'Choose players to offer':'Choose targets'}</button>`}</section>`;
  }).join('');
@@ -301,7 +303,7 @@ function renderSuggestions(rank=false){
   const offerSide=(key,pkg)=>`<p>${feedbackManager(key)} sends ${pkg.players.map(player=>nbaBadge(player.nba,player.name)).join(' ')} · <strong class="trade-fp">${format(pkg.points)} FP/game</strong></p>`;
   return `<article class="suggestion-offer"><header><strong>${a.players.length}-for-${b.players.length} · ${format(balance.percentage)}% gap</strong><button type="button" class="button" data-load-offer="${index}">Load in Hub</button></header>${offerSide('a',a)}${offerSide('b',b)}</article>`;
  }).join('');
- renderLineupTargets(selected,byName,rank);
+ renderLineupTargets(selected,rank);
  colorNumbers(suggestionsPanel);
 }
 
@@ -467,7 +469,8 @@ function injuryHistoryTable(incoming){
   const sample=historicalAvailability(player,record,currentSeason,weights);
   const recent=record?.recent.map(({date,reason})=>`${esc(reason)} · ${esc(date)}`).join('<br>')||'—';
   const topAreas=record?.areas.slice(0,2).map(({area,games,seasons})=>`${esc(area)} · ${games} G${seasons>1?` across ${seasons} seasons`:''}`).join('<br>')||'—';
-  const name=record?`<a href="${esc(record.url)}" target="_blank" rel="noopener noreferrer">${esc(player.name)}</a>`:esc(player.name);
+  const badge=playerBadge(player);
+  const name=record?`<a href="${esc(record.url)}" target="_blank" rel="noopener noreferrer">${badge}</a>`:badge;
   return `<tr><th scope="row">${name}<small class="sub form-coverage">To ${managerLabel(key)}</small></th>${years.map(year=>`<td class="num">${record?record.seasons[year]?.injury??0:'—'}</td>`).join('')}<td>${topAreas}</td><td>${recent}</td><td class="num">${sample?.rate==null?'—':`${format(100*sample.rate)}%<small class="sub form-coverage">${sample.missed}/${sample.games} games</small>`}</td><td class="num"><b class="trade-fp">${format(sample?.adjusted??null)}</b></td></tr>`;
  })).join('');
  const adjusted=Object.fromEntries(Object.entries(incoming).map(([key,group])=>{
@@ -508,7 +511,7 @@ function currentHorizon(){
 const lineupDateLabel=(first,last=first)=>`${shortDate.format(slateDate(first[0]))} – ${shortDate.format(slateDate(last.at(-1)))} ET`;
 const lineupScheduleStatus=()=>outlookData?'Schedule coverage is incomplete.':outlookFailed?'NBA schedule unavailable.':'Loading NBA schedule…';
 const weekName=index=>index===0?'This week, remaining':index===1?'Next week':`In ${index} weeks`;
-const rosterPlayers=(team,byName)=>team.players.map(name=>byName.get(playerKey(name))||{id:`missing:${playerKey(name)}`,name});
+const rosterPlayers=team=>team.players.map(name=>playersByName.get(playerKey(name))||{id:`missing:${playerKey(name)}`,name});
 const lineupAssumptions=teams=>[
  'Uses season averages and the Big Balls starting slots. Saved IL players sit.',
  teams.some(team=>team.unassigned?.length)?'Players with unconfirmed roster spots are excluded.':''
@@ -520,7 +523,7 @@ function lineupTips(daily){
  const light=[...slates].sort((a,b)=>b.open.length-a.open.length||b.gameCount-a.gameCount).find(day=>day.open.length);
  const label=day=>weekdayDate.format(slateDate(day.date));
  const tips=[
-  busy&&`Set your lineup for <strong>${label(busy)}</strong>. Bench ${busy.bench.map(player=>esc(player.name)).join(', ')} to use the higher projected starters below.`,
+  busy&&`Set your lineup for <strong>${label(busy)}</strong>. Bench ${busy.bench.map(playerBadge).join(', ')} to use the higher projected starters below.`,
   light&&`Check streamers for <strong>${label(light)}</strong>. Open slots: ${[...new Set(light.open)].map(slot=>`${slot} ×${light.open.filter(value=>value===slot).length}`).join(' · ')}.`
  ].filter(Boolean);
  return tips.length?`<ul class="lineup-tips">${tips.map(tip=>`<li>${tip}</li>`).join('')}</ul>`:'';
@@ -543,9 +546,9 @@ function lineupForecast(before,after,weeks){
   if(!covered||!remaining.length)return '';
   const days=remaining.map(date=>(after?afterDays:beforeDays).get(date));
   const daily=days.map(day=>{
-   const starters=day.starters.map(({player,slot})=>`${slot} ${esc(player.name)}`).join(' · ');
-   const bench=day.bench.map(player=>esc(player.name)).join(', ');
-   return `<tr><th scope="row">${shortDate.format(slateDate(day.date))}</th><td>${format(day.score)}</td><td>${starters||'—'}</td><td>${bench||'—'}</td></tr>`;
+   const starters=day.starters.map(({player,slot})=>`<span class="lineup-slot">${slot} ${playerBadge(player)}</span>`).join('');
+   const bench=day.bench.map(playerBadge).join(' ');
+   return `<tr><th scope="row">${shortDate.format(slateDate(day.date))}</th><td>${format(day.score)}</td><td><div class="lineup-players">${starters||'—'}</div></td><td><div class="lineup-players">${bench||'—'}</div></td></tr>`;
   }).join('');
   return `<details><summary>${weekName(index)} · Best daily starts</summary><div class="table-wrap"><table><thead><tr><th scope="col">ET date</th><th scope="col">FP</th><th scope="col">Start</th><th scope="col">Bench</th></tr></thead><tbody>${daily}</tbody></table></div></details>`;
  }).join('');
@@ -553,7 +556,7 @@ function lineupForecast(before,after,weeks){
  const delta=after?Math.round((after.points-before.points)*100)/100:null;
  const total=before?`<tfoot><tr><th scope="row">${weeks.every(week=>week.covered)?'Total':'Covered total'}</th><td>${format(before.points)}</td><td>${format(after?.points??null)}</td><td class="${tone(delta)}">${signed(delta)}</td></tr></tfoot>`:'';
  return `<div class="table-wrap"><table class="lineup-totals"><thead><tr><th scope="col">Week</th><th scope="col">Before FP</th><th scope="col">After FP</th><th scope="col">Net FP</th></tr></thead><tbody>${rows}</tbody>${total}</table></div>
-  ${missing.length?`<p class="sub">Partial estimate. Missing projection data for ${missing.map(esc).join(', ')}.</p>`:''}
+  ${missing.length?`<p class="sub">Partial estimate. Missing projection data for ${missing.map(namedPlayerBadge).join(', ')}.</p>`:''}
   ${focus?lineupTips(focus.daily):''}${groups}`;
 }
 
@@ -566,10 +569,9 @@ function renderLineupFit(selected,adjustments){
  if(saved.a?.team===saved.b?.team){results.innerHTML='<p class="sub">Choose two different saved teams.</p>';return;}
  if(!dataset||!outlookData){results.innerHTML=`<p class="sub">${!dataset?'Player stats loading…':lineupScheduleStatus()}</p>`;return;}
  const canTrade=adjustments&&saved.a&&saved.b&&['a','b'].every(key=>selected[key].every(savedRosterFilter(saved[key].config,saved[key].team,'trade')));
- const byName=new Map(dataset.players.map(player=>[playerKey(player.name),player]));
  const cards=['a','b'].filter(key=>saved[key]).map(key=>{
   const {team,config}=saved[key];
-  const active=rosterPlayers(team,byName);
+  const active=rosterPlayers(team);
   const before=project?.(active);
   const heading=`<h3 class="manager-${key}-text">${managerLabel(key)}</h3><p class="sub">${esc(team.name)}</p>`;
   const fail=reason=>`${heading}<p class="sub">${reason}</p>${lineupForecast(before,null,weeks)}`;
@@ -597,7 +599,7 @@ function renderLineupFit(selected,adjustments){
   <div class="manager-impacts lineup-fit-grid">${cards.map(card=>`<section class="manager-impact lineup-fit-card">${card}</section>`).join('')}</div>`;
 }
 
-function renderLineupTargets(selected,byName,rank){
+function renderLineupTargets(selected,rank){
  const {weeks,project}=currentHorizon();
  const status=$('#target-status'),results=$('#target-results');
  const button=$('#rank-lineup-targets');
@@ -609,8 +611,8 @@ function renderLineupTargets(selected,byName,rank){
  if(!teamA||!teamB||teamA===teamB){status.textContent='Choose two different saved teams above.';return;}
  if(!project){status.textContent=lineupScheduleStatus();return;}
  const regular={
-  a:rosterPlayers(teamA,byName),
-  b:rosterPlayers(teamB,byName)
+  a:rosterPlayers(teamA),
+  b:rosterPlayers(teamB)
  };
  const pool=key=>regular[key].filter(player=>player.nba&&(!selected[key].length||candidates[key].has(player.id)));
  const available=(key,opponent)=>{
@@ -630,9 +632,9 @@ function renderLineupTargets(selected,byName,rank){
  }
  lineupTargets=targetRanking.results;
  const missing=[...new Set([...project(regular.a).missing,...project(regular.b).missing])];
- const note=missing.length?` Partial estimate. Missing projection data for ${missing.join(', ')}.`:'';
- status.textContent=`One-for-one swaps within 10% on season FP/game across ${scope}. ${lineupAssumptions([teamA,teamB])}${note}`;
- if(!lineupTargets.length)status.textContent+=' No swaps improve your lineup while preserving the other team’s projected points.';
+ status.textContent=`One-for-one swaps within 10% on season FP/game across ${scope}. ${lineupAssumptions([teamA,teamB])}`;
+ if(missing.length)status.insertAdjacentHTML('beforeend',` Partial estimate. Missing projection data for ${missing.map(namedPlayerBadge).join(', ')}.`);
+ if(!lineupTargets.length)status.append(' No swaps improve your lineup while preserving the other team’s projected points.');
  results.innerHTML=lineupTargets.map(({target,send,gain,opponentGain,balance,starts},index)=>{
   const extra=starts.filter(start=>start.extra);
   const reason=extra.length?`Adds ${extra.length} starts on dates with room, including ${extra.slice(0,3).map(({date,slot})=>`${shortDate.format(slateDate(date))} ${slot}`).join(', ')}.`:
@@ -695,8 +697,8 @@ function renderSummary(balance,risks,scenarios,incoming){
  else result.innerHTML=`${edgeLabel[balance.level]} ${feedbackManager(balance.leader)} · <strong class="fp-gain">+${format(balance.gap)} FP/game</strong>`;
 
  const flagged=Object.values(risks).flatMap(risk=>risk.entries.filter(entry=>entry.atRisk));
- const names=flagged.slice(0,2).map(({player,injury})=>`${player.name} (${injury.status})`);
- $('#trade-summary-flags').textContent=flagged.length?`${names.join(', ')}${flagged.length>2?` +${flagged.length-2} more`:''}`:injuryData?'No availability flags in the current feed.':'Injury report unavailable.';
+ const names=flagged.slice(0,2).map(({player,injury})=>`${playerBadge(player)} (${esc(injury.status)})`);
+ $('#trade-summary-flags').innerHTML=flagged.length?`${names.join(', ')}${flagged.length>2?` +${flagged.length-2} more`:''}`:injuryData?'No availability flags in the current feed.':'Injury report unavailable.';
 
  const edge=(comparison,unit)=>comparison?.leader?`${feedbackManager(comparison.leader)} <strong class="fp-gain">+${format(comparison.gap)} ${unit}</strong>`:comparison?'Even':'Unavailable';
  const floor=tradeBalance(scenarios?.a?.floor,scenarios?.b?.floor);
@@ -708,7 +710,7 @@ function renderSummary(balance,risks,scenarios,incoming){
  const availability=injuryHistoryData&&[...incoming.a,...incoming.b].map(player=>({player,sample:historicalAvailability(player,injuryHistoryData.players[player.id],injuryHistoryData.currentSeason,weights)}))
   .filter(({sample})=>sample?.rate!=null).sort((a,b)=>b.sample.missed-a.sample.missed);
  const highest=availability?.[0];
- $('#trade-summary-history').textContent=highest?.sample.missed?`${highest.player.name} had ${highest.sample.missed} documented injury absences in the completed seasons covered.`:highest?'No documented injury absences in the samples available.':'Insufficient injury history.';
+ $('#trade-summary-history').innerHTML=highest?.sample.missed?`${playerBadge(highest.player)} had ${highest.sample.missed} documented injury absences in the completed seasons covered.`:highest?'No documented injury absences in the samples available.':'Insufficient injury history.';
 }
 
 function renderContext(selected,totals,balance,rosterResults){
@@ -751,7 +753,7 @@ function renderContext(selected,totals,balance,rosterResults){
    const note=injury?.noteUrl?`<a href="${esc(injury.noteUrl)}" target="_blank" rel="noopener noreferrer">${esc(injury.noteArea)} update</a> · ${esc(injury.noteDate)}`:
     injury?.injury?esc(injury.injury):'';
    const sample=smallSample?(player.games>0?`Only ${player.games} GP`:'No season sample in this data'):'';
-   return `<li><strong>${esc(player.name)}</strong><div class="sub">${[status,note,sample].filter(Boolean).join(' · ')}</div></li>`;
+   return `<li><strong>${playerBadge(player)}</strong><div class="sub">${[status,note,sample].filter(Boolean).join(' · ')}</div></li>`;
   }).join('');
   return `<section class="trade-risk-side"><h3 class="manager-${key}-text">${managerLabel(key)} receives</h3><p class="sub risk-summary">${summary}</p>${details?`<ul>${details}</ul>`:''}</section>`;
  }).join('');
@@ -785,7 +787,7 @@ function gamesPlayedTable(selected){
  const years=[...new Set(rows.flatMap(({player})=>Object.keys(player.history||{})))].sort();
  if(!years.length)return '';
  const heading=year=>`${year}–${String(Number(year)+1).slice(-2)}`;
- return `<section class="trade-subsection"><h3>Games played by season</h3><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Player</th><th>Goes to</th>${years.map(year=>`<th class="num">${heading(year)}</th>`).join('')}<th class="num">This season</th></tr></thead><tbody>${rows.map(({key,player})=>`<tr><th scope="row">${esc(player.name)}</th><td class="manager-${key}-text">${managerLabel(key)}</td>${years.map(year=>`<td class="num">${player.history?.[year]??'—'}</td>`).join('')}<td class="num">${player.games??'—'}</td></tr>`).join('')}</tbody></table></div><p class="sub">Games played measures availability. It doesn’t tell us why someone missed time.</p></section>`;
+ return `<section class="trade-subsection"><h3>Games played by season</h3><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Player</th><th>Goes to</th>${years.map(year=>`<th class="num">${heading(year)}</th>`).join('')}<th class="num">This season</th></tr></thead><tbody>${rows.map(({key,player})=>`<tr><th scope="row">${playerBadge(player)}</th><td class="manager-${key}-text">${managerLabel(key)}</td>${years.map(year=>`<td class="num">${player.history?.[year]??'—'}</td>`).join('')}<td class="num">${player.games??'—'}</td></tr>`).join('')}</tbody></table></div><p class="sub">Games played measures availability. It doesn’t tell us why someone missed time.</p></section>`;
 }
 
 function formTable(rows){
@@ -917,17 +919,29 @@ function tradeAnswer(question){
 
 function askTrade(question){
  if(!question||!chatTrade?.incoming.a.length||!chatTrade.incoming.b.length)return;
+ const players=new Map([...chatTrade.incoming.a,...chatTrade.incoming.b].map(player=>[player.name.toLowerCase(),player]));
+ const names=[...players.keys()].sort((a,b)=>b.length-a.length)
+  .map(name=>name.replace(/[.*+?^$(){}|[\]\\]/g,'\\$&'));
+ const mentions=new RegExp(`(?<![\\p{L}\\p{N}])(?:${names.join('|')})(?![\\p{L}\\p{N}])`,'giu');
+ const colorMentions=text=>{
+  let html='',offset=0;
+  for(const match of text.matchAll(mentions)){
+   html+=esc(text.slice(offset,match.index))+nbaBadge(players.get(match[0].toLowerCase())?.nba,match[0]);
+   offset=match.index+match[0].length;
+  }
+  return html+esc(text.slice(offset));
+ };
  const turns=$('#trade-chat-log');
  const turn=document.createElement('article');
  turn.className='chat-turn';
  const prompt=document.createElement('p');
  prompt.className='chat-question';
- prompt.textContent=question;
+ prompt.innerHTML=colorMentions(question);
  const answer=document.createElement('div');
  answer.className='chat-answer';
  for(const text of tradeAnswer(question).split('\n')){
   const paragraph=document.createElement('p');
-  paragraph.textContent=text;
+  paragraph.innerHTML=colorMentions(text);
   answer.append(paragraph);
  }
  turn.append(prompt,answer);
@@ -951,6 +965,7 @@ async function loadPlayers(){
   const data=await response.json();
   if(!data.players?.length)throw new Error('Empty player data');
   dataset=data;
+  playersByName=new Map(data.players.map(player=>[playerKey(player.name),player]));
   if(weights)currentRanks=seasonRanks(data.players,weights);
   const asOf=new Date(data.updatedAt).toLocaleDateString('en-PH',{timeZone:'Asia/Manila',month:'short',day:'numeric'});
   $('#trade-sources').innerHTML=`<a href="${esc(data.statsUrl)}" target="_blank" rel="noopener noreferrer">RotoWire season stats</a> · checked ${esc(asOf)} · <a href="${esc(data.rankUrl)}" target="_blank" rel="noopener noreferrer">Draft ranks</a> (${esc(data.rankDate)})`;
@@ -995,7 +1010,7 @@ function renderPicker(){
   const lead=sort.value==='draft'?rankText(player.rank):rankText(seasonRank(player));
   const selectionLabel=suggesting?'Marked':entry?'On roster':'Added';
   const limitLabel=suggesting?'Mark limit reached':'Roster full';
-  const cells=`<span>${lead}</span><span><strong>${esc(player.name)}</strong><span class="sub">${nbaBadge(player.nba)} ${esc(player.position)} · ${rankSummary(player)}</span></span><span class="${!selected&&!full&&points!==null?'trade-fp':''}">${selected?selectionLabel:full?limitLabel:points===null?(weights?'No stats':''):`${format(points)} FP`}</span>`;
+  const cells=`<span>${lead}</span><span><strong>${playerBadge(player)}</strong><span class="sub">${nbaBadge(player.nba)} ${esc(player.position)} · ${rankSummary(player)}</span></span><span class="${!selected&&!full&&points!==null?'trade-fp':''}">${selected?selectionLabel:full?limitLabel:points===null?(weights?'No stats':''):`${format(points)} FP`}</span>`;
   return browsing?`<div class="picker-row">${cells}</div>`:`<button class="picker-row" type="button" data-player-id="${esc(player.id)}" ${selected||full||suggesting&&points===null?'disabled':''}>${cells}</button>`;
  }).join('');
  colorNumbers(results);
@@ -1072,7 +1087,7 @@ rosterBook=setupRosterBook((config,key)=>{
  pickerPurpose='draft';
  if(!weights)sort.value='draft';
  openPicker(entry.title);
-});
+},loadPlayers);
 
 if(sharedTrade){
  activateTrade(false);
