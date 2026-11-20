@@ -66,7 +66,7 @@ export function lineupWeek(feed,weights,dates){
  });
  const optimized=new Map();
  const playerValues=new Map();
- return players=>{
+ return (players,returnPlan)=>{
   const missing=[];
   const eligiblePlayers=[];
   for(const player of players){
@@ -80,8 +80,13 @@ export function lineupWeek(feed,weights,dates){
    else missing.push(player.name);
   }
   const daily=slates.map(({date,gameCount,teams})=>{
-   const playing=eligiblePlayers.filter(player=>teams.has(player.nba));
-   const key=JSON.stringify(playing.map(player=>player.id));
+   const playing=eligiblePlayers.flatMap(player=>{
+    if(!teams.has(player.nba))return [];
+    if(returnPlan?.drop===player.id&&date>=returnPlan.from)return [];
+    if(returnPlan?.player!==player.id)return [player];
+    return date>=returnPlan.from?[{...player,fpts:player.fpts*returnPlan.scale}]:[];
+   });
+   const key=JSON.stringify(playing.map(player=>[player.id,player.fpts]));
    if(!optimized.has(key)){
     if(optimized.size>=8192)optimized.clear();
     const {score,assignment}=optimizeLineup(playing);

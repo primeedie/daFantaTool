@@ -7,9 +7,9 @@
  <link rel="icon" href="./player-logo.png?v=3">
  <link rel="stylesheet" href="./style.css">
  <link rel="stylesheet" href="./font.css?v=logo-contrast">
- <link rel="stylesheet" href="./trading.css?v=swap-explanations">
+ <link rel="stylesheet" href="./trading.css?v=roster-tools">
  <script type="module" src="./theme.mjs?v=logo-contrast"></script>
- <script type="module" src="./trading.mjs?v=small-balls"></script>
+ <script type="module" src="./trading.mjs?v=roster-tools"></script>
 </head>
 <body class="trade-page">
  <header class="site-header"><div class="masthead">
@@ -51,6 +51,7 @@
     <button id="breakdown-tab" class="button" type="button" role="tab" aria-selected="false" aria-controls="breakdown-panel" tabindex="-1">Trade Breakdown</button>
     <button id="desk-tab" class="button" type="button" role="tab" aria-selected="false" aria-controls="desk-panel" tabindex="-1">Trade Desk</button>
     <button id="suggestions-tab" class="button" type="button" role="tab" aria-selected="false" aria-controls="suggestions-panel" tabindex="-1">Trade Suggestions</button>
+    <button id="roster-tools-tab" class="button" type="button" role="tab" aria-selected="false" aria-controls="roster-tools-panel" tabindex="-1">Roster Tools</button>
    </div>
    <div class="trade-toolbar">
     <button class="button trade-command" id="edit-scoring" type="button"><span aria-hidden="true">≡</span> Edit scoring</button>
@@ -182,6 +183,45 @@
      <p class="sub" id="target-status" role="status"></p>
      <button id="rank-lineup-targets" class="button primary" type="button" disabled>Rank swaps</button>
      <div id="target-results" class="suggestion-results"></div>
+    </section>
+   </div>
+   <div id="roster-tools-panel" role="tabpanel" aria-labelledby="roster-tools-tab" tabindex="0" hidden>
+    <section class="panel panel-body trade-balance">
+     <div class="roster-heading"><h2>Streamer Finder</h2><label for="roster-tools-manager">Plan for <select id="roster-tools-manager"><option value="a">Manager A</option><option value="b">Manager B</option></select></label></div>
+     <p id="roster-tools-note" class="sub"></p>
+     <form id="streamer-form">
+      <div class="planner-fields">
+       <label>From (ET)<input type="date" name="from" required></label>
+       <label>Through (ET)<input type="date" name="through" required></label>
+       <label>Weekly adds left at start<input type="number" name="adds" min="0" max="99" step="1" value="1" required></label>
+       <label>Drop<select name="drop"></select></label>
+      </div>
+      <button class="button primary" type="submit">Find streamers</button>
+      <button class="button" type="submit" value="compare">Trade vs. Waivers</button>
+     </form>
+     <p id="streamer-status" class="sub" role="status"></p>
+     <div id="streamer-results"></div>
+    </section>
+    <section class="panel panel-body trade-balance">
+     <h2>Counteroffer Builder</h2>
+     <p class="sub">Edit one player in the proposed trade. Compare five-week starter points and required cuts.</p>
+     <button id="find-counters" class="button primary" type="button">Find counteroffers</button>
+     <p id="counter-status" class="sub" role="status"></p>
+     <div id="counter-results" class="suggestion-results"></div>
+    </section>
+    <section class="panel panel-body trade-balance">
+     <h2>Injury Return Scenarios</h2>
+     <form id="return-form">
+      <div class="planner-fields">
+       <label>IL player<select name="player" required></select></label>
+       <label>Return date (ET)<input name="from" type="date" required></label>
+       <label>Limited production (% of usual FP)<input name="scale" type="number" min="1" max="100" step="1" value="70" required></label>
+       <label>Drop on activation<select name="drop"></select></label>
+      </div>
+      <button class="button primary" type="submit">Compare return scenarios</button>
+     </form>
+     <p id="return-status" class="sub" role="status"></p>
+     <div id="return-results"></div>
     </section>
    </div>
    <p id="trade-sources" class="sub"></p>

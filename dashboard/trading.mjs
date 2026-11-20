@@ -2,7 +2,8 @@ import {nbaBadge,playerKey} from './public-ui.mjs';
 import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=small-balls';
 import {bigBalls} from './big-balls.mjs?v=2026-11-20';
 import {smallBalls} from './small-balls.mjs?v=2026-11-20';
-import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,lineupHorizon,lineupWeekCount,rankLineupTargets,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=il-estimates';
+import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,lineupWeek,lineupHorizon,lineupWeekCount,rankLineupTargets,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=roster-tools';
+import {rankStreamers,tradedRoster,counteroffers} from './trade-planner.mjs?v=roster-tools';
 
 const $=selector=>document.querySelector(selector);
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -68,6 +69,7 @@ function selectTradeTab(active){
    else $('#suggestion-status').textContent='Player data unavailable.';
   });
  }
+ if(!$('#roster-tools-panel').hidden)renderRosterTools();
 }
 tabList.addEventListener('click',event=>{
  const tab=event.target.closest('[role="tab"]');
@@ -88,6 +90,7 @@ const sort=$('#picker-sort');
 const picks={a:[],b:[]};
 const candidates={a:new Set(),b:new Set()};
 let offers=[],lineupTargets=[],targetRanking;
+let plannerState,counterResults=[];
 const roster={...defaultRoster,a:{open:0,ilOut:0,ilIn:0,players:[]},b:{open:0,ilOut:0,ilIn:0,players:[]}};
 const rosterPanel=$('#trade-roster');
 const requestedLeague=new URLSearchParams(location.search).get('league');
@@ -273,9 +276,11 @@ function renderTrade(){
  }
  const balance=renderBalance(totals);
  const rosterResults=renderRoster(selected,totals);
+ plannerState={offer:selected,adjustments:rosterResults};
  renderLineupFit(selected,rosterResults);
  renderContext(selected,totals,balance,rosterResults);
  if(!suggestionsPanel.hidden)renderSuggestions();
+ if(!$('#roster-tools-panel').hidden)renderRosterTools();
  shareButton.disabled=!dataset||!(selected.a.length||selected.b.length);
  colorNumbers(board);
 }
@@ -665,6 +670,163 @@ function swapImpactDetails(key,received,sent,gain,{incomingStarts,outgoingStarts
  return `<div><dt>${feedbackManager(key)} <strong class="${tone(gain)}">${signed(gain)} starter FP</strong></dt>
   <dd>${playerBadge(received)} gets <strong>${starts(incomingStarts)}</strong> vs. ${outgoingStarts} for ${playerBadge(sent)}.${peak}${reshuffle}</dd></div>`;
 }
+
+const plannerPanel=$('#roster-tools-panel');
+const streamForm=$('#streamer-form'),returnForm=$('#return-form');
+const toolManager=$('#roster-tools-manager');
+const field=(form,name)=>form.elements.namedItem(name);
+const rounded=value=>Math.round(value*100)/100;
+const pointsGain=value=>`<strong class="${tone(value)}">${signed(rounded(value))} FP</strong>`;
+const listBadges=players=>players.map(playerBadge).join(' ');
+
+function toolRosters(){
+ return Object.fromEntries(['a','b'].map(key=>{
+  const saved=rosterBook?.getTeam(key);
+  if(!saved)return [key,null];
+  const {team,config}=saved;
+  return [key,{team,config,active:rosterPlayers(team),injured:rosterPlayers({players:team.injured}),regular:config.regular,il:config.il}];
+ }));
+}
+
+function toolSelect(select,players,label){
+ const prior=select.value;
+ select.replaceChildren(new Option(label,''),...players.map(player=>new Option(player.name,player.id)));
+ select.value=[...select.options].some(option=>option.value===prior)?prior:'';
+}
+
+function renderRosterTools(){
+ const {weeks}=currentHorizon(),side=toolRosters()[toolManager.value];
+ const dates=weeks.flatMap(week=>week.remaining);
+ const from=dates[0],through=dates.at(-1);
+ for(const [form,name] of [[streamForm,'from'],[streamForm,'through'],[returnForm,'from']]){
+  const input=field(form,name);
+  input.min=from||'';
+  input.max=through||'';
+  if(from&&(!input.value||input.value<from||input.value>through))input.value=name==='through'?(weeks.find(week=>week.remaining.length)?.remaining.at(-1)||through):from;
+ }
+ for(const key of ['a','b'])toolManager.querySelector(`option[value="${key}"]`).textContent=rosterBook?.getTeam(key)?.team.name||manager(key);
+ const ready=Boolean(side&&dataset&&outlookData&&!side.team.unassigned?.length);
+ $('#roster-tools-note').textContent=!side?'Choose a saved team above.':side.team.unassigned?.length?'Resolve unconfirmed roster slots in a saved copy first.':!ready?'Loading the schedule and player stats…':'One pickup per comparison. Availability is based on the saved roster snapshot. Check Yahoo for waiver timing.';
+ toolSelect(field(streamForm,'drop'),side?.active||[],side?.active.length>=side?.regular?'Choose a drop':'Use open roster spot');
+ const adds=field(streamForm,'adds');
+ adds.max=side?.config.id?'4':'99';
+ if(Number(adds.value)>Number(adds.max))adds.value=adds.max;
+ toolSelect(field(returnForm,'drop'),side?.active||[],side?.active.length>=side?.regular?'Choose a drop':'Use open roster spot');
+ toolSelect(field(returnForm,'player'),side?.injured||[],'Choose an IL player');
+ for(const button of streamForm.querySelectorAll('button'))button.disabled=!ready;
+ returnForm.querySelector('button').disabled=!ready||!side.injured.length;
+ $('#find-counters').disabled=!ready;
+ for(const id of ['streamer','counter','return']){
+  $(`#${id}-status`).textContent='';
+  $(`#${id}-results`).replaceChildren();
+ }
+ counterResults=[];
+}
+
+function offerRoster(teams,key){
+ const {offer,adjustments}=plannerState||{};
+ if(!offer?.a.length||!offer?.b.length||!teams.a||!teams.b||mixedLeagueSelection()||teams.a.team===teams.b.team||teams.a.team.unassigned?.length||teams.b.team.unassigned?.length)return null;
+ const incomingIL=offer[other(key)].filter(player=>teams[other(key)].injured.some(member=>member.id===player.id)).length;
+ if(roster[key].ilIn>incomingIL)return null;
+ return tradedRoster(teams,offer,key,adjustments?.[key].players);
+}
+
+toolManager.addEventListener('change',renderRosterTools);
+streamForm.addEventListener('submit',event=>{
+ event.preventDefault();
+ const status=$('#streamer-status'),results=$('#streamer-results');
+ results.replaceChildren();
+ const form=new FormData(streamForm),key=toolManager.value;
+ const teams=toolRosters(),side=teams[key];
+ const from=form.get('from'),through=form.get('through'),drop=form.get('drop');
+ if(!side)return;
+ if(from>through){status.textContent='Choose an end date on or after the start date.';return;}
+ const dates=currentHorizon().weeks.flatMap(week=>week.remaining).filter(date=>date>=from&&date<=through);
+ const project=dates.length?lineupWeek(outlookData,weights,dates):null;
+ if(!project){status.textContent='Schedule coverage is incomplete for these dates.';return;}
+ const adds=Number(form.get('adds')),compare=event.submitter?.value==='compare';
+ if(!adds&&!compare){status.textContent='This plan needs one available add.';return;}
+ if(adds&&!drop&&side.active.length>=side.regular){status.textContent='Choose a player to drop from the full roster.';return;}
+ const {players}=dataset;
+ const free=players.filter(savedRosterFilter(side.config,side.team,'pickup'));
+ const baseline=project(side.active);
+ const ranked=adds?rankStreamers(project,side.active,free,drop).slice(0,6):[];
+ const missing=baseline.missing.length?` Missing projections for ${baseline.missing.map(namedPlayerBadge).join(', ')}.`:'';
+ const pending=currentHorizon().weeks.some(week=>week.tbd&&week.remaining.some(date=>dates.includes(date)));
+ status.innerHTML=`Baseline ${format(baseline.points)} starter FP.${pending?' Some matchups are still TBD.':''}${missing}`;
+ if(compare){
+  const traded=offerRoster(teams,key);
+  const best=ranked[0];
+  const trade=traded?project(traded.active):null;
+  const stream=!adds?'No adds left.':best?`Add ${playerBadge(best.player)} · ${pointsGain(best.gain)}`:'No available pickup improves the lineup.';
+  results.innerHTML=`<dl class="swap-impacts"><div><dt>Proposed trade</dt><dd>${trade?pointsGain(trade.points-baseline.points):'Choose both saved teams, set the trade, and resolve any roster cuts.'}</dd></div><div><dt>Best single waiver add</dt><dd>${stream}</dd></div></dl>`;
+ }else if(ranked.length){
+  results.innerHTML=`<div class="suggestion-results">${ranked.map(row=>`<article class="suggestion-offer"><header><h3>${playerBadge(row.player)}</h3>${pointsGain(row.gain)}</header><p class="sub">${row.starts.length} projected starts · ${row.starts.map(date=>shortDate.format(slateDate(date))).join(', ')}</p></article>`).join('')}</div>`;
+ }else status.append(' No pickup adds starter points in this window.');
+ colorNumbers(plannerPanel);
+});
+
+$('#find-counters').addEventListener('click',()=>{
+ const output=$('#counter-results'),status=$('#counter-status'),teams=toolRosters();
+ counterResults=[];
+ output.replaceChildren();
+ const {offer}=plannerState||{};
+ if(!teams.a||!teams.b||teams.a.team===teams.b.team||mixedLeagueSelection()||!offer?.a.length||!offer?.b.length||teams.a.team.unassigned?.length||teams.b.team.unassigned?.length){
+  status.textContent='Choose two saved teams from one league and build an offer above with confirmed roster slots.';
+  return;
+ }
+ const {project,weeks}=currentHorizon();
+ if(!project){status.textContent=lineupScheduleStatus();return;}
+ counterResults=counteroffers(project,teams,offer,weights).slice(0,6);
+ status.textContent=counterResults.length?`Each counter is closer on season FP/game. Cuts use the lowest season FP/game among eligible incumbents.${weeks.some(week=>!week.covered||week.tbd)?' Projections use the available scheduled games.':''}`:'No one-player change produces a closer offer within the 10% gap.';
+ output.innerHTML=counterResults.map(({proposal,balance,gains,rosters},index)=>`<article class="suggestion-offer"><header><strong>${format(balance.percentage)}% season FP/game gap</strong><button class="button" type="button" data-counter="${index}">Load counteroffer</button></header>
+  <dl class="swap-impacts">${['a','b'].map(key=>`<div><dt>${feedbackManager(key)} ${pointsGain(gains[key])}</dt><dd>Sends ${listBadges(proposal[key])}${rosters[key].cuts.length?`<br>Suggested cuts ${listBadges(rosters[key].cuts)}`:''}</dd></div>`).join('')}</dl></article>`).join('');
+ colorNumbers(plannerPanel);
+});
+
+$('#counter-results').addEventListener('click',event=>{
+ const button=event.target.closest('[data-counter]');
+ const counter=button&&counterResults[Number(button.dataset.counter)];
+ if(!counter)return;
+ const teams=toolRosters();
+ for(const key of ['a','b']){
+  picks[key]=counter.proposal[key].map(player=>player.id);
+  const ilIn=counter.proposal[other(key)].filter(player=>teams[other(key)].injured.some(member=>member.id===player.id)).length;
+  Object.assign(roster[key],{ilOut:0,ilIn,mode:counter.rosters[key].cuts.length?'Cut':'Pickup',players:counter.rosters[key].cuts.map(player=>player.id)});
+ }
+ selectTradeTab($('#hub-tab'));
+ renderTrade();
+ $('#hub-tab').focus();
+});
+
+returnForm.addEventListener('submit',event=>{
+ event.preventDefault();
+ const status=$('#return-status'),results=$('#return-results');
+ results.replaceChildren();
+ const form=new FormData(returnForm),key=toolManager.value,teams=toolRosters(),side=teams[key];
+ const player=side?.injured.find(player=>player.id===form.get('player'));
+ const drop=form.get('drop'),from=form.get('from'),scale=Number(form.get('scale'))/100;
+ const {project,weeks}=currentHorizon();
+ if(!project){status.textContent=lineupScheduleStatus();return;}
+ if(!player){status.textContent='Choose an IL player.';return;}
+ if(!drop&&side.active.length>=side.regular){status.textContent='Choose a drop to open a regular spot on the return date.';return;}
+ if(!weeks.some(week=>week.covered&&week.remaining.some(date=>date>=from))){status.textContent='There are no covered dates from that return date.';return;}
+ const baseline=project(side.active),trade=offerRoster(teams,key);
+ const score=(roster,value,projectDrop)=>{
+  const forecast=project([...roster,player],{player:player.id,from,drop:projectDrop,scale:value});
+  return forecast.missing.includes(player.name)?null:forecast.points;
+ };
+ const tradedBase=trade?project(trade.active).points:null;
+ const keepsPlayer=trade?.injured.some(member=>member.id===player.id);
+ const staysFull=trade?.active.length>=side.regular&&!trade.active.some(member=>member.id===drop);
+ const tradedScore=value=>!trade?null:!keepsPlayer?tradedBase:staysFull?null:score(trade.active,value,drop);
+ const rows=[['Stays on IL',baseline.points,tradedBase],['Full production',score(side.active,1,drop),tradedScore(1)],
+  [`Limited to ${format(scale*100)}%`,score(side.active,scale,drop),tradedScore(scale)]];
+ status.innerHTML=`${playerBadge(player)} · Return ${shortDate.format(slateDate(from))} ET. Limited production scales season FP/game.${weeks.some(week=>!week.covered||week.tbd)?' Uses available scheduled games.':''}`;
+ if(trade&&keepsPlayer&&staysFull)status.append(' Choose a player who stays on the roster after the trade to open a spot.');
+ results.innerHTML=`<div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Scenario</th><th>Keep roster FP</th><th>Make trade FP</th><th>Trade gain</th></tr></thead><tbody>${rows.map(([label,keep,traded])=>`<tr><th scope="row">${label}</th><td>${format(keep)}</td><td>${format(traded)}</td><td>${keep===null||traded===null?'—':pointsGain(traded-keep)}</td></tr>`).join('')}</tbody></table></div>`;
+ colorNumbers(plannerPanel);
+});
 
 function weekComparison(incoming,offset){
  if(!outlookData)return null;

@@ -7,9 +7,37 @@ import {pickerMatch,suggestFairTrades,lineupWeek,lineupHorizon,rankLineupTargets
 import {playerKey} from '../dashboard/model.mjs';
 import {bigBalls} from '../dashboard/big-balls.mjs';
 import {estimateInjurySlots} from '../dashboard/saved-rosters.mjs';
+import {rankStreamers,tradedRoster,counteroffers} from '../dashboard/trade-planner.mjs';
 
 const base={pts:'1',reb:'1.2',ast:'1.5',st:'3',blk:'3',to:'1.5'};
 const box={pts:20,reb:10,oreb:3,dreb:7,ast:5,st:1,blk:1,to:4};
+
+test('roster tools score only usable starts and delay IL activation and its drop until the return date',()=>{
+ const dates=['2026-11-20','2026-11-21'];
+ const feed={refreshedDates:dates,games:dates.map(date=>({date:date+'T21:00Z',home:'LAL',away:'BOS'}))};
+ const project=lineupWeek(feed,{pts:1},dates);
+ const p=(id,pts)=>({id,name:id,nba:'LAL',position:'PG',stats:{pts}});
+ const incumbent=p('incumbent',20),returning=p('returning',40);
+ assert.equal(rankStreamers(project,[incumbent],[returning],'incumbent')[0].gain,40);
+ assert.equal(project([incumbent,returning],{player:'returning',drop:'incumbent',from:dates[1],scale:.75}).points,50);
+ assert.equal(project([incumbent,returning],{player:'returning',drop:'incumbent',from:dates[1],scale:1}).points,60);
+ assert.equal(project([incumbent]).points,40);
+});
+
+test('counteroffers replace a player to narrow value and account for the required cut',()=>{
+ const date='2026-11-20',weights={pts:1};
+ const project=lineupWeek({refreshedDates:[date],games:[{date:date+'T21:00Z',home:'LAL',away:'BOS'}]},weights,[date]);
+ const p=(id,pts)=>({id,name:id,nba:'LAL',position:'PG',stats:{pts}});
+ const a=p('a',35),spare=p('spare',15),b=p('b',50),low=p('low',8);
+ const teams={a:{active:[a,spare],injured:[],regular:2,il:3},b:{active:[b,low],injured:[],regular:2,il:3}};
+ const offer={a:[a],b:[b]};
+ const [counter]=counteroffers(project,teams,offer,weights);
+ assert.deepEqual(counter.proposal.a,[a,spare]);
+ assert.deepEqual(counter.rosters.b.cuts,[low]);
+ assert.equal(counter.gains.b,-8);
+ assert.equal(tradedRoster(teams,counter.proposal,'b'),null);
+ assert.deepEqual(tradedRoster(teams,counter.proposal,'b',[low]).active,[a,spare]);
+});
 
 test('five-week forecasts exclude locked slates and the Cup final, and flag pending and missing matchups',()=>{
  const now=new Date('2026-11-20T01:00Z');
