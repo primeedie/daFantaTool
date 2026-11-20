@@ -8,7 +8,7 @@ export const smallBalls={
  teams:[
   {
    name:'BIG NIGGAS',
-   players:['Jeremiah Fears','Brandin Podziemski','Cooper Flagg','Kyshawn George','Yaxel Lendeborg','Desmond Bane','Yang Hansen','Moussa Diabaté','Josh Giddey','CJ McCollum','Jalen Brunson','Victor Wembanyama','Giannis Antetokounmpo'],
+   players:['Jeremiah Fears','Brandin Podziemski','Cooper Flagg','Kyshawn George','Yaxel Lendeborg','Desmond Bane','Paul Reed','Moussa Diabaté','Josh Giddey','CJ McCollum','Jalen Brunson','Victor Wembanyama','Giannis Antetokounmpo'],
    injured:['Dylan Harper','Trey Murphy III','Kawhi Leonard']
   },
   {

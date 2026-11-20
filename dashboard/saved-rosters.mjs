@@ -1,7 +1,7 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
 import {playerInjury} from './trade-model.mjs?v=il-estimates';
 import {bigBalls} from './big-balls.mjs?v=2026-11-20';
-import {smallBalls} from './small-balls.mjs?v=league-scoring';
+import {smallBalls} from './small-balls.mjs?v=reed-pickup';
 
 const publicLeagues=[bigBalls,smallBalls];
 const publicLeague=id=>publicLeagues.find(config=>config.id===id);

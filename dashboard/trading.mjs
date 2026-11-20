@@ -1,7 +1,7 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
-import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=league-scoring';
+import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=reed-pickup';
 import {bigBalls} from './big-balls.mjs?v=2026-11-20';
-import {smallBalls} from './small-balls.mjs?v=league-scoring';
+import {smallBalls} from './small-balls.mjs?v=reed-pickup';
 import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,lineupWeek,lineupHorizon,lineupWeekCount,rankLineupTargets,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=roster-tools';
 import {rankStreamers,tradedRoster,counteroffers} from './trade-planner.mjs?v=roster-tools';
 
