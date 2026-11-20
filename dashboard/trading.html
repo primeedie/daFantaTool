@@ -7,9 +7,9 @@
  <link rel="icon" href="./player-logo.png?v=3">
  <link rel="stylesheet" href="./style.css">
  <link rel="stylesheet" href="./font.css?v=logo-contrast">
- <link rel="stylesheet" href="./trading.css?v=roster-tools">
+ <link rel="stylesheet" href="./trading.css?v=mobile-layout">
  <script type="module" src="./theme.mjs?v=logo-contrast"></script>
- <script type="module" src="./trading.mjs?v=roster-tools"></script>
+ <script type="module" src="./trading.mjs?v=mobile-layout"></script>
 </head>
 <body class="trade-page">
  <header class="site-header"><div class="masthead">
@@ -21,7 +21,6 @@
   <p id="trade-link-error" class="sub" role="status" hidden>Could not open this trade link.</p>
   <section id="trade-settings" class="panel panel-body">
    <h2>League scoring</h2>
-   <p id="small-balls-scoring-note" class="sub" hidden>Enter your Small Balls scoring weights. Offensive and defensive rebounds are shown separately in the league snapshot.</p>
    <p class="sub">Fantasy points per stat</p>
    <form id="scoring-form">
     <div class="scoring-grid">
@@ -41,6 +40,7 @@
     <p class="sub">Turnovers always subtract points.</p>
     <button class="button primary" type="submit">Continue to player picker</button>
     <button class="button" id="use-big-balls" type="button">Use Big Balls scoring</button>
+    <button class="button" id="use-small-balls" type="button">Use Small Balls scoring</button>
    </form>
    <button class="button roster-book-shortcut" id="setup-roster-book" type="button">Saved rosters</button>
   </section>
@@ -53,7 +53,11 @@
     <button id="suggestions-tab" class="button" type="button" role="tab" aria-selected="false" aria-controls="suggestions-panel" tabindex="-1">Trade Suggestions</button>
     <button id="roster-tools-tab" class="button" type="button" role="tab" aria-selected="false" aria-controls="roster-tools-panel" tabindex="-1">Roster Tools</button>
    </div>
-   <div class="trade-toolbar">
+   <div class="mobile-trade-controls">
+    <button id="toggle-mobile-players" class="button" type="button" aria-expanded="true" aria-controls="trade-sides">Trade players</button>
+    <button id="toggle-mobile-actions" class="button" type="button" aria-expanded="false" aria-controls="trade-toolbar">Trade actions</button>
+   </div>
+   <div id="trade-toolbar" class="trade-toolbar">
     <button class="button trade-command" id="edit-scoring" type="button"><span aria-hidden="true">≡</span> Edit scoring</button>
     <button class="button trade-command" id="rename-managers" type="button">Rename managers</button>
     <button class="button trade-command" id="open-roster-book" type="button">Saved rosters</button>
@@ -62,7 +66,7 @@
    </div>
    <p id="trade-share-status" class="sub share-status" role="status"></p>
    <input id="trade-share-url" aria-label="Shareable trade link" class="share-url" type="url" readonly hidden>
-   <div class="trade-sides">
+   <div id="trade-sides" class="trade-sides">
     <section class="trade-side panel" aria-labelledby="trade-a-title">
      <div class="trade-side-head"><div><h2 id="trade-a-title">Manager A</h2><span>Trades away</span></div><span id="trade-a-total"></span></div>
      <div id="trade-a-players" class="trade-players"></div>

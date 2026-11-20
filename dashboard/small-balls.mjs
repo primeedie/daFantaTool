@@ -4,6 +4,7 @@ export const smallBalls={
  asOf:'2026-11-20',
  regular:13,
  il:3,
+ scoring:{pts:1,oreb:1.3,dreb:1.2,ast:1.5,st:3,blk:3,to:-1.5},
  teams:[
   {
    name:'BIG NIGGAS',

@@ -6,11 +6,19 @@ import {injuryHistory} from '../refresh-injury-history.mjs';
 import {pickerMatch,suggestFairTrades,lineupWeek,lineupHorizon,rankLineupTargets} from '../dashboard/trade-model.mjs';
 import {playerKey} from '../dashboard/model.mjs';
 import {bigBalls} from '../dashboard/big-balls.mjs';
+import {smallBalls} from '../dashboard/small-balls.mjs';
 import {estimateInjurySlots} from '../dashboard/saved-rosters.mjs';
 import {rankStreamers,tradedRoster,counteroffers} from '../dashboard/trade-planner.mjs';
 
 const base={pts:'1',reb:'1.2',ast:'1.5',st:'3',blk:'3',to:'1.5'};
 const box={pts:20,reb:10,oreb:3,dreb:7,ast:5,st:1,blk:1,to:4};
+
+test('Small Balls applies separate offensive and defensive rebound weights',()=>{
+ const scoring=scoringWeights(smallBalls.scoring,true);
+ assert.equal(scoring.oreb,1.3);
+ assert.equal(scoring.dreb,1.2);
+ assert.ok(Math.abs(tradePoints(box,scoring)-39.8)<1e-6);
+});
 
 test('roster tools score only usable starts and delay IL activation and its drop until the return date',()=>{
  const dates=['2026-11-20','2026-11-21'];

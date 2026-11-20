@@ -1,7 +1,7 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
-import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=small-balls';
+import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=league-scoring';
 import {bigBalls} from './big-balls.mjs?v=2026-11-20';
-import {smallBalls} from './small-balls.mjs?v=2026-11-20';
+import {smallBalls} from './small-balls.mjs?v=league-scoring';
 import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,lineupWeek,lineupHorizon,lineupWeekCount,rankLineupTargets,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=roster-tools';
 import {rankStreamers,tradedRoster,counteroffers} from './trade-planner.mjs?v=roster-tools';
 
@@ -55,12 +55,25 @@ const board=$('#trade-board');
 const tabList=$('#trade-tabs');
 const tabs=[...tabList.querySelectorAll('[role="tab"]')];
 const suggestionsPanel=$('#suggestions-panel');
+const mobileTradeView=matchMedia('(max-width: 760px)');
+const mobilePlayers=$('#toggle-mobile-players');
+const mobileActions=$('#toggle-mobile-actions');
+for(const button of [mobilePlayers,mobileActions])button.addEventListener('click',()=>{
+ button.setAttribute('aria-expanded',String(button.getAttribute('aria-expanded')!=='true'));
+});
+
 function selectTradeTab(active){
  for(const tab of tabs){
   const selected=tab===active;
   tab.setAttribute('aria-selected',String(selected));
   tab.tabIndex=selected?0:-1;
   document.getElementById(tab.getAttribute('aria-controls')).hidden=!selected;
+ }
+ if(mobileTradeView.matches){
+  const hasTeam=['a','b'].some(key=>rosterBook?.getTeam(key)||picks[key].length);
+  mobilePlayers.setAttribute('aria-expanded',String(active.id==='hub-tab'||!hasTeam));
+  const strip=tabList.getBoundingClientRect(),tab=active.getBoundingClientRect();
+  if(tab.left<strip.left||tab.right>strip.right)tabList.scrollLeft+=tab.left-strip.left-6;
  }
  if(!suggestionsPanel.hidden){
   renderSuggestions();
@@ -95,7 +108,7 @@ const roster={...defaultRoster,a:{open:0,ilOut:0,ilIn:0,players:[]},b:{open:0,il
 const rosterPanel=$('#trade-roster');
 const requestedLeague=new URLSearchParams(location.search).get('league');
 const settingsKey=requestedLeague===smallBalls.id?'dafantatool-small-balls-weights':'real-balliggas-trade-weights';
-let weights,side='a',pickerPurpose='trade',pickerLeague,draftPicker,dataset,dataRequest,rosterBook;
+let weights,weightsPreset,side='a',pickerPurpose='trade',pickerLeague,draftPicker,dataset,dataRequest,rosterBook;
 let currentRanks=new Map();
 let playersByName=new Map();
 let injuryData,injuryRequest;
@@ -113,7 +126,7 @@ try {
  if(saved){
   for(const key of Object.keys(boxFields))input(key).value=saved[key]??'';
   input('split').checked=saved.split===true;
- }else if(requestedLeague===smallBalls.id)input('split').checked=true;
+ }
 } catch {}
 if(sharedTrade){
  for(const key of Object.keys(boxFields))input(key).value=sharedTrade.scoring[key];
@@ -160,6 +173,7 @@ function activateTrade(save){
 }
 form.addEventListener('submit',event=>{
  event.preventDefault();
+ weightsPreset=null;
  activateTrade(true);
  $('#edit-scoring').focus();
 });
@@ -168,15 +182,20 @@ $('#edit-scoring').addEventListener('click',()=>{
  settings.hidden=false;
  input('pts').focus();
 });
-function enableBigBalls(save){
- input('split').checked=false;
+function enableLeague(league,save){
+ weightsPreset=league.id;
+ input('split').checked=Object.hasOwn(league.scoring,'oreb')&&Object.hasOwn(league.scoring,'dreb');
+ for(const key of Object.keys(boxFields))input(key).value=league.scoring[key]??'';
+ totalRebound=league.scoring.reb??'';
  toggleRebounds();
- for(const key of Object.keys(boxFields))input(key).value=bigBalls.scoring[key]??'';
- roster.regular=bigBalls.regular;
- roster.il=bigBalls.il;
+ roster.regular=league.regular;
+ roster.il=league.il;
  activateTrade(save);
 }
-$('#use-big-balls').addEventListener('click',()=>{enableBigBalls(true);$('#edit-scoring').focus();});
+for(const league of [bigBalls,smallBalls])$(`#use-${league.id}`).addEventListener('click',()=>{
+ enableLeague(league,true);
+ $('#edit-scoring').focus();
+});
 $('#clear-trade').addEventListener('click',()=>{
  picks.a.length=0;
  picks.b.length=0;
@@ -563,9 +582,9 @@ function lineupForecast(before,after,weeks){
   const daily=days.map(day=>{
    const starters=day.starters.map(({player,slot})=>`<span class="lineup-slot">${slot} ${playerBadge(player)}</span>`).join('');
    const bench=day.bench.map(playerBadge).join(' ');
-   return `<tr><th scope="row">${shortDate.format(slateDate(day.date))}</th><td>${format(day.score)}</td><td><div class="lineup-players">${starters||'—'}</div></td><td><div class="lineup-players">${bench||'—'}</div></td></tr>`;
+   return `<tr><th scope="row">${shortDate.format(slateDate(day.date))}</th><td>${format(day.score)}<span class="lineup-mobile-label" aria-hidden="true"> FP</span></td><td><span class="lineup-mobile-label" aria-hidden="true">Start</span><div class="lineup-players">${starters||'—'}</div></td><td><span class="lineup-mobile-label" aria-hidden="true">Bench</span><div class="lineup-players">${bench||'—'}</div></td></tr>`;
   }).join('');
-  return `<details><summary>${weekName(index)} · Best daily starts</summary><div class="table-wrap"><table><thead><tr><th scope="col">ET date</th><th scope="col">FP</th><th scope="col">Start</th><th scope="col">Bench</th></tr></thead><tbody>${daily}</tbody></table></div></details>`;
+  return `<details><summary>${weekName(index)} · Best daily starts</summary><div class="table-wrap"><table class="lineup-daily" aria-label="Projected daily lineup"><thead><tr><th scope="col">ET date</th><th scope="col">FP</th><th scope="col">Start</th><th scope="col">Bench</th></tr></thead><tbody>${daily}</tbody></table></div></details>`;
  }).join('');
  const missing=[...new Set([...(before?.missing||[]),...(after?.missing||[])])];
  const delta=after?Math.round((after.points-before.points)*100)/100:null;
@@ -1256,6 +1275,11 @@ $('#picker-results').addEventListener('click',event=>{
 rosterBook=setupRosterBook((config,key)=>{
  if(config){roster.regular=config.regular;roster.il=config.il;}
  if(key&&!config)Object.assign(roster[key],{open:0,ilOut:0,ilIn:0});
+ const otherConfig=key&&rosterBook.getTeam(other(key))?.config;
+ if(config?.scoring&&weightsPreset&&weightsPreset!==config.id&&(!otherConfig||otherConfig.id===config.id)){
+  enableLeague(config,false);
+  return;
+ }
  if(weights)renderTrade();
 },config=>{
  pickerLeague=config;
@@ -1299,8 +1323,7 @@ if(sharedTrade){
 }else if(isTradeHash(location.hash)){
  $('#trade-link-error').hidden=false;
 }else if(requestedLeague===bigBalls.id){
- enableBigBalls(false);
+ enableLeague(bigBalls,false);
 }else if(requestedLeague===smallBalls.id){
- $('#small-balls-scoring-note').hidden=false;
- $('#use-big-balls').hidden=true;
+ enableLeague(smallBalls,false);
 }

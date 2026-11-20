@@ -42,7 +42,7 @@
 .split-toggle {display:flex;align-items:center;gap:10px}
 .split-fields {grid-template-columns:repeat(2,minmax(0,1fr))}
 .split-fields .sub {grid-column:1/-1}
-#trade-settings :is([type=submit],#use-big-balls) {margin-top:12px}
+#trade-settings :is([type=submit],#use-big-balls,#use-small-balls) {margin-top:12px}
 .trade-tabs {display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;padding:6px;margin-bottom:18px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
 .trade-tabs .button {min-width:0;min-height:48px;padding:9px;white-space:normal;line-height:1.3}
 :root .trade-tabs .button[aria-selected="true"] {background:var(--brand-strong);border-color:var(--brand-strong);color:#fff;box-shadow:inset 0 -3px 0 var(--brand-hot)}
@@ -84,6 +84,7 @@
 #rank-lineup-targets {margin-bottom:14px}
 .trade-toolbar,.picker-controls,.picker-head {display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
 .trade-toolbar {justify-content:flex-start;flex-wrap:wrap}
+.mobile-trade-controls,.lineup-mobile-label {display:none}
 #clear-trade {margin-inline-start:auto}
 .trade-sides {position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px}
 .trade-side {
@@ -381,16 +382,78 @@ body .chat-question .number-token {color:#ffedba}
  .trade-exchange {display:none}
  #hub-panel:has(#trade-balance[hidden]) #hub-empty {display:block}
 }
+@media(max-width:760px){
+ .trade-tool {padding:22px clamp(12px,4vw,24px) 36px}
+ .trade-page .masthead {gap:8px;padding:8px clamp(12px,4vw,24px)}
+ .trade-page .masthead .site-wordmark {width:clamp(104px,29vw,142px)}
+ .trade-page .masthead .player-logo {width:clamp(68px,19vw,92px)}
+ .trade-page .theme-controls {flex-wrap:nowrap;gap:4px;padding:3px}
+ .trade-page .theme-controls select {max-width:7.5rem;padding-inline:6px}
+ .trade-page .theme-controls button {padding-inline:7px}
+ .trade-title {gap:12px;margin-bottom:16px}
+ .trade-title h1 {font-size:clamp(29px,7vw,42px)}
+ .trade-tabs {
+  position:sticky;top:0;z-index:4;display:flex;gap:6px;overflow-x:auto;
+  padding:6px;margin-bottom:14px;border-radius:10px;scroll-padding-inline:6px;scrollbar-width:thin
+ }
+ .trade-tabs .button {flex:none;min-height:44px;padding-inline:12px;white-space:nowrap}
+ .mobile-trade-controls {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:10px}
+ .mobile-trade-controls button {display:flex;align-items:center;justify-content:space-between;gap:6px;text-align:start}
+ .mobile-trade-controls button::after {content:"+";font:600 16px/1 system-ui,sans-serif}
+ .mobile-trade-controls button[aria-expanded="true"]::after {content:"−"}
+ #trade-board:has(#toggle-mobile-actions[aria-expanded="false"]) > .trade-toolbar,
+ #trade-board:has(#toggle-mobile-players[aria-expanded="false"]) > .trade-sides {display:none}
+ .trade-toolbar {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 14px}
+ .trade-toolbar .button {justify-content:flex-start;text-align:start}
+ #clear-trade {margin:0}
+ .trade-sides {gap:12px}
+ .trade-side {min-height:0}
+ .trade-side-head {padding:11px 14px;gap:5px}
+ .trade-side-head h2 {font-size:23px}
+ .trade-side-head div>span,.trade-empty {display:none}
+ .trade-players {padding-inline:12px}
+ .trade-roster-select {display:grid;gap:4px;margin:11px 12px 0}
+ .trade-side .trade-add {margin:10px 12px 12px}
+ .trade-exchange {display:none}
+ .trade-balance {margin-top:14px;padding:14px;min-width:0}
+ #trade-board > [role="tabpanel"] {min-width:0}
+ .trade-page .trade-tool :is(.trade-subsection>p,.trade-insight p,.trade-risk-side p,.trade-risk-side li .sub,.chat-answer,#trade-roster-note,#trade-delta) {text-align:start;hyphens:manual}
+ .lineup-fit-card .lineup-totals {table-layout:fixed;font-size:14px}
+ .lineup-fit-card .lineup-totals :is(th,td) {padding:6px;min-width:0;white-space:normal;overflow-wrap:anywhere}
+ .lineup-fit-card .lineup-totals th:first-child {width:39%;min-width:0}
+ .lineup-fit-card .lineup-totals thead th {font-size:13px}
+ .lineup-fit-card .lineup-totals .form-coverage {font-size:12px;line-height:1.3}
+ .lineup-fit-card .lineup-daily {display:block;white-space:normal}
+ .lineup-daily thead {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+ .lineup-daily tbody {display:block}
+ .lineup-daily tbody tr {display:grid;grid-template-columns:minmax(0,1fr) auto;border-bottom:1px solid var(--line);padding-block:6px}
+ .lineup-fit-card .lineup-daily :is(th,td) {min-width:0;border:0;padding:4px 6px}
+ .lineup-fit-card .lineup-daily td:nth-child(n+3) {grid-column:1/-1}
+ .lineup-daily .lineup-mobile-label {display:inline;color:var(--muted);font-size:14px}
+ .lineup-daily td:nth-child(n+3) .lineup-mobile-label {display:block;margin-bottom:3px}
+ .lineup-slot {max-width:100%;min-width:0}
+ .lineup-slot .nba-badge {overflow-wrap:anywhere}
+ .trade-page .picker {inset:auto 0 0;margin:0;width:100%;max-width:none;max-height:88dvh;padding:14px 14px max(14px,env(safe-area-inset-bottom));border-radius:16px 16px 0 0}
+ .picker-head {margin-bottom:10px}
+ .picker-controls {display:grid;grid-template-columns:1fr;gap:7px;margin-bottom:8px}
+ .picker-controls input {width:100%}
+ .picker-results {max-height:47dvh}
+ .picker-row {grid-template-columns:2rem minmax(0,1fr) auto;gap:4px 7px;padding:11px 4px}
+ .picker-row .trade-fp {padding-inline:5px}
+ #saved-rosters-dialog {padding:14px}
+ #streamer-form :is(button[type="submit"]) {width:100%;margin-bottom:7px}
+ .trade-ask {flex-wrap:wrap}
+ .trade-ask input {flex-basis:100%}
+}
 @media(max-width:620px){
- .trade-tabs {grid-template-columns:repeat(2,minmax(0,1fr))}
- #suggestion-pools {grid-template-columns:1fr}
+ #suggestion-pools,#roster-results,.saved-roster-fields,.lineup-fit-grid {grid-template-columns:1fr}
  .trade-sides,.trade-risk-sides,.scenario-scales {grid-template-columns:1fr}
-#roster-results,.saved-roster-fields,.lineup-fit-grid {grid-template-columns:1fr}
  .balance-heading {flex-wrap:wrap}
  .balance-heading strong {text-align:start}
- .trade-side {min-height:185px}
- .trade-sides {gap:16px}
- .trade-exchange {display:none}
- .picker {padding:15px}
- .picker-controls {flex-wrap:wrap}
+ .planner-fields {grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .planner-fields label {overflow-wrap:anywhere;font-size:var(--trade-label)}
+ .planner-fields input[type="date"] {padding-inline:4px}
+}
+@media(max-width:360px){
+ .planner-fields {grid-template-columns:1fr}
 }
