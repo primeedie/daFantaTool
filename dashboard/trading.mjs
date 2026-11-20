@@ -1,6 +1,7 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
-import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=il-estimates';
+import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=small-balls';
 import {bigBalls} from './big-balls.mjs?v=2026-11-20';
+import {smallBalls} from './small-balls.mjs?v=2026-11-20';
 import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,lineupHorizon,lineupWeekCount,rankLineupTargets,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=il-estimates';
 
 const $=selector=>document.querySelector(selector);
@@ -89,7 +90,8 @@ const candidates={a:new Set(),b:new Set()};
 let offers=[],lineupTargets=[],targetRanking;
 const roster={...defaultRoster,a:{open:0,ilOut:0,ilIn:0,players:[]},b:{open:0,ilOut:0,ilIn:0,players:[]}};
 const rosterPanel=$('#trade-roster');
-const settingsKey='real-balliggas-trade-weights';
+const requestedLeague=new URLSearchParams(location.search).get('league');
+const settingsKey=requestedLeague===smallBalls.id?'dafantatool-small-balls-weights':'real-balliggas-trade-weights';
 let weights,side='a',pickerPurpose='trade',pickerLeague,draftPicker,dataset,dataRequest,rosterBook;
 let currentRanks=new Map();
 let playersByName=new Map();
@@ -108,7 +110,7 @@ try {
  if(saved){
   for(const key of Object.keys(boxFields))input(key).value=saved[key]??'';
   input('split').checked=saved.split===true;
- }
+ }else if(requestedLeague===smallBalls.id)input('split').checked=true;
 } catch {}
 if(sharedTrade){
  for(const key of Object.keys(boxFields))input(key).value=sharedTrade.scoring[key];
@@ -230,6 +232,10 @@ const rankSummary=player=>`Season ${rankText(seasonRank(player))} · Draft ${ran
 const fp=player=>weights?tradePoints(player.stats,weights):null;
 const occupied=id=>picks.a.includes(id)||picks.b.includes(id);
 const other=key=>key==='a'?'b':'a';
+function mixedLeagueSelection(){
+ const a=rosterBook?.getTeam('a')?.config,b=rosterBook?.getTeam('b')?.config;
+ return a?.id&&b?.id&&a.id!==b.id;
+}
 const spotsFor=key=>rosterSpots(picks[key].length,picks[other(key)].length,roster[key]);
 const pickerOccupied=id=>occupied(id)||pickerPurpose==='roster'&&roster[side].players.includes(id);
 function rosterScope(key,action){
@@ -297,8 +303,9 @@ function renderSuggestions(rank=false){
   }).join('');
   return `<section class="manager-impact"><h3 class="manager-${key}-text">${heading}</h3>${team?`<p class="sub">${esc(team.name)} · ${candidates[key].size} marked</p>`:''}<div class="suggestion-pool-list">${list}</div>${team?'':`<button class="button" type="button" data-suggestion-pick="${key}" ${candidates[key].size>=suggestionPoolLimit?'disabled':''}>${key==='a'?'Choose players to offer':'Choose targets'}</button>`}</section>`;
  }).join('');
- offers=suggestFairTrades(selected.a,selected.b,weights);
- status.textContent=!selected.a.length||!selected.b.length?'Mark at least one player on each side.':offers.length?'Closest matches first. For uneven offers, review roster spots in the Hub.':'No fair matches among the marked players.';
+ const mixedLeagues=mixedLeagueSelection();
+ offers=mixedLeagues?[]:suggestFairTrades(selected.a,selected.b,weights);
+ status.textContent=mixedLeagues?'Choose two teams from the same league.':!selected.a.length||!selected.b.length?'Mark at least one player on each side.':offers.length?'Closest matches first. For uneven offers, review roster spots in the Hub.':'No fair matches among the marked players.';
  results.innerHTML=offers.map(({a,b,balance},index)=>{
   const offerSide=(key,pkg)=>`<p>${feedbackManager(key)} sends ${pkg.players.map(player=>nbaBadge(player.nba,player.name)).join(' ')} · <strong class="trade-fp">${format(pkg.points)} FP/game</strong></p>`;
   return `<article class="suggestion-offer"><header><strong>${a.players.length}-for-${b.players.length} · ${format(balance.percentage)}% gap</strong><button type="button" class="button" data-load-offer="${index}">Load in Hub</button></header>${offerSide('a',a)}${offerSide('b',b)}</article>`;
@@ -515,7 +522,7 @@ const lineupScheduleStatus=()=>outlookData?'Schedule coverage is incomplete.':ou
 const weekName=index=>index===0?'This week, remaining':index===1?'Next week':`In ${index} weeks`;
 const rosterPlayers=team=>team.players.map(name=>playersByName.get(playerKey(name))||{id:`missing:${playerKey(name)}`,name});
 const lineupAssumptions=teams=>[
- 'Uses season averages and the Big Balls starting slots. Saved IL players sit.',
+ 'Uses season averages and 10 starting slots. Saved IL players sit.',
  teams.some(team=>team.ilEstimate?.likely.length||team.ilEstimate?.regular.length)?'Uses estimated roster slots where marked in Saved rosters.':'',
  teams.some(team=>team.unassigned?.length)?'Players with unconfirmed roster spots are excluded.':''
 ].filter(Boolean).join(' ');
@@ -570,6 +577,7 @@ function renderLineupFit(selected,adjustments){
  const {weeks,project}=currentHorizon();
  $('#lineup-week').textContent=lineupDateLabel(weeks[0].dates,weeks.at(-1).dates);
  if(saved.a?.team===saved.b?.team){results.innerHTML='<p class="sub">Choose two different saved teams.</p>';return;}
+ if(mixedLeagueSelection()){results.innerHTML='<p class="sub">Choose two teams from the same league.</p>';return;}
  if(!dataset||!outlookData){results.innerHTML=`<p class="sub">${!dataset?'Player stats loading…':lineupScheduleStatus()}</p>`;return;}
  const canTrade=adjustments&&saved.a&&saved.b&&['a','b'].every(key=>selected[key].every(savedRosterFilter(saved[key].config,saved[key].team,'trade')));
  const cards=['a','b'].filter(key=>saved[key]).map(key=>{
@@ -612,6 +620,7 @@ function renderLineupTargets(selected,rank){
  lineupTargets=[];
  const {team:teamA}=rosterScope('a','trade'),{team:teamB}=rosterScope('b','trade');
  if(!teamA||!teamB||teamA===teamB){status.textContent='Choose two different saved teams above.';return;}
+ if(mixedLeagueSelection()){status.textContent='Choose two teams from the same league.';return;}
  if(!project){status.textContent=lineupScheduleStatus();return;}
  const regular={
   a:rosterPlayers(teamA),
@@ -968,7 +977,7 @@ $('#trade-ask').addEventListener('submit',event=>{
 
 async function loadPlayers(){
  if(dataset)return dataset;
- if(!dataRequest)dataRequest=fetch('./trade-data.json?v=big-balls-nov20').then(async response=>{
+ if(!dataRequest)dataRequest=fetch('./trade-data.json?v=small-balls').then(async response=>{
   if(!response.ok)throw new Error('Player data unavailable');
   const data=await response.json();
   if(!data.players?.length)throw new Error('Empty player data');
@@ -1127,6 +1136,9 @@ if(sharedTrade){
  });
 }else if(isTradeHash(location.hash)){
  $('#trade-link-error').hidden=false;
-}else if(new URLSearchParams(location.search).get('league')===bigBalls.id){
+}else if(requestedLeague===bigBalls.id){
  enableBigBalls(false);
+}else if(requestedLeague===smallBalls.id){
+ $('#small-balls-scoring-note').hidden=false;
+ $('#use-big-balls').hidden=true;
 }

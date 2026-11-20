@@ -1,6 +1,11 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
 import {playerInjury} from './trade-model.mjs?v=il-estimates';
 import {bigBalls} from './big-balls.mjs?v=2026-11-20';
+import {smallBalls} from './small-balls.mjs?v=2026-11-20';
+
+const publicLeagues=[bigBalls,smallBalls];
+const publicLeague=id=>publicLeagues.find(config=>config.id===id);
+const isPublicLeague=config=>publicLeagues.includes(config);
 
 const storageKey='dafantatool.saved-rosters.v1';
 const keys=['a','b'];
@@ -91,7 +96,7 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
  } catch {}
  let imported=parseRosterConfig(location.hash);
  const option=(label,id)=>new Option(label,id);
- const configById=id=>id===bigBalls.id?bigBalls:id===''?null:library[Number(id)];
+ const configById=id=>publicLeague(id)||(id===''?null:library[Number(id)]);
  const current=()=>configById(configs.value);
  const currentTeam=()=>teams.value===''?null:current()?.teams[Number(teams.value)];
  const getTeam=key=>{
@@ -103,10 +108,13 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
  function refreshSelectors(){
   for(const select of Object.values(selectors)){
    const prior=select.value;
-   const publicTeams=document.createElement('optgroup');
-   publicTeams.label='Big Balls (public)';
-   publicTeams.append(...bigBalls.teams.map((team,i)=>option(`${team.name} · Big Balls`,`${bigBalls.id}:${i}`)));
-   select.replaceChildren(option('Any player', ''),publicTeams,...library.flatMap((config,i)=>config.teams.map((team,j)=>option(`${team.name} · ${config.name} (local)`,`${i}:${j}`))));
+   const publicTeams=publicLeagues.map(config=>{
+    const group=document.createElement('optgroup');
+    group.label=`${config.name} (public)`;
+    group.append(...config.teams.map((team,i)=>option(`${team.name} · ${config.name}`,`${config.id}:${i}`)));
+    return group;
+   });
+   select.replaceChildren(option('Any player', ''),...publicTeams,...library.flatMap((config,i)=>config.teams.map((team,j)=>option(`${team.name} · ${config.name} (local)`,`${i}:${j}`))));
    select.value=[...select.options].some(item=>item.value===prior)?prior:'';
   }
  }
@@ -118,7 +126,7 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
   value('unassignedPlayers').value=team?.unassigned?.join('\n')||'';
   $('#unassigned-roster-field').hidden=!team?.unassigned?.length;
   $('#share-saved-team').disabled=!team;
-  const publicView=current()===bigBalls;
+  const publicView=isPublicLeague(current());
   const summary=$('#roster-il-estimate');
   const estimate=team?.ilEstimate;
   summary.hidden=!publicView||!estimate;
@@ -134,7 +142,7 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
    preview.textContent=field.value?'Loading players…':'—';
   }
   if(publicView)loadPlayers().then(data=>{
-   if(current()!==bigBalls||currentTeam()!==original||(publicEstimates.get(original)||original)!==team)return;
+   if(!isPublicLeague(current())||currentTeam()!==original||(publicEstimates.get(original)||original)!==team)return;
    const byName=new Map((data?.players||[]).map(player=>[playerKey(player.name),player.nba]));
    for(const preview of previews){
     const names=playerList(value(preview.dataset.rosterPreview).value);
@@ -149,10 +157,10 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
   });
  }
  function selectConfig(index='',teamIndex='0'){
-  configs.replaceChildren(option('New configuration',''),option('Big Balls (public)',bigBalls.id),...library.map((config,i)=>option(`${config.name} (local)`,i)));
+  configs.replaceChildren(option('New configuration',''),...publicLeagues.map(config=>option(`${config.name} (public)`,config.id)),...library.map((config,i)=>option(`${config.name} (local)`,i)));
   configs.value=index;
   const config=current();
-  const isPublic=config===bigBalls;
+  const isPublic=isPublicLeague(config);
   value('configName').value=config?.name||'';
   value('regular').value=config?.regular??13;
   value('il').value=config?.il??3;
@@ -167,7 +175,7 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
   $('#copy-public-roster').hidden=!isPublic;
   const publicNote=$('#public-roster-note');
   publicNote.hidden=!isPublic;
-  publicNote.textContent=isPublic?`Public snapshot · ${bigBalls.asOf} · ${bigBalls.teams.length} teams`:'';
+  publicNote.textContent=isPublic?`Public snapshot · ${config.asOf} · ${config.teams.length} teams`:'';
   share.hidden=true;
  }
  function save(config,index){
@@ -183,13 +191,13 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
  async function copyConfig(config){
   const url=new URL(location.href);
   url.search='';
-  url.hash=config===bigBalls?'':rosterConfigHash(config);
-  if(config===bigBalls)url.searchParams.set('league',bigBalls.id);
+  url.hash=isPublicLeague(config)?'':rosterConfigHash(config);
+  if(isPublicLeague(config))url.searchParams.set('league',config.id);
   try {await navigator.clipboard.writeText(url.href);status.textContent='Roster link copied.';share.hidden=true;}
   catch {share.value=url.href;share.hidden=false;share.select();status.textContent='Copy this roster link.';}
  }
 
- const open=()=>{selectConfig(new URLSearchParams(location.search).get('league')===bigBalls.id||!library.length?bigBalls.id:'0');status.textContent='';importButton.hidden=true;dialog.showModal();};
+ const open=()=>{selectConfig(publicLeague(new URLSearchParams(location.search).get('league'))?.id||(!library.length?bigBalls.id:'0'));status.textContent='';importButton.hidden=true;dialog.showModal();};
  $('#open-roster-book').addEventListener('click',open);
  $('#setup-roster-book').addEventListener('click',open);
  $('#close-roster-book').addEventListener('click',()=>dialog.close());
@@ -197,7 +205,7 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
  teams.addEventListener('change',loadTeam);
  form.addEventListener('submit',event=>{
   event.preventDefault();
-  if(current()===bigBalls)return;
+  if(isPublicLeague(current()))return;
   const index=configs.value===''?library.length:Number(configs.value);
   const existing=current();
   const teamList=[...(existing?.teams||[])];
@@ -213,9 +221,10 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
  $('#share-saved-team').addEventListener('click',()=>{if(currentTeam())copyConfig({...current(),teams:[currentTeam()]});});
  $('#browse-free-agents').addEventListener('click',()=>{if(current())openFreeAgents(current());});
  $('#copy-public-roster').addEventListener('click',()=>{
-  if(current()!==bigBalls)return;
+  const config=current();
+  if(!isPublicLeague(config))return;
   const index=library.length;
-  const copy=normalizeRosterConfig({...bigBalls,name:'Big Balls (copy)'});
+  const copy=normalizeRosterConfig({...config,name:`${config.name} (copy)`});
   if(save(copy,index)){selectConfig(String(index),teams.value);status.textContent='Editable copy saved on this browser.';}
  });
  for(const button of form.querySelectorAll('[data-draft-roster]'))button.addEventListener('click',()=>{
@@ -268,7 +277,7 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
     if(/^(out|out for season|ofs|injured|il)$/i.test(injury?.status||''))out.add(playerKey(player.name));
    }
   }
-  publicEstimates=new Map(bigBalls.teams.map(team=>[team,estimateInjurySlots(team,bigBalls.regular,out)]));
-  if(dialog.open&&current()===bigBalls)loadTeam();
+  publicEstimates=new Map(publicLeagues.flatMap(config=>config.teams.map(team=>[team,estimateInjurySlots(team,config.regular,out)])));
+  if(dialog.open&&isPublicLeague(current()))loadTeam();
  }};
 }

@@ -3,6 +3,7 @@ import {dirname,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {playerKey} from './dashboard/model.mjs';
 import {bigBallsRosterExtras} from './dashboard/big-balls.mjs';
+import {smallBallsRosterExtras} from './dashboard/small-balls.mjs';
 
 const origin='https://www.rotowire.com';
 const rankUrl=origin+'/basketball/article/2026-27-fantasy-basketball-cheat-sheet-points-leagues-printable-excel-142162';
@@ -13,7 +14,8 @@ const teamIndex=origin+'/basketball/team/los-angeles-lakers-lal';
 const profileFallbacks={krisdunn:'/basketball/player/kris-dunn-3854',jimmybutler:'/basketball/player/jimmy-butler-3231',
  klaythompson:'/basketball/player/klay-thompson-3197',jaredmccain:'/basketball/player/jared-mccain-6266',
  yanickonanniederhauser:'/basketball/player/yanic-konan-niederhauser-6616',
- kasparasjakucionis:'/basketball/player/kasparas-jakucionis-6557'};
+ kasparasjakucionis:'/basketball/player/kasparas-jakucionis-6557',
+ yanghansen:'/basketball/player/yang-hansen-6617',jordanpoole:'/basketball/player/jordan-poole-4791'};
 const codes={SAN:'SAS',SA:'SAS',NY:'NYK',NO:'NOP',GS:'GSW',PHO:'PHX',UTAH:'UTA',WSH:'WAS'};
 const nbaCode=code=>codes[code]||code;
 const statFields={pts:'pts',reb:'reb',oreb:'oreb',dreb:'dreb',ast:'ast',st:'stl',blk:'blk',to:'to'};
@@ -117,7 +119,7 @@ const players=rankRows(cheat);
 if(players.length!==200||new Set(players.map(player=>player.id)).size!==players.length)throw new Error('RotoWire draft rank list changed');
 const rankedCount=players.length;
 const rankedIds=new Set(players.map(player=>player.id));
-for(const [name,nba,position] of bigBallsRosterExtras){
+for(const [name,nba,position] of [...bigBallsRosterExtras,...smallBallsRosterExtras]){
  const id=playerKey(name);
  if(!rankedIds.has(id))players.push({id,name,nba,position,rank:null});
 }

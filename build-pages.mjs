@@ -5,7 +5,7 @@ import {leaguePositions} from './dashboard/model.mjs';
 const root=dirname(fileURLToPath(import.meta.url)),out=resolve(root,'dist');
 await mkdir(resolve(out,'fonts'),{recursive:true});
 // Only ship the reviewed public snapshot and the listed assets.
-for(const file of ['app.js','entry.mjs','theme.mjs','trading.html','trading.css','trading.mjs','trade-model.mjs','saved-rosters.mjs','big-balls.mjs','entry-access.json','style.css','font.css','model.mjs','public-ui.mjs','fonts/slam-dunk.otf','fonts/LICENSE.txt','public-league.json','player-logo.png','dafantatool-wordmark.png'])await copyFile(resolve(root,'dashboard',file),resolve(out,file));
+for(const file of ['app.js','entry.mjs','theme.mjs','trading.html','trading.css','trading.mjs','trade-model.mjs','saved-rosters.mjs','big-balls.mjs','small-balls.mjs','entry-access.json','style.css','font.css','model.mjs','public-ui.mjs','fonts/slam-dunk.otf','fonts/LICENSE.txt','public-league.json','player-logo.png','dafantatool-wordmark.png'])await copyFile(resolve(root,'dashboard',file),resolve(out,file));
 await copyFile(resolve(root,'dashboard/entry.html'),resolve(out,'index.html'));
 const html=await readFile(resolve(root,'dashboard/index.html'),'utf8');
 await writeFile(resolve(out,'dashboard.html'),html.replace('<html lang="en">','<html lang="en" data-public-league>'));
