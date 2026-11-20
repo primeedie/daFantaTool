@@ -433,10 +433,14 @@ export function statSwings(outgoing,incoming,weights){
  }).filter(change=>change.points!==0).sort((a,b)=>Math.abs(b.points)-Math.abs(a.points));
 }
 
+export function playerInjury(player,records){
+ const profileId=/-([0-9]+)$/.exec(player.profile||'')?.[1];
+ return records?.[profileId]||records?.[player.id];
+}
+
 export function tradeContext(players,injuryRecords,weights){
  const entries=players.map(player=>{
-  const profileId=/-([0-9]+)$/.exec(player.profile||'')?.[1];
-  const injury=injuryRecords?.[profileId]||injuryRecords?.[player.id];
+  const injury=playerInjury(player,injuryRecords);
   const status=injury?.status;
   const atRisk=!!status&&/\bout\b|doubtful|questionable|day.to.day/i.test(status);
   const smallSample=!(player.games>=5);

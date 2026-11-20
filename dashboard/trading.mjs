@@ -1,7 +1,7 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
-import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=big-balls-nov20';
+import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=il-estimates';
 import {bigBalls} from './big-balls.mjs?v=2026-11-20';
-import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,lineupHorizon,lineupWeekCount,rankLineupTargets,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=swap-explanations';
+import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,lineupHorizon,lineupWeekCount,rankLineupTargets,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=il-estimates';
 
 const $=selector=>document.querySelector(selector);
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -281,7 +281,7 @@ function renderSuggestions(rank=false){
  const selected={};
  pools.innerHTML=['a','b'].map(key=>{
   const {team,allows}=rosterScope(key,'trade');
-  const rosterRows=team?[...team.players.map(name=>({name})),...team.injured.map(name=>({name,slot:'IL'})),...(team.unassigned||[]).map(name=>({name,slot:'Slot unconfirmed'}))]:
+  const rosterRows=team?[...team.players.map(name=>({name,slot:team.ilEstimate?.regular.includes(name)?'Estimated regular':null})),...team.injured.map(name=>({name,slot:team.ilEstimate?.likely.includes(name)?'Likely IL':'IL'})),...(team.unassigned||[]).map(name=>({name,slot:'Slot unconfirmed'}))]:
    [...candidates[key]].map(id=>({name:dataset.players.find(player=>player.id===id)?.name||''}));
   const rows=rosterRows.map(row=>({...row,player:playersByName.get(playerKey(row.name))}));
   const valid=new Set(rows.map(row=>row.player).filter(player=>player&&allows(player)).map(player=>player.id));
@@ -407,7 +407,8 @@ function renderRoster(selected,totals){
   const action=result.remaining?`<button type="button" class="button" data-roster-pick="${key}">${spots.cuts?'Choose cut':'Choose pickup'}</button>`:'';
   const breakEven=result.breakEven===null?'':result.breakEven===0?'<p class="sub roster-break-even">Already at or above break-even.</p>':
    `<p class="sub roster-break-even">Break-even · <strong>${format(result.breakEven)} FP/game</strong>${result.remaining>1?` combined across ${result.remaining} open spots`:''}</p>`;
-  const slotNote=savedTeam?.unassigned?.length?'<p class="sub">Slot assignments are unconfirmed. Check Roster settings before comparing cuts.</p>':'';
+  const slotNote=savedTeam?.unassigned?.length?'<p class="sub">Slot assignments are unconfirmed. Check Roster settings before comparing cuts.</p>':
+   savedTeam?.ilEstimate?.likely.length?'<p class="sub">Roster adjustments use estimated IL assignments.</p>':'';
   return `<section class="manager-impact"><h3 class="manager-${key}-text">${managerLabel(key)}</h3><strong class="manager-net ${tone(result.net)}">${signed(result.net)} FP</strong><div class="sub">${status}</div><p class="sub">${detail}</p>${slotNote}${playerRows?`<div class="roster-actions">${playerRows}</div>`:''}${action}${breakEven}</section>`;
  });
  $('#roster-results').innerHTML=cards.join('');
@@ -444,7 +445,8 @@ async function loadInjuries(){
  injuryRequest=fetch('./trade-injuries.json').then(async response=>{
   if(!response.ok)throw new Error('Injury report unavailable');
   injuryData=await response.json();
-  renderTrade();
+  if(dataset)rosterBook.setInjuryEstimates(dataset.players,injuryData);
+  if(weights)renderTrade();
  }).catch(()=>{injuryRequest=null;});
  return injuryRequest;
 }
@@ -514,6 +516,7 @@ const weekName=index=>index===0?'This week, remaining':index===1?'Next week':`In
 const rosterPlayers=team=>team.players.map(name=>playersByName.get(playerKey(name))||{id:`missing:${playerKey(name)}`,name});
 const lineupAssumptions=teams=>[
  'Uses season averages and the Big Balls starting slots. Saved IL players sit.',
+ teams.some(team=>team.ilEstimate?.likely.length||team.ilEstimate?.regular.length)?'Uses estimated roster slots where marked in Saved rosters.':'',
  teams.some(team=>team.unassigned?.length)?'Players with unconfirmed roster spots are excluded.':''
 ].filter(Boolean).join(' ');
 
@@ -971,6 +974,7 @@ async function loadPlayers(){
   if(!data.players?.length)throw new Error('Empty player data');
   dataset=data;
   playersByName=new Map(data.players.map(player=>[playerKey(player.name),player]));
+  rosterBook.setInjuryEstimates(data.players,injuryData);
   if(weights)currentRanks=seasonRanks(data.players,weights);
   const asOf=new Date(data.updatedAt).toLocaleDateString('en-PH',{timeZone:'Asia/Manila',month:'short',day:'numeric'});
   $('#trade-sources').innerHTML=`<a href="${esc(data.statsUrl)}" target="_blank" rel="noopener noreferrer">RotoWire season stats</a> · checked ${esc(asOf)} · <a href="${esc(data.rankUrl)}" target="_blank" rel="noopener noreferrer">Draft ranks</a> (${esc(data.rankDate)})`;
@@ -1092,7 +1096,10 @@ rosterBook=setupRosterBook((config,key)=>{
  pickerPurpose='draft';
  if(!weights)sort.value='draft';
  openPicker(entry.title);
-},loadPlayers);
+},async()=>{
+ const [data]=await Promise.all([loadPlayers(),loadInjuries()]);
+ return data;
+});
 
 if(sharedTrade){
  activateTrade(false);

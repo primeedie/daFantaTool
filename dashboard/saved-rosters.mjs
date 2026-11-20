@@ -1,4 +1,5 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
+import {playerInjury} from './trade-model.mjs?v=il-estimates';
 import {bigBalls} from './big-balls.mjs?v=2026-11-20';
 
 const storageKey='dafantatool.saved-rosters.v1';
@@ -7,6 +8,23 @@ const clean=(value,max=60)=>typeof value==='string'?value.replace(/\s+/g,' ').tr
 const numeric=(value,min)=>Number.isInteger(value)&&value>=min&&value<=99;
 const playerList=text=>text.split(/[,\n]/).map(value=>clean(value)).filter(Boolean);
 const members=team=>[...team.players,...team.injured,...(team.unassigned||[])].map(playerKey);
+
+export function estimateInjurySlots(team,regular,outPlayers){
+ if(!team.unassigned?.length)return team;
+ const regularCandidates=[...team.players,...team.unassigned];
+ const needed=Math.max(0,regularCandidates.length-regular);
+ const candidates=regularCandidates.filter(name=>outPlayers.has(playerKey(name)));
+ const likely=needed>0&&needed===candidates.length?candidates:[];
+ const resolved=!needed||likely.length===needed;
+ const estimatedRegular=resolved?team.unassigned.filter(name=>!likely.includes(name)):[];
+ return {
+  ...team,
+  players:resolved?regularCandidates.filter(name=>!likely.includes(name)):team.players,
+  injured:[...team.injured,...likely],
+  unassigned:resolved?[]:team.unassigned,
+  ilEstimate:{needed,candidates,likely,regular:estimatedRegular}
+ };
+}
 
 export function normalizeRosterConfig(value){
  if(!value||!numeric(value.regular,1)||!numeric(value.il,0)||!Array.isArray(value.teams)||!value.teams.length||value.teams.length>30)return null;
@@ -66,6 +84,7 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
  const selectors=Object.fromEntries(keys.map(key=>[key,$(`#saved-team-${key}`)]));
  const value=name=>form.elements.namedItem(name);
  let library=[];
+ let publicEstimates=new Map();
  try {
   const stored=JSON.parse(localStorage.getItem(storageKey)||'[]');
   library=stored.map(normalizeRosterConfig).filter(Boolean);
@@ -78,7 +97,7 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
  const getTeam=key=>{
   const [configIndex,teamIndex]=selectors[key].value.split(':');
   const config=configById(configIndex),team=config?.teams[teamIndex];
-  return team?{config,team}:null;
+  return team?{config,team:publicEstimates.get(team)||team}:null;
  };
 
  function refreshSelectors(){
@@ -92,7 +111,7 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
   }
  }
  function loadTeam(){
-  const team=currentTeam();
+  const original=currentTeam(),team=publicEstimates.get(original)||original;
   value('teamName').value=team?.name||'';
   value('regularPlayers').value=team?.players.join('\n')||'';
   value('injuredPlayers').value=team?.injured.join('\n')||'';
@@ -100,6 +119,13 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
   $('#unassigned-roster-field').hidden=!team?.unassigned?.length;
   $('#share-saved-team').disabled=!team;
   const publicView=current()===bigBalls;
+  const summary=$('#roster-il-estimate');
+  const estimate=team?.ilEstimate;
+  summary.hidden=!publicView||!estimate;
+  summary.textContent=estimate?.needed?estimate.likely.length?
+   `${team.injured.length} projected IL, including ${estimate.likely.length} inferred from the injury report.`:
+   `At least ${original.injured.length+estimate.needed} IL spots needed. ${estimate.needed} ${estimate.needed===1?'placement':'placements'} unconfirmed.`:
+   'New pickups fit in the regular roster.';
   const previews=[...form.querySelectorAll('[data-roster-preview]')];
   for(const preview of previews){
    const field=value(preview.dataset.rosterPreview);
@@ -108,11 +134,17 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
    preview.textContent=field.value?'Loading players…':'—';
   }
   if(publicView)loadPlayers().then(data=>{
-   if(current()!==bigBalls||currentTeam()!==team)return;
+   if(current()!==bigBalls||currentTeam()!==original||(publicEstimates.get(original)||original)!==team)return;
    const byName=new Map((data?.players||[]).map(player=>[playerKey(player.name),player.nba]));
    for(const preview of previews){
     const names=playerList(value(preview.dataset.rosterPreview).value);
-    preview.innerHTML=names.map(name=>nbaBadge(byName.get(playerKey(name)),name)).join(' ')||'—';
+    preview.innerHTML=names.map(name=>{
+     const label=estimate?.likely.includes(name)?'Likely IL':estimate?.regular.includes(name)?'Estimated regular':'';
+     return label?`<span>${nbaBadge(byName.get(playerKey(name)),name)} <small class="sub">${label}</small></span>`:nbaBadge(byName.get(playerKey(name)),name);
+    }).join(' ')||'—';
+   }
+   if(estimate?.needed&&!estimate.likely.length&&estimate.candidates.length){
+    summary.insertAdjacentHTML('beforeend',` Injury candidates include ${estimate.candidates.map(name=>nbaBadge(byName.get(playerKey(name)),name)).join(' ')}.`);
    }
   });
  }
@@ -227,5 +259,16 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
   importButton.hidden=!imported;
   status.textContent=imported?`${imported.name} · ${imported.teams.map(team=>team.name).join(', ')}`:'Could not open this roster link.';
  }
- return {getTeam};
+ return {getTeam,setInjuryEstimates(players,report){
+  const age=(Date.now()-Date.parse(report?.updatedAt))/3600000;
+  const out=new Set();
+  if(age>=0&&age<=48){
+   for(const player of players){
+    const injury=playerInjury(player,report.players);
+    if(/^(out|out for season|ofs|injured|il)$/i.test(injury?.status||''))out.add(playerKey(player.name));
+   }
+  }
+  publicEstimates=new Map(bigBalls.teams.map(team=>[team,estimateInjurySlots(team,bigBalls.regular,out)]));
+  if(dialog.open&&current()===bigBalls)loadTeam();
+ }};
 }

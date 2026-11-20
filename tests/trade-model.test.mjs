@@ -6,6 +6,7 @@ import {injuryHistory} from '../refresh-injury-history.mjs';
 import {pickerMatch,suggestFairTrades,lineupWeek,lineupHorizon,rankLineupTargets} from '../dashboard/trade-model.mjs';
 import {playerKey} from '../dashboard/model.mjs';
 import {bigBalls} from '../dashboard/big-balls.mjs';
+import {estimateInjurySlots} from '../dashboard/saved-rosters.mjs';
 
 const base={pts:'1',reb:'1.2',ast:'1.5',st:'3',blk:'3',to:'1.5'};
 const box={pts:20,reb:10,oreb:3,dreb:7,ast:5,st:1,blk:1,to:4};
@@ -89,6 +90,22 @@ test('the public Big Balls preset has its league scoring and ten non-overlapping
   const team=league.teams.find(team=>team.name===manager);
   assert.equal(savedRosterFilter(league,team,'trade')({name:player}),false);
  }
+});
+
+test('IL estimates use roster overflow and leave ambiguous injury assignments unresolved',()=>{
+ const team={name:'Team',players:['Active','Out Today'],injured:['Already IL'],unassigned:['Pickup']};
+ const flags=(...names)=>new Set(names.map(playerKey));
+ const resolved=estimateInjurySlots(team,2,flags('Out Today'));
+ assert.deepEqual(resolved.players,['Active','Pickup']);
+ assert.deepEqual(resolved.injured,['Already IL','Out Today']);
+ assert.deepEqual(resolved.ilEstimate.likely,['Out Today']);
+ const ambiguous=estimateInjurySlots(team,2,flags('Out Today','Pickup'));
+ assert.equal(ambiguous.ilEstimate.needed,1);
+ assert.deepEqual(ambiguous.ilEstimate.candidates,['Out Today','Pickup']);
+ assert.deepEqual(ambiguous.injured,team.injured);
+ assert.deepEqual(ambiguous.unassigned,team.unassigned);
+ assert.deepEqual(estimateInjurySlots(team,3,flags('Out Today')).players,['Active','Out Today','Pickup']);
+ assert.deepEqual(estimateInjurySlots(team,2,flags()).unassigned,team.unassigned);
 });
 
 test('suggestions use only marked players and rank qualifying packages by gap',()=>{
