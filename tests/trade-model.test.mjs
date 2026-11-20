@@ -71,7 +71,7 @@ test('the public Big Balls preset has its league scoring and ten non-overlapping
  assert.equal(league.teams.length,10);
  assert.equal(league.regular,13);
  assert.equal(league.il,3);
- assert.equal(league.teams.reduce((sum,team)=>sum+team.players.length,0),128);
+ assert.equal(league.teams.reduce((sum,team)=>sum+team.players.length,0),126);
  assert.equal(league.teams.reduce((sum,team)=>sum+team.injured.length,0),20);
  const wolfgang=league.teams.find(team=>team.name==='Wolfgang');
  assert.equal(wolfgang.unassigned.length,2);
@@ -79,6 +79,16 @@ test('the public Big Balls preset has its league scoring and ten non-overlapping
  assert.equal(savedRosterFilter(league,null,'pickup')({name:'Brayden Burries'}),false);
  assert.deepEqual(bigBalls.scoring,scoringWeights(base,false));
  assert.equal(savedRosterFilter(league,null,'pickup')({name:'Stephen Curry'}),false);
+ for(const [manager,player] of [['Alien Kalbo','Rui Hachimura'],['Vinscoksukrz','Kasparas Jakučionis'],['Night Night','Devin Vassell']]){
+  const team=league.teams.find(team=>team.name===manager);
+  assert.ok(team.unassigned.includes(player));
+  assert.equal(savedRosterFilter(league,team,'trade')({name:player}),true);
+  assert.equal(savedRosterFilter(league,null,'pickup')({name:player}),false);
+ }
+ for(const [manager,player] of [['Night Night','Alex Caruso'],['The Black C0ks','Kris Dunn']]){
+  const team=league.teams.find(team=>team.name===manager);
+  assert.equal(savedRosterFilter(league,team,'trade')({name:player}),false);
+ }
 });
 
 test('suggestions use only marked players and rank qualifying packages by gap',()=>{

@@ -14,6 +14,10 @@ const tradeSeed=JSON.parse(await readFile(resolve(root,'dashboard/trade-data.jso
 let tradeCache;
 try {tradeCache=JSON.parse(await readFile(resolve(folder,'trade-data.json'),'utf8'));} catch {}
 const useTradeCache=tradeCache?.analysisVersion===tradeSeed.analysisVersion&&tradeCache?.updatedAt>tradeSeed.updatedAt;
+if(useTradeCache){
+ const cachedIds=new Set(tradeCache.players.map(player=>player.id));
+ tradeCache.players.push(...tradeSeed.players.filter(player=>!cachedIds.has(player.id)));
+}
 await writeFile(resolve(out,'trade-data.json'),JSON.stringify(useTradeCache?tradeCache:tradeSeed));
 const tradeInjuries=await readFile(resolve(folder,'trade-injuries.json'),'utf8').catch(()=>readFile(resolve(root,'dashboard/trade-injuries.json'),'utf8'));
 await writeFile(resolve(out,'trade-injuries.json'),tradeInjuries);

@@ -108030,6 +108030,589 @@
           }
         }
       }
+    },
+    {
+      "id": "kasparasjakucionis",
+      "name": "Kasparas Jakučionis",
+      "nba": "MIL",
+      "position": "PG,SG",
+      "rank": null,
+      "profile": "https://www.rotowire.com/basketball/player/kasparas-jakucionis-6557",
+      "history": {
+        "2024": 33,
+        "2025": 53
+      },
+      "gameLogs": [
+        {
+          "pts": 18,
+          "reb": 3,
+          "oreb": 1,
+          "dreb": 2,
+          "ast": 2,
+          "st": 1,
+          "blk": 0,
+          "to": 2
+        },
+        {
+          "pts": 20,
+          "reb": 3,
+          "oreb": 1,
+          "dreb": 2,
+          "ast": 5,
+          "st": 2,
+          "blk": 0,
+          "to": 0
+        },
+        {
+          "pts": 25,
+          "reb": 5,
+          "oreb": 4,
+          "dreb": 1,
+          "ast": 5,
+          "st": 3,
+          "blk": 0,
+          "to": 2
+        },
+        {
+          "pts": 4,
+          "reb": 2,
+          "oreb": 1,
+          "dreb": 1,
+          "ast": 0,
+          "st": 1,
+          "blk": 0,
+          "to": 0
+        },
+        {
+          "pts": 11,
+          "reb": 0,
+          "oreb": 0,
+          "dreb": 0,
+          "ast": 4,
+          "st": 1,
+          "blk": 0,
+          "to": 1
+        },
+        {
+          "pts": 1,
+          "reb": 2,
+          "oreb": 2,
+          "dreb": 0,
+          "ast": 0,
+          "st": 0,
+          "blk": 0,
+          "to": 2
+        },
+        {
+          "pts": 3,
+          "reb": 0,
+          "oreb": 0,
+          "dreb": 0,
+          "ast": 2,
+          "st": 1,
+          "blk": 0,
+          "to": 1
+        },
+        {
+          "pts": 3,
+          "reb": 1,
+          "oreb": 0,
+          "dreb": 1,
+          "ast": 1,
+          "st": 0,
+          "blk": 0,
+          "to": 0
+        },
+        {
+          "pts": 7,
+          "reb": 5,
+          "oreb": 1,
+          "dreb": 4,
+          "ast": 7,
+          "st": 0,
+          "blk": 0,
+          "to": 4
+        },
+        {
+          "pts": 5,
+          "reb": 3,
+          "oreb": 0,
+          "dreb": 3,
+          "ast": 3,
+          "st": 0,
+          "blk": 0,
+          "to": 2
+        },
+        {
+          "pts": 4,
+          "reb": 2,
+          "oreb": 0,
+          "dreb": 2,
+          "ast": 6,
+          "st": 0,
+          "blk": 0,
+          "to": 3
+        },
+        {
+          "pts": 7,
+          "reb": 4,
+          "oreb": 1,
+          "dreb": 3,
+          "ast": 5,
+          "st": 0,
+          "blk": 0,
+          "to": 2
+        },
+        {
+          "pts": 12,
+          "reb": 3,
+          "oreb": 0,
+          "dreb": 3,
+          "ast": 2,
+          "st": 2,
+          "blk": 0,
+          "to": 3
+        },
+        {
+          "pts": 7,
+          "reb": 2,
+          "oreb": 0,
+          "dreb": 2,
+          "ast": 5,
+          "st": 2,
+          "blk": 0,
+          "to": 1
+        },
+        {
+          "pts": 15,
+          "reb": 3,
+          "oreb": 1,
+          "dreb": 2,
+          "ast": 3,
+          "st": 0,
+          "blk": 1,
+          "to": 1
+        }
+      ],
+      "opponentHistory": {
+        "POR": {
+          "date": "2026-11-19",
+          "minutes": "22",
+          "stats": {
+            "pts": 18,
+            "reb": 3,
+            "oreb": 1,
+            "dreb": 2,
+            "ast": 2,
+            "st": 1,
+            "blk": 0,
+            "to": 2
+          }
+        },
+        "MIA": {
+          "date": "2026-11-18",
+          "minutes": "26",
+          "stats": {
+            "pts": 20,
+            "reb": 3,
+            "oreb": 1,
+            "dreb": 2,
+            "ast": 5,
+            "st": 2,
+            "blk": 0,
+            "to": 0
+          }
+        },
+        "ATL": {
+          "date": "2026-11-15",
+          "minutes": "26",
+          "stats": {
+            "pts": 25,
+            "reb": 5,
+            "oreb": 4,
+            "dreb": 1,
+            "ast": 5,
+            "st": 3,
+            "blk": 0,
+            "to": 2
+          }
+        },
+        "LAL": {
+          "date": "2026-11-11",
+          "minutes": "4",
+          "stats": {
+            "pts": 4,
+            "reb": 2,
+            "oreb": 1,
+            "dreb": 1,
+            "ast": 0,
+            "st": 1,
+            "blk": 0,
+            "to": 0
+          }
+        },
+        "NYK": {
+          "date": "2026-11-10",
+          "minutes": "23",
+          "stats": {
+            "pts": 11,
+            "reb": 0,
+            "oreb": 0,
+            "dreb": 0,
+            "ast": 4,
+            "st": 1,
+            "blk": 0,
+            "to": 1
+          }
+        },
+        "BOS": {
+          "date": "2026-11-08",
+          "minutes": "7",
+          "stats": {
+            "pts": 1,
+            "reb": 2,
+            "oreb": 2,
+            "dreb": 0,
+            "ast": 0,
+            "st": 0,
+            "blk": 0,
+            "to": 2
+          }
+        },
+        "TOR": {
+          "date": "2026-11-06",
+          "minutes": "10",
+          "stats": {
+            "pts": 3,
+            "reb": 0,
+            "oreb": 0,
+            "dreb": 0,
+            "ast": 2,
+            "st": 1,
+            "blk": 0,
+            "to": 1
+          }
+        },
+        "MIN": {
+          "date": "2026-11-02",
+          "minutes": "22",
+          "stats": {
+            "pts": 7,
+            "reb": 5,
+            "oreb": 1,
+            "dreb": 4,
+            "ast": 7,
+            "st": 0,
+            "blk": 0,
+            "to": 4
+          }
+        },
+        "CLE": {
+          "date": "2026-10-31",
+          "minutes": "21",
+          "stats": {
+            "pts": 5,
+            "reb": 3,
+            "oreb": 0,
+            "dreb": 3,
+            "ast": 3,
+            "st": 0,
+            "blk": 0,
+            "to": 2
+          }
+        },
+        "HOU": {
+          "date": "2026-10-28",
+          "minutes": "19",
+          "stats": {
+            "pts": 4,
+            "reb": 2,
+            "oreb": 0,
+            "dreb": 2,
+            "ast": 6,
+            "st": 0,
+            "blk": 0,
+            "to": 3
+          }
+        },
+        "IND": {
+          "date": "2026-10-26",
+          "minutes": "21",
+          "stats": {
+            "pts": 7,
+            "reb": 4,
+            "oreb": 1,
+            "dreb": 3,
+            "ast": 5,
+            "st": 0,
+            "blk": 0,
+            "to": 2
+          }
+        },
+        "PHI": {
+          "date": "2026-10-24",
+          "minutes": "25",
+          "stats": {
+            "pts": 12,
+            "reb": 3,
+            "oreb": 0,
+            "dreb": 3,
+            "ast": 2,
+            "st": 2,
+            "blk": 0,
+            "to": 3
+          }
+        },
+        "CHI": {
+          "date": "2026-10-23",
+          "minutes": "23",
+          "stats": {
+            "pts": 7,
+            "reb": 2,
+            "oreb": 0,
+            "dreb": 2,
+            "ast": 5,
+            "st": 2,
+            "blk": 0,
+            "to": 1
+          }
+        },
+        "WAS": {
+          "date": "2026-10-21",
+          "minutes": "26",
+          "stats": {
+            "pts": 15,
+            "reb": 3,
+            "oreb": 1,
+            "dreb": 2,
+            "ast": 3,
+            "st": 0,
+            "blk": 1,
+            "to": 1
+          }
+        },
+        "SAS": {
+          "date": "2026-03-23",
+          "minutes": "22",
+          "stats": {
+            "pts": 8,
+            "reb": 6,
+            "oreb": 3,
+            "dreb": 3,
+            "ast": 5,
+            "st": 2,
+            "blk": 1,
+            "to": 0
+          }
+        },
+        "CHA": {
+          "date": "2026-03-17",
+          "minutes": "15",
+          "stats": {
+            "pts": 6,
+            "reb": 2,
+            "oreb": 1,
+            "dreb": 1,
+            "ast": 2,
+            "st": 0,
+            "blk": 0,
+            "to": 0
+          }
+        },
+        "ORL": {
+          "date": "2026-03-14",
+          "minutes": "18",
+          "stats": {
+            "pts": 3,
+            "reb": 0,
+            "oreb": 0,
+            "dreb": 0,
+            "ast": 1,
+            "st": 1,
+            "blk": 0,
+            "to": 0
+          }
+        },
+        "MIL": {
+          "date": "2026-03-12",
+          "minutes": "35",
+          "stats": {
+            "pts": 18,
+            "reb": 7,
+            "oreb": 1,
+            "dreb": 6,
+            "ast": 2,
+            "st": 1,
+            "blk": 1,
+            "to": 2
+          }
+        },
+        "DET": {
+          "date": "2026-03-08",
+          "minutes": "22",
+          "stats": {
+            "pts": 12,
+            "reb": 2,
+            "oreb": 1,
+            "dreb": 1,
+            "ast": 0,
+            "st": 1,
+            "blk": 0,
+            "to": 2
+          }
+        },
+        "BKN": {
+          "date": "2026-03-05",
+          "minutes": "21",
+          "stats": {
+            "pts": 11,
+            "reb": 6,
+            "oreb": 1,
+            "dreb": 5,
+            "ast": 3,
+            "st": 2,
+            "blk": 0,
+            "to": 4
+          }
+        },
+        "MEM": {
+          "date": "2026-02-21",
+          "minutes": "23",
+          "stats": {
+            "pts": 12,
+            "reb": 3,
+            "oreb": 0,
+            "dreb": 3,
+            "ast": 5,
+            "st": 0,
+            "blk": 0,
+            "to": 2
+          }
+        },
+        "NOP": {
+          "date": "2026-02-11",
+          "minutes": "25",
+          "stats": {
+            "pts": 11,
+            "reb": 3,
+            "oreb": 0,
+            "dreb": 3,
+            "ast": 4,
+            "st": 0,
+            "blk": 0,
+            "to": 1
+          }
+        },
+        "UTA": {
+          "date": "2026-02-09",
+          "minutes": "32",
+          "stats": {
+            "pts": 20,
+            "reb": 3,
+            "oreb": 2,
+            "dreb": 1,
+            "ast": 1,
+            "st": 0,
+            "blk": 0,
+            "to": 2
+          }
+        },
+        "PHX": {
+          "date": "2026-01-25",
+          "minutes": "23",
+          "stats": {
+            "pts": 7,
+            "reb": 6,
+            "oreb": 3,
+            "dreb": 3,
+            "ast": 3,
+            "st": 2,
+            "blk": 1,
+            "to": 0
+          }
+        },
+        "SAC": {
+          "date": "2026-01-20",
+          "minutes": "17",
+          "stats": {
+            "pts": 1,
+            "reb": 2,
+            "oreb": 2,
+            "dreb": 0,
+            "ast": 0,
+            "st": 1,
+            "blk": 0,
+            "to": 0
+          }
+        },
+        "GSW": {
+          "date": "2026-01-19",
+          "minutes": "14",
+          "stats": {
+            "pts": 3,
+            "reb": 2,
+            "oreb": 1,
+            "dreb": 1,
+            "ast": 1,
+            "st": 0,
+            "blk": 0,
+            "to": 3
+          }
+        },
+        "OKC": {
+          "date": "2026-01-17",
+          "minutes": "27",
+          "stats": {
+            "pts": 3,
+            "reb": 5,
+            "oreb": 0,
+            "dreb": 5,
+            "ast": 7,
+            "st": 0,
+            "blk": 0,
+            "to": 0
+          }
+        },
+        "DEN": {
+          "date": "2025-12-29",
+          "minutes": "3",
+          "stats": {
+            "pts": 0,
+            "reb": 1,
+            "oreb": 1,
+            "dreb": 0,
+            "ast": 0,
+            "st": 0,
+            "blk": 0,
+            "to": 0
+          }
+        },
+        "LAC": {
+          "date": "2025-12-01",
+          "minutes": "1",
+          "stats": {
+            "pts": 0,
+            "reb": 0,
+            "oreb": 0,
+            "dreb": 0,
+            "ast": 0,
+            "st": 1,
+            "blk": 0,
+            "to": 0
+          }
+        }
+      },
+      "games": 15,
+      "stats": {
+        "pts": 9.5,
+        "reb": 2.5,
+        "oreb": 0.8,
+        "dreb": 1.7,
+        "ast": 3.3,
+        "st": 0.9,
+        "blk": 0.1,
+        "to": 1.6
+      }
     }
   ]
 }

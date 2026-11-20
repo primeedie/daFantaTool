@@ -1,7 +1,7 @@
 export const bigBalls={
  id:'big-balls',
  name:'Big Balls',
- asOf:'2026-11-19',
+ asOf:'2026-11-20',
  regular:13,
  il:3,
  scoring:{pts:1,reb:1.2,ast:1.5,st:3,blk:3,to:-1.5},
@@ -14,7 +14,8 @@ export const bigBalls={
   {
    name:'Alien Kalbo',
    players:['Cade Cunningham','Jalen Green','Anthony Black','Ace Bailey','Julius Randle','Paul George','Donovan Clingan','Ivica Zubac','Keyonte George','Kyle Kuzma','Ayo Dosunmu','Karl-Anthony Towns','Paul Reed'],
-   injured:['Stephen Curry']
+   injured:['Stephen Curry'],
+   unassigned:['Rui Hachimura']
   },
   {
    name:'Wolfgang',
@@ -30,11 +31,12 @@ export const bigBalls={
   {
    name:'Vinscoksukrz',
    players:['Luka Dončić','Cam Spencer','Desmond Bane','Norman Powell','Ausar Thompson','Jabari Smith Jr.','Pascal Siakam','Anthony Davis','Jamal Murray','Devin Booker','Aaron Wiggins','Jonathan Kuminga','CJ McCollum'],
-   injured:['Dejounte Murray']
+   injured:['Dejounte Murray'],
+   unassigned:['Kasparas Jakučionis']
   },
   {
    name:'The Black C0ks',
-   players:['Derrick White','VJ Edgecombe','Christian Braun','AJ Dybantsa','Michael Porter Jr.','Quentin Grimes','Giannis Antetokounmpo','Yves Missi','Immanuel Quickley','Zach LaVine','Jalen Smith','Kris Dunn','LaMelo Ball'],
+   players:['Derrick White','VJ Edgecombe','Christian Braun','AJ Dybantsa','Michael Porter Jr.','Quentin Grimes','Giannis Antetokounmpo','Yves Missi','Immanuel Quickley','Zach LaVine','Jalen Smith','LaMelo Ball'],
    injured:['Walker Kessler','Brandon Ingram','Jimmy Butler III']
   },
   {
@@ -44,8 +46,9 @@ export const bigBalls={
   },
   {
    name:'Night Night',
-   players:['Jalen Suggs','Matisse Thybulle','Tyrese Proctor','Alex Caruso','OG Anunoby','Brandon Miller',"Day'Ron Sharpe",'Joel Embiid','Isaiah Hartenstein','Nickeil Alexander-Walker','Stephon Castle','Jaden McDaniels','Jalen Brunson'],
-   injured:['Austin Reaves','Jalen Williams']
+   players:['Jalen Suggs','Matisse Thybulle','Tyrese Proctor','OG Anunoby','Brandon Miller',"Day'Ron Sharpe",'Joel Embiid','Isaiah Hartenstein','Nickeil Alexander-Walker','Stephon Castle','Jaden McDaniels','Jalen Brunson'],
+   injured:['Austin Reaves','Jalen Williams'],
+   unassigned:['Devin Vassell']
   },
   {
    name:'Matts666',
@@ -66,5 +69,6 @@ export const bigBallsRosterExtras=[
  ['Jalen Smith','CHI','PF,C'],['Kris Dunn','LAC','PG,SG'],['Jimmy Butler III','GSW','SF,PF'],
  ['Klay Thompson','MIA','SG,SF'],['Jared McCain','OKC','PG,SG'],['Aday Mara','OKC','C'],
  ['Brook Lopez','LAC','C'],['Matisse Thybulle','LAL','SG,SF'],['Tyrese Proctor','CLE','PG,SG'],
- ['Alex Caruso','OKC','PG,SG'],['Mitchell Robinson','BOS','C'],['Yanic Konan Niederhäuser','LAC','C']
+ ['Alex Caruso','OKC','PG,SG'],['Mitchell Robinson','BOS','C'],['Yanic Konan Niederhäuser','LAC','C'],
+ ['Kasparas Jakučionis','MIL','PG,SG']
 ];
