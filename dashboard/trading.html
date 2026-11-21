@@ -7,9 +7,9 @@
  <link rel="icon" href="./player-logo.png?v=3">
  <link rel="stylesheet" href="./style.css">
  <link rel="stylesheet" href="./font.css?v=logo-contrast">
- <link rel="stylesheet" href="./trading.css?v=league-trades">
+ <link rel="stylesheet" href="./trading.css?v=current-ranks">
  <script type="module" src="./theme.mjs?v=logo-contrast"></script>
- <script type="module" src="./trading.mjs?v=league-trades"></script>
+ <script type="module" src="./trading.mjs?v=current-ranks"></script>
 </head>
 <body class="trade-page">
  <header class="site-header"><div class="masthead">
@@ -295,7 +295,7 @@
    <label class="sr-only" for="picker-search">Search player name, nickname, or NBA team</label>
    <input type="search" id="picker-search" placeholder="Name, nickname, or NBA team">
    <label class="sr-only" for="picker-sort">Sort players</label>
-   <select id="picker-sort"><option value="season">Season rank</option><option value="draft">RotoWire draft rank</option><option value="name">Name</option></select>
+   <select id="picker-sort"><option value="season">Current rank (FP/game)</option><option value="draft">Preseason rank</option><option value="name">Name</option></select>
   </div>
   <p id="picker-status" class="sub" role="status"></p>
   <div id="picker-results" class="picker-results"></div>

@@ -258,7 +258,7 @@ function playerStats(player){
 }
 const rankText=rank=>rank==null?'—':`#${rank}`;
 const seasonRank=player=>currentRanks.get(player.id);
-const rankSummary=player=>`Season ${rankText(seasonRank(player))} · Draft ${rankText(player.rank)}${player.games>0?` · ${player.games} GP`:''}`;
+const rankSummary=player=>`<span class="player-ranks"><span>Current <b>${rankText(seasonRank(player))}</b></span><span>Preseason ${rankText(player.rank)}</span>${player.games>0?`<span>${player.games} GP</span>`:''}</span>`;
 const fp=player=>weights?tradePoints(player.stats,weights):null;
 const occupied=id=>picks.a.includes(id)||picks.b.includes(id);
 const other=key=>key==='a'?'b':'a';
@@ -298,7 +298,7 @@ function renderTrade(){
   $(`#trade-${key}-players`).innerHTML=players.length?players.map(player=>{
    const points=fp(player);
    const profile=player.profile?` · <a href="${esc(player.profile)}" target="_blank" rel="noopener noreferrer">RotoWire</a>`:'';
-   return `<article class="trade-card"><h3>${nbaBadge(player.nba,player.name)}</h3><button class="button" type="button" data-remove="${esc(player.id)}" data-side="${key}" aria-label="Remove ${esc(player.name)}">×</button><span class="sub">${esc(player.position)} · ${rankSummary(player)}${profile}</span><strong class="trade-fp">${points===null?'No score':`${format(points)} <span>FP / game</span>`}</strong><div class="trade-stats">${playerStats(player)}</div></article>`;
+   return `<article class="trade-card"><h3>${nbaBadge(player.nba,player.name)}</h3><button class="button" type="button" data-remove="${esc(player.id)}" data-side="${key}" aria-label="Remove ${esc(player.name)}">×</button><span class="sub">${esc(player.position)}${profile}</span><strong class="trade-fp">${points===null?'No score':`${format(points)} <span>FP / game</span>`}</strong>${rankSummary(player)}<div class="trade-stats">${playerStats(player)}</div></article>`;
   }).join(''):'<p class="trade-empty sub">No players selected.</p>';
  }
  const balance=renderBalance(totals);
@@ -701,7 +701,7 @@ function pastTradeGames(players){
  return `<details class="suggestion-history"><summary>Last five games · fantasy points</summary><div class="swap-impacts">${players.map(player=>{
   const logs=player.gameLogs?.slice(0,5)||[];
   const rows=logs.map((log,index)=>`<tr><th scope="row">${/^\d{4}-\d{2}-\d{2}$/.test(log.date||'')?shortDate.format(slateDate(log.date)):`Game ${index+1}`}${log.opponent?` ${nbaBadge(log.opponent)}`:''}</th><td class="num">${format(tradePoints(log,weights))} FP</td></tr>`).join('');
-  return `<div><strong>${playerBadge(player)}</strong>${rows?`<div class="table-wrap"><table class="trade-scenario-table" aria-label="Fantasy points, newest game first"><tbody>${rows}</tbody></table></div>`:'<p class="sub">No game logs available.</p>'}</div>`;
+  return `<div><strong>${playerBadge(player)}</strong>${rankSummary(player)}${rows?`<div class="table-wrap"><table class="trade-scenario-table" aria-label="Fantasy points, newest game first"><tbody>${rows}</tbody></table></div>`:'<p class="sub">No game logs available.</p>'}</div>`;
  }).join('')}</div><p class="sub">Newest game first · current scoring</p></details>`;
 }
 
@@ -1390,7 +1390,7 @@ async function loadPlayers(){
   rosterBook.setInjuryEstimates(data.players,injuryData);
   if(weights)currentRanks=seasonRanks(data.players,weights);
   const asOf=new Date(data.updatedAt).toLocaleDateString('en-PH',{timeZone:'Asia/Manila',month:'short',day:'numeric'});
-  $('#trade-sources').innerHTML=`<a href="${esc(data.statsUrl)}" target="_blank" rel="noopener noreferrer">RotoWire season stats</a> · checked ${esc(asOf)} · <a href="${esc(data.rankUrl)}" target="_blank" rel="noopener noreferrer">Draft ranks</a> (${esc(data.rankDate)})`;
+  $('#trade-sources').innerHTML=`<a href="${esc(data.statsUrl)}" target="_blank" rel="noopener noreferrer">RotoWire season stats</a> · checked ${esc(asOf)} · <a href="${esc(data.rankUrl)}" target="_blank" rel="noopener noreferrer">Preseason ranks</a> (${esc(data.rankDate)})`;
   colorNumbers($('#trade-sources'));
   return data;
  }).catch(()=>{
@@ -1421,7 +1421,8 @@ function renderPicker(){
  if(entry)notes.push(`${entry.remaining()} ${suggesting?'more you can mark':'open spots'} · Select players, then click Done.`);
  else if(action==='pickup')notes.push(config?`Excludes rostered players across ${config.teams.length} saved team${config.teams.length===1?'':'s'} in ${config.name}.`:'Check pickup availability in your league.');
  else if(team)notes.push(action==='cut'?`Regular roster for ${team.name}.`:`Regular roster and IL for ${team.name}.`);
- else notes.push(`Season rank uses your FP per game rules across ${currentRanks.size} players with stats.`);
+ if(weights)notes.push(`Current rank is based on season FP/game under your scoring across ${currentRanks.size} tracked players. Preseason rank comes from RotoWire.`);
+ else notes.push('Set league scoring to see current ranks.');
  if(players.length>100)notes.push(`Showing 100 of ${players.length}. Search to narrow the list.`);
  if(!players.length)notes.push('No matching players with a profile in the trade tool.');
  status.textContent=notes.join(' ');
@@ -1429,10 +1430,9 @@ function renderPicker(){
   const points=fp(player);
   const selected=entry?entry.rostered(player):!browsing&&pickerOccupied(player.id);
   const full=entry?.remaining()===0;
-  const lead=sort.value==='draft'?rankText(player.rank):rankText(seasonRank(player));
   const selectionLabel=suggesting?'Marked':entry?'On roster':'Added';
   const limitLabel=suggesting?'Mark limit reached':'Roster full';
-  const cells=`<span>${lead}</span><span><strong>${playerBadge(player)}</strong><span class="sub">${nbaBadge(player.nba)} ${esc(player.position)} · ${rankSummary(player)}</span></span><span class="${!selected&&!full&&points!==null?'trade-fp':''}">${selected?selectionLabel:full?limitLabel:points===null?(weights?'No stats':''):`${format(points)} FP`}</span>`;
+  const cells=`<span><strong>${playerBadge(player)}</strong><span class="sub">${nbaBadge(player.nba)} ${esc(player.position)}</span>${rankSummary(player)}</span><span class="${!selected&&!full&&points!==null?'trade-fp':''}">${selected?selectionLabel:full?limitLabel:points===null?(weights?'No stats':''):`${format(points)} FP`}</span>`;
   return browsing?`<div class="picker-row">${cells}</div>`:`<button class="picker-row" type="button" data-player-id="${esc(player.id)}" ${selected||full||suggesting&&points===null?'disabled':''}>${cells}</button>`;
  }).join('');
  colorNumbers(results);
