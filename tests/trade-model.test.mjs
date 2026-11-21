@@ -7,7 +7,7 @@ import {pickerMatch,suggestFairTrades,lineupWeek,lineupHorizon,rankLineupTargets
 import {playerKey} from '../dashboard/model.mjs';
 import {bigBalls} from '../dashboard/big-balls.mjs';
 import {smallBalls} from '../dashboard/small-balls.mjs';
-import {estimateInjurySlots} from '../dashboard/saved-rosters.mjs';
+import {estimateInjurySlots,matchingPublicLeague} from '../dashboard/saved-rosters.mjs';
 import {rankStreamers,tradedRoster,counteroffers} from '../dashboard/trade-planner.mjs';
 
 const base={pts:'1',reb:'1.2',ast:'1.5',st:'3',blk:'3',to:'1.5'};
@@ -101,6 +101,16 @@ test('lineup targets favor usable starts and apply league eligibility across the
  assert.deepEqual(impact('a','b'),{outgoingStarts:1,incomingStarts:1,otherStarterDelta:0,bestDay:{date:dates.at(-1),slot:'PG',gain:40},starterShift:null});
  assert.deepEqual(impact('b','a'),{outgoingStarts:0,incomingStarts:1,otherStarterDelta:0,bestDay:{date:dates[0],slot:'PG',gain:38},starterShift:null});
  assert.equal(lineupWeek({...feed,refreshedDates:dates.slice(0,-1)},{pts:2},dates),null);
+});
+
+test('public roster presets match normalized scoring, including rebound mode',()=>{
+ const standard=scoringWeights({...bigBalls.scoring,to:'1.5'},false);
+ const split=scoringWeights({...smallBalls.scoring,to:'1.5'},true);
+ assert.equal(matchingPublicLeague(standard)?.id,'big-balls');
+ assert.equal(matchingPublicLeague(split)?.id,'small-balls');
+ assert.equal(matchingPublicLeague({...standard,reb:1.3}),null);
+ assert.equal(matchingPublicLeague({...split,oreb:1.2}),null);
+ assert.equal(matchingPublicLeague(null),null);
 });
 
 test('the public Big Balls preset has its league scoring and ten non-overlapping rosters',()=>{

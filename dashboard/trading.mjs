@@ -1,5 +1,5 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
-import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=roster-nov21';
+import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=league-scoring-filter';
 import {bigBalls} from './big-balls.mjs?v=2026-11-21';
 import {smallBalls} from './small-balls.mjs?v=reed-pickup';
 import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,playerInjury,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,lineupWeek,lineupHorizon,lineupWeekCount,rankLineupTargets,lineupTradeFairness,compareLineupTrades,lineupSwapImpact,swapLineup,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=balanced-trades';
@@ -117,7 +117,7 @@ const roster={...defaultRoster,a:{open:0,ilOut:0,ilIn:0,players:[]},b:{open:0,il
 const rosterPanel=$('#trade-roster');
 const requestedLeague=new URLSearchParams(location.search).get('league');
 const settingsKey=requestedLeague===smallBalls.id?'dafantatool-small-balls-weights':'real-balliggas-trade-weights';
-let weights,weightsPreset,side='a',pickerPurpose='trade',pickerLeague,draftPicker,dataset,dataRequest,rosterBook;
+let weights,side='a',pickerPurpose='trade',pickerLeague,draftPicker,dataset,dataRequest,rosterBook;
 let currentRanks=new Map();
 let playersByName=new Map();
 let injuryData,injuryRequest;
@@ -169,6 +169,12 @@ function activateTrade(save){
  const split=input('split').checked;
  weights=scoringWeights(values,split);
  if(!weights)return;
+ const removed=rosterBook.setScoring(weights);
+ for(const key of removed)picks[key]=[];
+ if(removed.length){
+  for(const key of tradeSides)Object.assign(roster[key],{open:0,ilOut:0,ilIn:0,players:[],mode:null});
+ }
+ if(shortlistReturn&&!rosterBook.allowsTeam(shortlistReturn.teamValue))shortlistReturn=null;
  if(dataset)currentRanks=seasonRanks(dataset.players,weights);
  input('to').value=weights.to;
  if(save)try {localStorage.setItem(settingsKey,JSON.stringify({...values,reb:split?totalRebound:values.reb,to:weights.to,split}));} catch {}
@@ -182,7 +188,6 @@ function activateTrade(save){
 }
 form.addEventListener('submit',event=>{
  event.preventDefault();
- weightsPreset=null;
  activateTrade(true);
  $('#edit-scoring').focus();
 });
@@ -192,7 +197,6 @@ $('#edit-scoring').addEventListener('click',()=>{
  input('pts').focus();
 });
 function enableLeague(league,save){
- weightsPreset=league.id;
  input('split').checked=Object.hasOwn(league.scoring,'oreb')&&Object.hasOwn(league.scoring,'dreb');
  for(const key of Object.keys(boxFields))input(key).value=league.scoring[key]??'';
  totalRebound=league.scoring.reb??'';
@@ -872,8 +876,7 @@ function loadSuggestion(offer,teams,adjustments={a:[],b:[]}){
  const config=teams.a.config;
  roster.regular=config.regular;
  roster.il=config.il;
- if(weightsPreset&&config.scoring&&weightsPreset!==config.id)enableLeague(config,false);
- else renderTrade();
+ renderTrade();
  tab.focus();
 }
 
@@ -882,6 +885,7 @@ function renderShortlist(){
  if(!shortlist.length){output.innerHTML='<p class="sub">Save offers here to compare them.</p>';return;}
  const scenario=shortlistReturn;
  const rows=shortlist.map((entry,index)=>{
+  if(tradeSides.some(key=>!rosterBook.allowsTeam(entry.teams[key].value)))return '';
   const saved=storedOffer(entry);
   const actions=`<button class="button" type="button" data-shortlist-load="${index}" ${saved?'':'disabled'}>Load</button> <button class="button" type="button" data-shortlist-remove="${index}">Remove</button>`;
   if(!saved)return `<tr><th scope="row">${esc(entry.teams.a.teamName)} / ${esc(entry.teams.b.teamName)}</th><td colspan="${scenario?4:3}">Saved roster or player unavailable</td><td>${actions}</td></tr>`;
@@ -918,6 +922,7 @@ function renderShortlist(){
   return `<tr><th scope="row">${tradeSides.map(key=>`<div>${esc(teams[key].team.name)} sends ${listBadges(offer[key])}</div>`).join('')}</th>
    <td>${cell('week')}</td><td>${cell('total')}</td>${scenario?`<td>${cell('returnGain')}</td>`:''}<td>${cuts||'—'}</td><td>${actions}</td></tr>`;
  }).join('');
+ if(!rows){output.innerHTML='<p class="sub">No saved offers for this scoring setup.</p>';return;}
  const note=scenario?` <p class="sub">IL scenario: ${namedPlayerBadge(scenario.name)} returns ${shortDate.format(slateDate(scenario.from))} ET at ${format(scenario.scale*100)}% production. <button class="button" type="button" data-clear-shortlist-return>Clear scenario</button></p>`:'';
  output.innerHTML=`<p class="sub">Uses current scoring and league snapshots. Missing schedule or required roster moves can leave totals blank.</p>${note}<div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Offer</th><th>This week</th><th>Five weeks</th>${scenario?'<th>With IL return</th>':''}<th>Cuts</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`;
  colorNumbers(output);
@@ -1537,11 +1542,6 @@ $('#picker-results').addEventListener('click',event=>{
 rosterBook=setupRosterBook((config,key)=>{
  if(config){roster.regular=config.regular;roster.il=config.il;}
  if(key&&!config)Object.assign(roster[key],{open:0,ilOut:0,ilIn:0});
- const otherConfig=key&&rosterBook.getTeam(other(key))?.config;
- if(config?.scoring&&weightsPreset&&weightsPreset!==config.id&&(!otherConfig||otherConfig.id===config.id)){
-  enableLeague(config,false);
-  return;
- }
  if(weights)renderTrade();
 },config=>{
  pickerLeague=config;

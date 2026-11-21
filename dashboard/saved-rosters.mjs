@@ -7,6 +7,13 @@ const publicLeagues=[bigBalls,smallBalls];
 const publicLeague=id=>publicLeagues.find(config=>config.id===id);
 const isPublicLeague=config=>publicLeagues.includes(config);
 
+export function matchingPublicLeague(weights){
+ if(!weights)return null;
+ const keys=Object.keys(weights);
+ return publicLeagues.find(({scoring})=>
+  keys.length===Object.keys(scoring).length&&keys.every(stat=>weights[stat]===scoring[stat]))||null;
+}
+
 const storageKey='dafantatool.saved-rosters.v1';
 const keys=['a','b'];
 const clean=(value,max=60)=>typeof value==='string'?value.replace(/\s+/g,' ').trim().slice(0,max):'';
@@ -90,6 +97,7 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
  const value=name=>form.elements.namedItem(name);
  let library=[];
  let publicEstimates=new Map();
+ let activeLeague=null;
  try {
   const stored=JSON.parse(localStorage.getItem(storageKey)||'[]');
   library=stored.map(normalizeRosterConfig).filter(Boolean);
@@ -97,9 +105,15 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
  let imported=parseRosterConfig(location.hash);
  const option=(label,id)=>new Option(label,id);
  const configById=id=>publicLeague(id)||(id===''?null:library[Number(id)]);
+ const visibleLeagues=()=>activeLeague?[activeLeague]:publicLeagues;
+ const allowsTeam=value=>{
+  const preset=publicLeague(value.split(':')[0]);
+  return !activeLeague||!preset||preset===activeLeague;
+ };
  const current=()=>configById(configs.value);
  const currentTeam=()=>teams.value===''?null:current()?.teams[Number(teams.value)];
  const resolveTeam=value=>{
+  if(!allowsTeam(value))return null;
   const [configIndex,teamIndex]=value.split(':');
   const config=configById(configIndex),team=config?.teams[teamIndex];
   return team?{config,team:publicEstimates.get(team)||team,value}:null;
@@ -109,7 +123,7 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
  function refreshSelectors(){
   for(const select of Object.values(selectors)){
    const prior=select.value;
-   const publicTeams=publicLeagues.map(config=>{
+   const publicTeams=visibleLeagues().map(config=>{
     const group=document.createElement('optgroup');
     group.label=`${config.name} (public)`;
     group.append(...config.teams.map((team,i)=>option(`${team.name} · ${config.name}`,`${config.id}:${i}`)));
@@ -158,8 +172,8 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
   });
  }
  function selectConfig(index='',teamIndex='0'){
-  configs.replaceChildren(option('New configuration',''),...publicLeagues.map(config=>option(`${config.name} (public)`,config.id)),...library.map((config,i)=>option(`${config.name} (local)`,i)));
-  configs.value=index;
+  configs.replaceChildren(option('New configuration',''),...visibleLeagues().map(config=>option(`${config.name} (public)`,config.id)),...library.map((config,i)=>option(`${config.name} (local)`,i)));
+  configs.value=[...configs.options].some(item=>item.value===index)?index:'';
   const config=current();
   const isPublic=isPublicLeague(config);
   value('configName').value=config?.name||'';
@@ -198,7 +212,7 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
   catch {share.value=url.href;share.hidden=false;share.select();status.textContent='Copy this roster link.';}
  }
 
- const open=()=>{selectConfig(publicLeague(new URLSearchParams(location.search).get('league'))?.id||(!library.length?bigBalls.id:'0'));status.textContent='';importButton.hidden=true;dialog.showModal();};
+ const open=()=>{selectConfig(activeLeague?.id||publicLeague(new URLSearchParams(location.search).get('league'))?.id||(!library.length?bigBalls.id:'0'));status.textContent='';importButton.hidden=true;dialog.showModal();};
  $('#open-roster-book').addEventListener('click',open);
  $('#setup-roster-book').addEventListener('click',open);
  $('#close-roster-book').addEventListener('click',()=>dialog.close());
@@ -269,7 +283,13 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
   importButton.hidden=!imported;
   status.textContent=imported?`${imported.name} · ${imported.teams.map(team=>team.name).join(', ')}`:'Could not open this roster link.';
  }
- return {getTeam,resolveTeam,leagueTeams(saved){
+ return {getTeam,resolveTeam,allowsTeam,setScoring(weights){
+  activeLeague=matchingPublicLeague(weights);
+  const removed=keys.filter(key=>!allowsTeam(selectors[key].value));
+  refreshSelectors();
+  if(dialog.open&&activeLeague&&isPublicLeague(current())&&current()!==activeLeague)selectConfig(activeLeague.id);
+  return removed;
+ },leagueTeams(saved){
   const league=saved.value.split(':')[0];
   return saved.config.teams.map((_,index)=>resolveTeam(`${league}:${index}`));
  },setInjuryEstimates(players,report){
