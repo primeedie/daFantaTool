@@ -9,7 +9,7 @@
  <link rel="stylesheet" href="./font.css?v=logo-contrast">
  <link rel="stylesheet" href="./trading.css?v=current-ranks">
  <script type="module" src="./theme.mjs?v=logo-contrast"></script>
- <script type="module" src="./trading.mjs?v=current-ranks"></script>
+ <script type="module" src="./trading.mjs?v=balanced-trades"></script>
 </head>
 <body class="trade-page">
  <header class="site-header"><div class="masthead">
@@ -178,6 +178,7 @@
     <section class="panel panel-body trade-balance">
      <h2>League trade suggestions</h2>
      <p class="sub">Choose your saved team as Manager A. Search the whole league for up to five fair offers.</p>
+     <details class="suggestion-history"><summary>What makes an offer fair?</summary><p id="league-fairness-rules" class="sub"></p></details>
      <button id="rank-league-trades" type="button" class="button primary" disabled>Find league trades</button>
      <p id="league-trade-status" class="sub" role="status"></p>
      <div id="league-trade-results" class="suggestion-results"></div>

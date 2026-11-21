@@ -195,27 +195,43 @@ export function swapLineup(players,sent,received){
  return [...players.filter(player=>!ids.has(player.id)),...received];
 }
 
-export function rankLineupTargets(project,rosters,outgoing,targets,weights,limits={}){
+export const lineupTradeFairness={packageGap:10,playerGap:25,minimumGain:5,gainRatio:2,minimumGames:5};
+
+function comparablePackages(a,b){
+ const {packageGap,playerGap}=lineupTradeFairness;
+ if(a.players.length!==b.players.length)return null;
+ const balance=tradeBalance(a.points,b.points);
+ if(!balance||balance.percentage>packageGap)return null;
+ if(a.players.length===2){
+  if(a.individualPoints.some((points,index)=>tradeBalance(points,b.individualPoints[index]).percentage>playerGap))return null;
+ }
+ return balance;
+}
+
+export function rankLineupTargets(project,rosters,outgoing,targets,weights){
  const before=project(rosters.a),opponentBefore=project(rosters.b);
- const source=suggestionPackages(outgoing.filter(player=>!before.missing.includes(player.name)),weights);
- const wanted=suggestionPackages(targets.filter(player=>!opponentBefore.missing.includes(player.name)),weights);
+ const qualify=(players,projection)=>players.filter(player=>player.games>=lineupTradeFairness.minimumGames&&!projection.missing.includes(player.name));
+ const source=suggestionPackages(qualify(outgoing,before),weights);
+ const wanted=suggestionPackages(qualify(targets,opponentBefore),weights);
  const ranked=[];
  const score=project.score||((players)=>project(players).points);
+ const {minimumGain,gainRatio}=lineupTradeFairness;
  for(const a of source)for(const b of wanted){
-  const balance=tradeBalance(a.points,b.points);
-  if(balance?.level!=='fair'||a.players.some(player=>b.players.some(other=>other.id===player.id)))continue;
-  const delta=b.players.length-a.players.length;
-  if(rosters.a.length+delta>(limits.a??rosters.a.length)||rosters.b.length-delta>(limits.b??rosters.b.length))continue;
+  const balance=comparablePackages(a,b);
+  if(!balance||a.players.some(player=>b.players.some(other=>other.id===player.id)))continue;
   const gain=Math.round((score(swapLineup(rosters.a,a.players,b.players))-before.points)*100)/100;
-  if(gain<=0)continue;
+  if(gain<minimumGain)continue;
   const opponentGain=Math.round((score(swapLineup(rosters.b,b.players,a.players))-opponentBefore.points)*100)/100;
-  if(opponentGain<0)continue;
-  ranked.push({a:a.players,b:b.players,gain,opponentGain,balance});
+  if(opponentGain<minimumGain||Math.max(gain,opponentGain)>gainRatio*Math.min(gain,opponentGain))continue;
+  const key=[a,b].map(group=>group.players.map(player=>player.id).sort().join(',')).sort().join('|');
+  ranked.push({a:a.players,b:b.players,gain,opponentGain,balance,key});
  }
  return ranked.sort(compareLineupTrades);
 }
 
-export const compareLineupTrades=(a,b)=>b.gain-a.gain||b.opponentGain-a.opponentGain||a.balance.percentage-b.balance.percentage;
+const gainGap=offer=>Math.abs(offer.gain-offer.opponentGain)/Math.max(offer.gain,offer.opponentGain);
+export const compareLineupTrades=(a,b)=>gainGap(a)-gainGap(b)||a.balance.percentage-b.balance.percentage||
+ Math.min(b.gain,b.opponentGain)-Math.min(a.gain,a.opponentGain)||a.key.localeCompare(b.key);
 
 export function historicalAvailability(player,record,currentSeason,weights){
  if(!record||!Number.isInteger(currentSeason))return null;
@@ -397,12 +413,12 @@ function suggestionPackages(players,weights){
  }
  const pool=[...scored.values()].slice(0,suggestionPoolLimit);
  const packages=[];
- function extend(start,group,points){
-  if(group.length)packages.push({players:group,points});
+ function extend(start,group,points,individualPoints){
+  if(group.length)packages.push({players:group,points,individualPoints:[...individualPoints].sort((a,b)=>b-a)});
   if(group.length===2)return;
-  for(let i=start;i<pool.length;i++)extend(i+1,[...group,pool[i].player],points+pool[i].points);
+  for(let i=start;i<pool.length;i++)extend(i+1,[...group,pool[i].player],points+pool[i].points,[...individualPoints,pool[i].points]);
  }
- extend(0,[],0);
+ extend(0,[],0,[]);
  return packages;
 }
 
