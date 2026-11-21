@@ -2,7 +2,7 @@ import {nbaBadge,playerKey} from './public-ui.mjs';
 import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=league-scoring-filter';
 import {bigBalls} from './big-balls.mjs?v=2026-11-21';
 import {smallBalls} from './small-balls.mjs?v=reed-pickup';
-import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,playerInjury,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,lineupWeek,lineupHorizon,lineupWeekCount,rankLineupTargets,lineupTradeFairness,compareLineupTrades,lineupSwapImpact,swapLineup,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=balanced-trades';
+import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,playerInjury,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,lineupWeek,lineupHorizon,lineupWeekCount,rankLineupTargets,lineupTradeFairness,compareLineupTrades,lineupSwapImpact,swapLineup,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=refresh-fair-trades';
 import {rankStreamers,tradedRoster,counteroffers} from './trade-planner.mjs?v=league-trades';
 
 const $=selector=>document.querySelector(selector);
@@ -324,9 +324,22 @@ function exclusionsFor(key){
  return byTeam.get(scope);
 }
 
-function renderSuggestions(rank=false){
+function suggestionBatch(ranking,size,action,status){
+ if(action==='refresh'&&ranking.offset+size<ranking.matches.length)ranking.offset+=size;
+ const end=ranking.offset+size;
+ const more=end<ranking.matches.length;
+ $('#refresh-lineup-targets').disabled=!more;
+ if(ranking.matches.length){
+  const last=Math.min(end,ranking.matches.length);
+  status.append(` Showing ${ranking.offset+1}–${last} of ${ranking.matches.length} offers.${more?'':' No more offers.'}`);
+ }
+ return ranking.matches.slice(ranking.offset,end);
+}
+
+function renderSuggestions(action){
  if(suggestionsPanel.hidden)return;
  const status=$('#suggestion-status'),results=$('#suggestion-results'),pools=$('#suggestion-pools');
+ $('#refresh-lineup-targets').disabled=true;
  if(!dataset){status.textContent='Loading players…';return;}
  const available={};
  pools.innerHTML=['a','b'].map(key=>{
@@ -354,18 +367,18 @@ function renderSuggestions(rank=false){
  if(!bothSaved){
   const key=JSON.stringify(tradeSides.map(side=>available[side].map(player=>player.id)));
   button.disabled=!available.a.length||!available.b.length;
-  if(rank)manualRanking={key,weights,offers:suggestFairTrades(available.a,available.b,weights)};
+  if(action==='generate')manualRanking={key,weights,matches:suggestFairTrades(available.a,available.b,weights),offset:0};
   const current=manualRanking?.key===key&&manualRanking.weights===weights;
-  if(current)offers=manualRanking.offers;
   status.textContent=button.disabled?'Choose a saved team or add players to each list.':current?
-   (offers.length?'Season FP/game comparison. Select both saved teams to compare projected lineup gains.':'No close offers among the eligible players.'):
+   (manualRanking.matches.length?'Season FP/game comparison. Select both saved teams to compare projected lineup gains.':'No close offers among the eligible players.'):
    'Generate offers using season FP/game. Select both saved teams to compare projected lineup gains.';
+  if(current)offers=suggestionBatch(manualRanking,8,action,status);
  }
  results.innerHTML=offers.map(({a,b,balance},index)=>{
   const offerSide=(key,pkg)=>`<p>${feedbackManager(key)} sends ${pkg.players.map(player=>nbaBadge(player.nba,player.name)).join(' ')} · <strong class="trade-fp">${format(pkg.points)} FP/game</strong></p>`;
   return `<article class="suggestion-offer"><header><strong>${a.players.length}-for-${b.players.length} · ${format(balance.percentage)}% gap</strong><button type="button" class="button" data-load-offer="${index}">Load in Hub</button></header>${offerSide('a',a)}${offerSide('b',b)}${pastTradeGames([...a.players,...b.players])}</article>`;
  }).join('');
- if(bothSaved)renderLineupTargets(rank);
+ if(bothSaved)renderLineupTargets(action);
  else {
   lineupTargets=[];
   for(const id of ['target-status','target-week','target-results'])$(`#${id}`).replaceChildren();
@@ -388,11 +401,16 @@ suggestionsPanel.addEventListener('change',event=>{
 });
 
 suggestionsPanel.addEventListener('click',event=>{
+ if(event.target.closest('#refresh-lineup-targets')){
+  renderSuggestions('refresh');
+  return;
+ }
  if(event.target.closest('#rank-lineup-targets')){
   const button=$('#rank-lineup-targets');
   button.disabled=true;
+  $('#refresh-lineup-targets').disabled=true;
   $('#suggestion-status').textContent='Checking eligible players…';
-  setTimeout(()=>renderSuggestions(true),50);
+  setTimeout(()=>renderSuggestions('generate'),50);
   return;
  }
  const action=event.target.closest('[data-load-offer], [data-suggestion-pick]');
@@ -672,7 +690,7 @@ function renderLineupFit(selected,adjustments){
   <div class="manager-impacts lineup-fit-grid">${cards.map(card=>`<section class="manager-impact lineup-fit-card">${card}</section>`).join('')}</div>`;
 }
 
-function renderLineupTargets(rank){
+function renderLineupTargets(action){
  const {weeks,project}=currentHorizon();
  const status=$('#target-status'),results=$('#target-results');
  const button=$('#rank-lineup-targets');
@@ -702,16 +720,16 @@ function renderLineupTargets(rank){
  const scope=coverage===lineupWeekCount?'five weeks':`${coverage} weeks with schedule coverage`;
  if(!outgoing.length||!targets.length){status.textContent='At least one eligible player must remain on each side.';return;}
  button.disabled=false;
- if(rank)targetRanking={key,project,results:rankLineupTargets(project,regular,outgoing,targets,weights).slice(0,6)};
+ if(action==='generate')targetRanking={key,project,matches:rankLineupTargets(project,regular,outgoing,targets,weights),offset:0};
  if(targetRanking?.key!==key||targetRanking.project!==project){
   status.textContent=`Search the unchecked players for balanced one-for-one and two-for-two swaps across ${scope}.`;
   return;
  }
- lineupTargets=targetRanking.results;
  const missing=[...new Set([...project(regular.a).missing,...project(regular.b).missing])];
  status.textContent=`One-for-one and two-for-two swaps across ${scope}, closest gains first. ${lineupAssumptions([teamA,teamB])}`;
  if(missing.length)status.insertAdjacentHTML('beforeend',` Partial estimate. Missing projection data for ${missing.map(namedPlayerBadge).join(', ')}.`);
- if(!lineupTargets.length)status.append(' No swaps meet the balanced-gain thresholds.');
+ if(!targetRanking.matches.length)status.append(' No swaps meet the balanced-gain thresholds.');
+ lineupTargets=suggestionBatch(targetRanking,6,action,status);
  results.innerHTML=lineupTargets.map((offer,index)=>suggestionCard(offer,saved,project,`target:${index}`)).join('');
 }
 

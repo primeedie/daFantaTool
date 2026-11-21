@@ -7,9 +7,9 @@
  <link rel="icon" href="./player-logo.png?v=3">
  <link rel="stylesheet" href="./style.css">
  <link rel="stylesheet" href="./font.css?v=logo-contrast">
- <link rel="stylesheet" href="./trading.css?v=current-ranks">
+ <link rel="stylesheet" href="./trading.css?v=refresh-fair-trades-current-ranks">
  <script type="module" src="./theme.mjs?v=logo-contrast"></script>
- <script type="module" src="./trading.mjs?v=league-scoring-filter"></script>
+ <script type="module" src="./trading.mjs?v=refresh-fair-trades"></script>
 </head>
 <body class="trade-page">
  <header class="site-header"><div class="masthead">
@@ -188,6 +188,7 @@
      <p class="sub">Check your untouchables on the left and players you don’t want on the right. Unchecked players are eligible. Leave everything unchecked to search both rosters.</p>
      <div class="manager-impacts" id="suggestion-pools"></div>
      <button id="rank-lineup-targets" class="button primary" type="button" disabled>Generate trades</button>
+     <button id="refresh-lineup-targets" class="button" type="button" disabled>Refresh offers</button>
      <span class="sub" id="target-week"></span>
      <p class="sub" id="suggestion-status" role="status"></p>
      <p class="sub" id="target-status" role="status"></p>

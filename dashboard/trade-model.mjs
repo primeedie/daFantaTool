@@ -431,12 +431,9 @@ export function suggestFairTrades(outgoing,targets,weights){
   const balance=tradeBalance(b.points,a.points);
   if(balance?.level!=='fair'||a.players.some(player=>b.players.some(target=>target.id===player.id)))continue;
   const offer={a,b,balance,size:a.players.length+b.players.length,total:a.points+b.points};
-  const index=matches.findIndex(match=>compare(offer,match)<0);
-  if(index>=0)matches.splice(index,0,offer);
-  else if(matches.length<8)matches.push(offer);
-  if(matches.length>8)matches.pop();
+  matches.push(offer);
  }
- return matches;
+ return matches.sort(compare);
 }
 
 export function managerChanges(outgoingA,outgoingB){

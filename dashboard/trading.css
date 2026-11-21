@@ -85,7 +85,7 @@
 .lineup-fit-card .lineup-totals tfoot {font-weight:bold;background:var(--surface)}
 .lineup-fit-card .lineup-tips {padding-inline-start:1.3em;line-height:1.65}
 .lineup-tips li+li {margin-top:8px}
-#rank-lineup-targets {margin-bottom:14px}
+#rank-lineup-targets, #refresh-lineup-targets {margin-bottom:14px}
 .trade-toolbar,.picker-controls,.picker-head {display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
 .trade-toolbar {justify-content:flex-start;flex-wrap:wrap}
 .mobile-trade-controls,.lineup-mobile-label {display:none}
