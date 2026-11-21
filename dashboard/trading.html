@@ -9,7 +9,7 @@
  <link rel="stylesheet" href="./font.css?v=logo-contrast">
  <link rel="stylesheet" href="./trading.css?v=current-ranks">
  <script type="module" src="./theme.mjs?v=logo-contrast"></script>
- <script type="module" src="./trading.mjs?v=balanced-trades"></script>
+ <script type="module" src="./trading.mjs?v=trade-exclusions"></script>
 </head>
 <body class="trade-page">
  <header class="site-header"><div class="masthead">
@@ -185,16 +185,14 @@
     </section>
     <section class="panel panel-body trade-balance" aria-labelledby="suggestions-title">
      <h2 id="suggestions-title">Find fair trades</h2>
-     <p class="sub">Choose saved teams above or search for players. Each offer uses up to 2 marked players per side and stays within 10% on season FP/game.</p>
+     <p class="sub">Check your untouchables on the left and players you don’t want on the right. Unchecked players are eligible. Leave everything unchecked to search both rosters.</p>
      <div class="manager-impacts" id="suggestion-pools"></div>
+     <button id="rank-lineup-targets" class="button primary" type="button" disabled>Generate trades</button>
+     <span class="sub" id="target-week"></span>
      <p class="sub" id="suggestion-status" role="status"></p>
-     <div id="suggestion-results" class="suggestion-results"></div>
-    </section>
-    <section class="panel panel-body trade-balance" aria-labelledby="lineup-targets-title">
-     <div class="roster-heading"><h2 id="lineup-targets-title">Trade targets by need</h2><span class="sub" id="target-week"></span></div>
      <p class="sub" id="target-status" role="status"></p>
-     <button id="rank-lineup-targets" class="button primary" type="button" disabled>Rank swaps</button>
      <div id="target-results" class="suggestion-results"></div>
+     <div id="suggestion-results" class="suggestion-results"></div>
     </section>
     <section class="panel panel-body trade-balance">
      <h2>Trade shortlist</h2>

@@ -101,8 +101,9 @@ const picker=$('#player-picker');
 const search=$('#picker-search');
 const sort=$('#picker-sort');
 const picks={a:[],b:[]};
-const candidates={a:new Set(),b:new Set()};
-let offers=[],lineupTargets=[],targetRanking;
+const manualTradePools={a:new Set(),b:new Set()};
+const tradeExclusions={a:new Map(),b:new Map()};
+let offers=[],lineupTargets=[],targetRanking,manualRanking;
 let leagueSearch,shortlistReturn;
 const shortlistKey='dafantatool-trade-shortlist';
 const tradeSides=['a','b'];
@@ -312,50 +313,73 @@ function renderTrade(){
  colorNumbers(board);
 }
 
+function exclusionsFor(key){
+ const scope=rosterBook.getTeam(key)?.value??'manual';
+ const byTeam=tradeExclusions[key];
+ if(!byTeam.has(scope))byTeam.set(scope,new Set());
+ return byTeam.get(scope);
+}
+
 function renderSuggestions(rank=false){
  if(suggestionsPanel.hidden)return;
  const status=$('#suggestion-status'),results=$('#suggestion-results'),pools=$('#suggestion-pools');
  if(!dataset){status.textContent='Loading players…';return;}
- const selected={};
+ const available={};
  pools.innerHTML=['a','b'].map(key=>{
   const {team,allows}=rosterScope(key,'trade');
   const rosterRows=team?[...team.players.map(name=>({name,slot:team.ilEstimate?.regular.includes(name)?'Estimated regular':null})),...team.injured.map(name=>({name,slot:team.ilEstimate?.likely.includes(name)?'Likely IL':'IL'})),...(team.unassigned||[]).map(name=>({name,slot:'Slot unconfirmed'}))]:
-   [...candidates[key]].map(id=>({name:dataset.players.find(player=>player.id===id)?.name||''}));
+   [...manualTradePools[key]].map(id=>({name:dataset.players.find(player=>player.id===id)?.name||''}));
   const rows=rosterRows.map(row=>({...row,player:playersByName.get(playerKey(row.name))}));
-  const valid=new Set(rows.map(row=>row.player).filter(player=>player&&allows(player)).map(player=>player.id));
-  for(const id of candidates[key])if(!valid.has(id))candidates[key].delete(id);
-  selected[key]=rows.map(row=>row.player).filter(player=>player&&candidates[key].has(player.id));
-  const heading=key==='a'?`${managerLabel('a')} is willing to send`:`Targets from ${managerLabel('b')}`;
+  const excluded=exclusionsFor(key);
+  const valid=rows.map(row=>row.player).filter(player=>player&&allows(player));
+  available[key]=valid.filter(player=>!excluded.has(player.id));
+  const excludedCount=valid.length-available[key].length;
+  const heading=key==='a'?'Untouchable players':'Players you don’t want';
   const list=rows.map(({name,slot,player})=>{
    const id=player?.id||'';
-   const checked=candidates[key].has(id);
+   const checked=excluded.has(id);
    const points=player?fp(player):null;
-   const disabled=points===null||candidates[other(key)].has(id)||!checked&&candidates[key].size>=suggestionPoolLimit;
-   return `<label><input type="checkbox" data-candidate="${esc(id)}" data-side="${key}" ${checked?'checked':''} ${disabled?'disabled':''}><span>${nbaBadge(player?.nba,name)}${slot?` <small class="sub">${esc(slot)}</small>`:''}</span><small class="${points!==null?'trade-fp':'sub'}">${points!==null?`${format(points)} FP`:'No stats'}</small></label>`;
+   return `<label><input type="checkbox" data-exclude-player="${esc(id)}" data-side="${key}" ${checked?'checked':''} ${id?'':'disabled'}><span>${nbaBadge(player?.nba,name)}${slot?` <small class="sub">${esc(slot)}</small>`:''}</span><small class="${points!==null?'trade-fp':'sub'}">${points!==null?`${format(points)} FP`:'No stats'}</small></label>`;
   }).join('');
-  return `<section class="manager-impact"><h3 class="manager-${key}-text">${heading}</h3>${team?`<p class="sub">${esc(team.name)} · ${candidates[key].size} marked</p>`:''}<div class="suggestion-pool-list">${list}</div>${team?'':`<button class="button" type="button" data-suggestion-pick="${key}" ${candidates[key].size>=suggestionPoolLimit?'disabled':''}>${key==='a'?'Choose players to offer':'Choose targets'}</button>`}</section>`;
+  return `<section class="manager-impact"><h3 class="manager-${key}-text">${heading}</h3><p class="sub">${team?esc(team.name):managerLabel(key)} · ${excludedCount} excluded</p><div class="suggestion-pool-list">${list}</div>${team?'':`<button class="button" type="button" data-suggestion-pick="${key}" ${manualTradePools[key].size>=suggestionPoolLimit?'disabled':''}>Add players to list</button>`}</section>`;
  }).join('');
- const mixedLeagues=mixedLeagueSelection();
- offers=mixedLeagues?[]:suggestFairTrades(selected.a,selected.b,weights);
- status.textContent=mixedLeagues?'Choose two teams from the same league.':!selected.a.length||!selected.b.length?'Mark at least one player on each side.':offers.length?'Closest matches first. For uneven offers, review roster spots in the Hub.':'No fair matches among the marked players.';
+ const bothSaved=rosterBook.getTeam('a')&&rosterBook.getTeam('b');
+ const button=$('#rank-lineup-targets');
+ status.textContent='';
+ offers=[];
+ if(!bothSaved){
+  const key=JSON.stringify(tradeSides.map(side=>available[side].map(player=>player.id)));
+  button.disabled=!available.a.length||!available.b.length;
+  if(rank)manualRanking={key,weights,offers:suggestFairTrades(available.a,available.b,weights)};
+  const current=manualRanking?.key===key&&manualRanking.weights===weights;
+  if(current)offers=manualRanking.offers;
+  status.textContent=button.disabled?'Choose a saved team or add players to each list.':current?
+   (offers.length?'Season FP/game comparison. Select both saved teams to compare projected lineup gains.':'No close offers among the eligible players.'):
+   'Generate offers using season FP/game. Select both saved teams to compare projected lineup gains.';
+ }
  results.innerHTML=offers.map(({a,b,balance},index)=>{
   const offerSide=(key,pkg)=>`<p>${feedbackManager(key)} sends ${pkg.players.map(player=>nbaBadge(player.nba,player.name)).join(' ')} · <strong class="trade-fp">${format(pkg.points)} FP/game</strong></p>`;
   return `<article class="suggestion-offer"><header><strong>${a.players.length}-for-${b.players.length} · ${format(balance.percentage)}% gap</strong><button type="button" class="button" data-load-offer="${index}">Load in Hub</button></header>${offerSide('a',a)}${offerSide('b',b)}${pastTradeGames([...a.players,...b.players])}</article>`;
  }).join('');
- renderLineupTargets(selected,rank);
+ if(bothSaved)renderLineupTargets(rank);
+ else {
+  lineupTargets=[];
+  for(const id of ['target-status','target-week','target-results'])$(`#${id}`).replaceChildren();
+ }
  renderLeagueTrades();
  renderShortlist();
  colorNumbers(suggestionsPanel);
 }
 
 suggestionsPanel.addEventListener('change',event=>{
- const field=event.target.closest('[data-candidate]');
+ const field=event.target.closest('[data-exclude-player]');
  if(!field||field.disabled)return;
- const {side:key,candidate}=field.dataset;
- if(field.checked)candidates[key].add(candidate);
- else candidates[key].delete(candidate);
+ const {side:key,excludePlayer}=field.dataset;
+ if(field.checked)exclusionsFor(key).add(excludePlayer);
+ else exclusionsFor(key).delete(excludePlayer);
+ targetRanking=manualRanking=null;
  renderSuggestions();
- const replacement=suggestionsPanel.querySelector(`[data-side="${key}"][data-candidate="${CSS.escape(candidate)}"]`);
+ const replacement=suggestionsPanel.querySelector(`[data-side="${key}"][data-exclude-player="${CSS.escape(excludePlayer)}"]`);
  (replacement||suggestionsPanel.querySelector(`[data-suggestion-pick="${key}"]`))?.focus();
 });
 
@@ -363,7 +387,7 @@ suggestionsPanel.addEventListener('click',event=>{
  if(event.target.closest('#rank-lineup-targets')){
   const button=$('#rank-lineup-targets');
   button.disabled=true;
-  $('#target-status').textContent='Checking five weeks of lineup fits…';
+  $('#suggestion-status').textContent='Checking eligible players…';
   setTimeout(()=>renderSuggestions(true),50);
   return;
  }
@@ -385,16 +409,16 @@ suggestionsPanel.addEventListener('click',event=>{
  }
  const key=action.dataset.suggestionPick;
  const {allows}=rosterScope(key,'trade');
- const remaining=()=>suggestionPoolLimit-candidates[key].size;
+ const remaining=()=>suggestionPoolLimit-manualTradePools[key].size;
  draftPicker={
-  allows,remaining,rostered:player=>candidates.a.has(player.id)||candidates.b.has(player.id),
+  allows,remaining,rostered:player=>manualTradePools.a.has(player.id)||manualTradePools.b.has(player.id),
   add(player){
-   if(remaining()>0&&allows(player)&&fp(player)!==null&&!this.rostered(player))candidates[key].add(player.id);
+   if(remaining()>0&&allows(player)&&fp(player)!==null&&!this.rostered(player))manualTradePools[key].add(player.id);
    renderSuggestions();
   }
  };
  pickerPurpose='suggestion';
- openPicker(key==='a'?`Players ${manager('a')} can offer`:`Targets from ${manager('b')}`);
+ openPicker(`Add players for ${manager(key)}`);
 });
 
 function renderRoster(selected,totals){
@@ -644,7 +668,7 @@ function renderLineupFit(selected,adjustments){
   <div class="manager-impacts lineup-fit-grid">${cards.map(card=>`<section class="manager-impact lineup-fit-card">${card}</section>`).join('')}</div>`;
 }
 
-function renderLineupTargets(selected,rank){
+function renderLineupTargets(rank){
  const {weeks,project}=currentHorizon();
  const status=$('#target-status'),results=$('#target-results');
  const button=$('#rank-lineup-targets');
@@ -660,7 +684,10 @@ function renderLineupTargets(selected,rank){
   a:rosterPlayers(teamA),
   b:rosterPlayers(teamB)
  };
- const pool=key=>regular[key].filter(player=>eligibleForLineupTrade(player)&&(!selected[key].length||candidates[key].has(player.id)));
+ const pool=key=>{
+  const excluded=exclusionsFor(key);
+  return regular[key].filter(player=>eligibleForLineupTrade(player)&&!excluded.has(player.id)&&fp(player)!==null);
+ };
  const available=(key,opponent)=>{
   const owned=new Set([...opponent.players,...opponent.injured,...(opponent.unassigned||[])].map(playerKey));
   return pool(key).filter(player=>!owned.has(playerKey(player.name)));
@@ -669,11 +696,11 @@ function renderLineupTargets(selected,rank){
  const key=JSON.stringify([[saved.a.value,saved.b.value],...[regular.a,regular.b,outgoing,targets].map(group=>group.map(player=>player.id))]);
  const coverage=weeks.filter(week=>week.covered).length;
  const scope=coverage===lineupWeekCount?'five weeks':`${coverage} weeks with schedule coverage`;
- if(!outgoing.length||!targets.length){status.textContent='Choose regular-roster players on both sides to rank swaps.';return;}
+ if(!outgoing.length||!targets.length){status.textContent='At least one eligible player must remain on each side.';return;}
  button.disabled=false;
  if(rank)targetRanking={key,project,results:rankLineupTargets(project,regular,outgoing,targets,weights).slice(0,6)};
  if(targetRanking?.key!==key||targetRanking.project!==project){
-  status.textContent=`Find balanced one-for-one and two-for-two swaps across ${scope}.`;
+  status.textContent=`Search the unchecked players for balanced one-for-one and two-for-two swaps across ${scope}.`;
   return;
  }
  lineupTargets=targetRanking.results;
