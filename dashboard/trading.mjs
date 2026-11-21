@@ -1194,6 +1194,36 @@ function upsideHighlight(rows){
   Number(b.topTenRoom)-Number(a.topTenRoom)||(b.ceilingGain??0)-(a.ceilingGain??0)||Number(b.topTen)-Number(a.topTen))[0];
 }
 
+function starUpside(rows){
+ return rows.flatMap(row=>{
+  const ranks=[
+   {rank:row.player.games>=5?row.current:null,source:'current'},
+   {rank:row.preseason,source:'preseason'}
+  ].filter(({rank})=>rank!==null&&rank<=10);
+  const best=ranks.map(({rank,source})=>({row,rank,source,tier:rank<=5?5:10}))
+   .sort((a,b)=>a.tier-b.tier||Number(b.source==='current')-Number(a.source==='current'))[0];
+  return best?[best]:[];
+ }).sort((a,b)=>a.tier-b.tier||Number(b.source==='current')-Number(a.source==='current')||a.rank-b.rank)[0];
+}
+
+function upsideVerdict(balance,upside){
+ if(balance?.level!=='fair')return '';
+ const stars=tradeSides.map(key=>({key,star:starUpside(upside[key])})).filter(({star})=>star)
+  .sort((a,b)=>a.star.tier-b.star.tier);
+ if(!stars.length)return '';
+ const label=tier=>tier===5?'top-five':'top-10';
+ const describe=({key,star:{row,rank,source,tier}})=>{
+  const evidence=source==='current'?`currently <b>#${rank}</b> under your scoring`:`ranked <b>#${rank}</b> by RotoWire in the preseason`;
+  return `${feedbackManager(key)} gets ${playerBadge(row.player)}, a <strong>${label(tier)} ${source==='current'?'producer':'upside play'}</strong> (${evidence})`;
+ };
+ const [first,second]=stars;
+ const start=balance.gap===0?'The packages are even on season FP/game.':`The packages are only <b>${format(balance.gap)} FP/game</b> apart on season averages.`;
+ if(second?.star.tier===first.star.tier)return `${start} Both sides get ${label(first.star.tier)} upside. ${describe(first)}, and ${describe(second)}.`;
+ const {row}=first.star;
+ const ceiling=row.ceiling===null?'':` ${playerBadge(row.player)} has a high-game mark of <b>${format(row.ceiling)} FP</b>.`;
+ return `${start} ${describe(first)}, giving that side the stronger case for a ${label(first.star.tier)} individual ceiling.${ceiling}`;
+}
+
 function upsideSummary(upside){
  const lines=tradeSides.flatMap(key=>{
   const best=upsideHighlight(upside[key]);
@@ -1207,12 +1237,12 @@ function upsideSummary(upside){
  return lines.join('')||'No clear upside signal in the available data.';
 }
 
-function upsideTable(upside){
+function upsideTable(upside,verdict){
  const rows=tradeSides.flatMap(key=>upside[key].map(row=>`<tr><th scope="row">${playerBadge(row.player)}<small class="sub form-coverage">To ${managerLabel(key)}</small></th><td class="num">${rankText(row.preseason)}</td><td class="num">${rankText(row.current)}</td><td class="num">${format(row.season)}</td><td class="num">${format(row.recent)}</td><td class="num">${format(row.ceiling)}</td><td class="num"><b class="${tone(row.ceilingGain)}">${signed(row.ceilingGain)}</b></td><td>${upsideRead(row)}</td></tr>`)).join('');
- return `<section class="trade-subsection"><h3>Player upside</h3><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Player</th><th class="num">Preseason rank</th><th class="num">Current rank</th><th class="num">Season FP/game</th><th class="num">Last 5 FP/game</th><th class="num">High-game FP</th><th class="num">High vs. season</th><th>Read</th></tr></thead><tbody>${rows}</tbody></table></div><p class="sub">Preseason ranks come from RotoWire. Current rank uses your scoring. High-game FP is the same game-log ceiling shown in Scoring Range and requires at least five games played.</p></section>`;
+ return `<section class="trade-subsection"><h3>Player upside</h3>${verdict?`<p>${verdict}</p>`:''}<div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Player</th><th class="num">Preseason rank</th><th class="num">Current rank</th><th class="num">Season FP/game</th><th class="num">Last 5 FP/game</th><th class="num">High-game FP</th><th class="num">High vs. season</th><th>Read</th></tr></thead><tbody>${rows}</tbody></table></div><p class="sub">Preseason ranks come from RotoWire. Current rank uses your scoring. High-game FP is the same game-log ceiling shown in Scoring Range and requires at least five games played.</p></section>`;
 }
 
-function renderSummary(balance,risks,scenarios,incoming,upside){
+function renderSummary(balance,risks,scenarios,incoming,upside,verdict){
  const result=$('#trade-summary-result');
  if(!balance)result.textContent='Season FP edge unavailable.';
  else if(!balance.leader)result.textContent='Even on season FP per game.';
@@ -1226,7 +1256,7 @@ function renderSummary(balance,risks,scenarios,incoming,upside){
  const floor=tradeBalance(scenarios?.a?.floor,scenarios?.b?.floor);
  const ceiling=tradeBalance(scenarios?.a?.ceiling,scenarios?.b?.ceiling);
  $('#trade-summary-range').innerHTML=`<span>Floor · ${edge(floor,'FP/game')}</span><span>Ceiling · ${edge(ceiling,'FP/game')}</span>`;
- $('#trade-summary-upside').innerHTML=upsideSummary(upside);
+ $('#trade-summary-upside').innerHTML=verdict||upsideSummary(upside);
  const week=weekComparison(incoming,1);
  $('#trade-summary-week').innerHTML=week?edge(tradeBalance(week.a.total,week.b.total),'projected FP'):'Unavailable';
 
@@ -1250,8 +1280,9 @@ function renderContext(selected,totals,balance,rosterResults){
  const risks={a:tradeContext(incoming.a,injuryData?.players,weights),b:tradeContext(incoming.b,injuryData?.players,weights)};
  const scenarios=a&&b?{a:packageScenarios(incoming.a,weights),b:packageScenarios(incoming.b,weights)}:null;
  const upside=upsideRows(incoming);
- if(a&&b)renderSummary(balance,risks,scenarios,incoming,upside);
- $('#trade-upside').innerHTML=upsideTable(upside);
+ const verdict=upsideVerdict(balance,upside);
+ if(a&&b)renderSummary(balance,risks,scenarios,incoming,upside,verdict);
+ $('#trade-upside').innerHTML=upsideTable(upside,verdict);
  const rosterSummary=$('#trade-summary-roster-row');
  rosterSummary.hidden=!rosterResults||!Object.values(rosterResults).some(row=>row.players.length);
  if(!rosterSummary.hidden)$('#trade-summary-roster').innerHTML=['a','b'].map(key=>`${feedbackManager(key)} <strong class="${tone(rosterResults[key].net)}">${signed(rosterResults[key].net)} FP/game</strong>${rosterResults[key].spots.cuts&&rosterResults[key].remaining?' before remaining cuts':''}`).join(' · ');
