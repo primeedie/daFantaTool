@@ -1242,7 +1242,7 @@ function upsideTable(upside,verdict){
  return `<section class="trade-subsection"><h3>Player upside</h3>${verdict?`<p>${verdict}</p>`:''}<div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Player</th><th class="num">Preseason rank</th><th class="num">Current rank</th><th class="num">Season FP/game</th><th class="num">Last 5 FP/game</th><th class="num">High-game FP</th><th class="num">High vs. season</th><th>Read</th></tr></thead><tbody>${rows}</tbody></table></div><p class="sub">Preseason ranks come from RotoWire. Current rank uses your scoring. High-game FP is the same game-log ceiling shown in Scoring Range and requires at least five games played.</p></section>`;
 }
 
-function renderSummary(balance,risks,scenarios,incoming,upside,verdict){
+function renderSummary(balance,risks,incoming,upside,verdict){
  const result=$('#trade-summary-result');
  if(!balance)result.textContent='Season FP edge unavailable.';
  else if(!balance.leader)result.textContent='Even on season FP per game.';
@@ -1253,9 +1253,6 @@ function renderSummary(balance,risks,scenarios,incoming,upside,verdict){
  $('#trade-summary-flags').innerHTML=flagged.length?`${names.join(', ')}${flagged.length>2?` +${flagged.length-2} more`:''}`:injuryData?'No availability flags in the current feed.':'Injury report unavailable.';
 
  const edge=(comparison,unit)=>comparison?.leader?`${feedbackManager(comparison.leader)} <strong class="fp-gain">+${format(comparison.gap)} ${unit}</strong>`:comparison?'Even':'Unavailable';
- const floor=tradeBalance(scenarios?.a?.floor,scenarios?.b?.floor);
- const ceiling=tradeBalance(scenarios?.a?.ceiling,scenarios?.b?.ceiling);
- $('#trade-summary-range').innerHTML=`<span>Floor · ${edge(floor,'FP/game')}</span><span>Ceiling · ${edge(ceiling,'FP/game')}</span>`;
  $('#trade-summary-upside').innerHTML=verdict||upsideSummary(upside);
  const week=weekComparison(incoming,1);
  $('#trade-summary-week').innerHTML=week?edge(tradeBalance(week.a.total,week.b.total),'projected FP'):'Unavailable';
@@ -1281,7 +1278,7 @@ function renderContext(selected,totals,balance,rosterResults){
  const scenarios=a&&b?{a:packageScenarios(incoming.a,weights),b:packageScenarios(incoming.b,weights)}:null;
  const upside=upsideRows(incoming);
  const verdict=upsideVerdict(balance,upside);
- if(a&&b)renderSummary(balance,risks,scenarios,incoming,upside,verdict);
+ if(a&&b)renderSummary(balance,risks,incoming,upside,verdict);
  $('#trade-upside').innerHTML=upsideTable(upside,verdict);
  const rosterSummary=$('#trade-summary-roster-row');
  rosterSummary.hidden=!rosterResults||!Object.values(rosterResults).some(row=>row.players.length);
@@ -1290,9 +1287,11 @@ function renderContext(selected,totals,balance,rosterResults){
   window,a:packageForm(incoming.a,weights,window),b:packageForm(incoming.b,weights,window)
  })):[];
  chatTrade={incoming,selected,risks,scenarios,totals,formRows,rosterResults,upside};
- const scenarioPanel=$('#trade-scenarios');
- scenarioPanel.innerHTML=a&&b?scenarioTable(scenarios,totals):'';
- for(const marker of scenarioPanel.querySelectorAll('[data-position]')){
+ const scales=scenarios?[['Floor','floor'],['Ceiling','ceiling']]
+  .map(([label,key])=>scenarioScale(label,tradeBalance(scenarios.a?.[key],scenarios.b?.[key]))).join(''):'';
+ $('#hub-scenario-scales').innerHTML=scales;
+ $('#trade-scenarios').innerHTML=scenarios?scenarioTable(scenarios,totals,scales):'';
+ for(const marker of document.querySelectorAll('#trade-scenarios [data-position], #hub-scenario-scales [data-position]')){
   marker.style.left=`${marker.dataset.position}%`;
  }
  $('#trade-analysis').innerHTML=a&&b?analysisNotes(selected,totals,risks,formRows):'';
@@ -1321,14 +1320,13 @@ function renderContext(selected,totals,balance,rosterResults){
   `<a href="${esc(injuryData.lineupsUrl)}" target="_blank" rel="noopener noreferrer">RotoWire lineups</a> and <a href="${esc(injuryData.reportUrl)}" target="_blank" rel="noopener noreferrer">injury reports</a> · checked ${esc(checked)} Manila time. Check the latest report before accepting.`:'';
 }
 
-function scenarioTable(scenarios,totals){
+function scenarioTable(scenarios,totals,scales){
  const rows=[['Floor','floor'],['Season average','average'],['Ceiling','ceiling']];
  const table=rows.map(([label,key])=>{
   const a=key==='average'?totals.b:scenarios.a?.[key]??null;
   const b=key==='average'?totals.a:scenarios.b?.[key]??null;
   return `<tr><th scope="row">${label}</th><td class="num"><b class="trade-fp">${format(a)}</b></td><td class="num"><b class="trade-fp">${format(b)}</b></td></tr>`;
  }).join('');
- const scales=[['Floor','floor'],['Ceiling','ceiling']].map(([label,key])=>scenarioScale(label,tradeBalance(scenarios.a?.[key],scenarios.b?.[key]))).join('');
  return `<section class="trade-subsection"><h3>Scoring range</h3><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Scenario</th><th class="num">${managerLabel('a')} receives</th><th class="num">${managerLabel('b')} receives</th></tr></thead><tbody>${table}</tbody></table></div><div class="scenario-scales">${scales}</div><p class="sub">FP per game. Floor and ceiling add up each player’s low or high game-log estimates. At least five complete games per player are needed.</p></section>`;
 }
 

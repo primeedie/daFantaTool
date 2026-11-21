@@ -7,9 +7,9 @@
  <link rel="icon" href="./player-logo.png?v=3">
  <link rel="stylesheet" href="./style.css">
  <link rel="stylesheet" href="./font.css?v=logo-contrast">
- <link rel="stylesheet" href="./trading.css?v=refresh-fair-trades-current-ranks">
+ <link rel="stylesheet" href="./trading.css?v=hub-scales">
  <script type="module" src="./theme.mjs?v=logo-contrast"></script>
- <script type="module" src="./trading.mjs?v=upside-verdict"></script>
+ <script type="module" src="./trading.mjs?v=hub-scales"></script>
 </head>
 <body class="trade-page">
  <header class="site-header"><div class="masthead">
@@ -92,6 +92,7 @@
      <p id="trade-delta" class="trade-delta"></p>
      <div id="manager-impacts" class="manager-impacts"></div>
      <p class="sub">On season FP per game: fair within 10%, edge through 20%, lopsided above 20%. The gap is measured against the larger package.</p>
+     <div id="hub-scenario-scales" class="scenario-scales" role="group" aria-label="Floor and ceiling balances"></div>
     </section>
     <section id="trade-roster" class="panel panel-body trade-balance" aria-labelledby="trade-roster-title" hidden>
      <div class="roster-heading"><h2 id="trade-roster-title">Roster adjustments</h2><span id="roster-limit-label" class="sub"></span></div>
@@ -122,7 +123,6 @@
      <h2 id="trade-summary-title">TL;DR</h2>
      <p id="trade-summary-result"></p>
      <dl class="summary-details">
-      <div><dt>Scoring range</dt><dd id="trade-summary-range"></dd></div>
       <div><dt>Upside to watch</dt><dd id="trade-summary-upside"></dd></div>
       <div><dt>Next week</dt><dd id="trade-summary-week"></dd></div>
       <div><dt>Injury watch</dt><dd id="trade-summary-flags"></dd></div>

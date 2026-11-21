@@ -234,7 +234,6 @@ body .chat-question .number-token {color:#ffedba}
 .summary-details > div {border-top:1px solid var(--line);padding-top:8px}
 .summary-details dt {color:var(--muted);font-size:var(--trade-label)}
 .summary-details dd {margin:4px 0 0;overflow-wrap:anywhere}
-#trade-summary-range > span {display:block}
 .summary-details .feedback-manager {font-size:1.05em}
 .balance-heading,.balance-labels {display:flex;justify-content:space-between;align-items:center;gap:12px}
 .balance-heading strong {text-align:right}
