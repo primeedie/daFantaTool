@@ -1,4 +1,4 @@
-import {optimizeLineup,playerKey,slots} from './model.mjs';
+import {eligible,optimizeLineup,playerKey,slots} from './model.mjs';
 
 export const boxFields={pts:'PTS',reb:'REB',oreb:'OREB',dreb:'DREB',ast:'AST',st:'STL',blk:'BLK',to:'TOV'};
 const playerAliases=new Map([
@@ -66,19 +66,25 @@ export function lineupWeek(feed,weights,dates){
  });
  const optimized=new Map();
  const playerValues=new Map();
- return (players,returnPlan)=>{
+ const values=players=>{
   const missing=[];
   const eligiblePlayers=[];
   for(const player of players){
    if(!playerValues.has(player.id)){
     const positions=feed.positions?.[playerKey(player.name)]||player.positions||player.position?.match(/PG|SG|SF|PF|G|F|C/g)||[];
     const fpts=tradePoints(player.stats,weights);
-    playerValues.set(player.id,player.nba&&positions.length&&fpts!==null?{...player,positions,fpts}:null);
+    const ready={...player,positions,fpts};
+    ready.slotMask=slots.reduce((mask,slot,index)=>eligible(ready,slot)?mask|(1<<index):mask,0);
+    playerValues.set(player.id,player.nba&&positions.length&&fpts!==null?ready:null);
    }
    const value=playerValues.get(player.id);
    if(value)eligiblePlayers.push(value);
    else missing.push(player.name);
   }
+  return {eligiblePlayers,missing};
+ };
+ const project=(players,returnPlan)=>{
+  const {eligiblePlayers,missing}=values(players);
   const daily=slates.map(({date,gameCount,teams})=>{
    const playing=eligiblePlayers.flatMap(player=>{
     if(!teams.has(player.nba))return [];
@@ -99,6 +105,42 @@ export function lineupWeek(feed,weights,dates){
   });
   return {daily,missing,points:daily.reduce((total,day)=>total+day.score,0),benched:daily.reduce((total,day)=>total+day.bench.length,0)};
  };
+ const scoreCache=new Map();
+ // Descending weights with augmenting paths select a maximum-weight set of starters.
+ project.score=players=>{
+  const sorted=values(players).eligiblePlayers.filter(player=>player.fpts>0&&player.slot!=='IL'&&!['O','NA'].includes(player.status))
+   .sort((a,b)=>b.fpts-a.fpts||a.id.localeCompare(b.id));
+  return slates.reduce((total,{teams})=>{
+   const playing=sorted.filter(player=>teams.has(player.nba));
+   const key=playing.map(player=>player.id).join(',');
+   if(!scoreCache.has(key)){
+    if(scoreCache.size>=60000)scoreCache.clear();
+    const assignment=[];
+    let score=0,seen=0,count=0;
+    const place=player=>{
+     let free=player.slotMask&~seen;
+     while(free){
+      const bit=free&-free,index=31-Math.clz32(bit);
+      seen|=bit;
+      if(!assignment[index]||place(assignment[index])){
+       assignment[index]=player;
+       return true;
+      }
+      free&=~seen;
+     }
+     return false;
+    };
+    for(const player of playing){
+     seen=0;
+     if(place(player)){score+=player.fpts;count++;}
+     if(count===slots.length)break;
+    }
+    scoreCache.set(key,score);
+   }
+   return total+scoreCache.get(key);
+  },0);
+ };
+ return project;
 }
 
 export function lineupHorizon(feed,weights,now=new Date()){
@@ -117,27 +159,29 @@ export function lineupHorizon(feed,weights,now=new Date()){
  return {weeks,project,scope:scoredDates.join(',')};
 }
 
-function lineupSwapImpact(before,after,sent,received){
+export function lineupSwapImpact(before,after,sent,received){
  let outgoingStarts=0,incomingStarts=0,playerDelta=0,bestDay=null;
+ const sentIds=new Set(sent.map(player=>player.id)),receivedIds=new Set(received.map(player=>player.id));
  const otherStarts=new Map();
  const countOtherStarts=(starters,excluded,change)=>{
   for(const {player} of starters){
-   if(player.id===excluded.id)continue;
+   if(excluded.has(player.id))continue;
    const starts=(otherStarts.get(player.id)?.starts??0)+change;
    otherStarts.set(player.id,{player,starts});
   }
  };
  for(const [index,day] of after.daily.entries()){
   const prior=before.daily[index];
-  const outgoing=prior.starters.find(({player})=>player.id===sent.id);
-  const incoming=day.starters.find(({player})=>player.id===received.id);
-  outgoingStarts+=Number(Boolean(outgoing));
-  incomingStarts+=Number(Boolean(incoming));
-  playerDelta+=(incoming?.player.fpts??0)-(outgoing?.player.fpts??0);
-  countOtherStarts(prior.starters,sent,-1);
-  countOtherStarts(day.starters,received,1);
+  const outgoing=prior.starters.filter(({player})=>sentIds.has(player.id));
+  const incoming=day.starters.filter(({player})=>receivedIds.has(player.id));
+  outgoingStarts+=outgoing.length;
+  incomingStarts+=incoming.length;
+  const points=group=>group.reduce((total,{player})=>total+player.fpts,0);
+  playerDelta+=points(incoming)-points(outgoing);
+  countOtherStarts(prior.starters,sentIds,-1);
+  countOtherStarts(day.starters,receivedIds,1);
   const gain=Math.round((day.score-prior.score)*100)/100;
-  if(gain>(bestDay?.gain??0))bestDay={date:day.date,gain,slot:incoming?.slot??null};
+  if(gain>(bestDay?.gain??0))bestDay={date:day.date,gain,slot:received.length===1?incoming[0]?.slot??null:null};
  }
  const otherStarterDelta=Math.round((after.points-before.points-playerDelta)*100)/100;
  const direction=Math.sign(otherStarterDelta);
@@ -146,32 +190,32 @@ function lineupSwapImpact(before,after,sent,received){
  return {outgoingStarts,incomingStarts,otherStarterDelta,bestDay,starterShift};
 }
 
-export function rankLineupTargets(project,rosters,outgoing,targets,weights){
- const before=project(rosters.a),opponentBefore=project(rosters.b);
- const scores=new Map([...outgoing,...targets].map(player=>[player.id,tradePoints(player.stats,weights)]));
- const available=outgoing.filter(player=>!before.missing.includes(player.name));
- const ranked=[];
- for(const target of targets){
-  if(opponentBefore.missing.includes(target.name))continue;
-  let best;
-  for(const send of available){
-   const balance=tradeBalance(scores.get(send.id),scores.get(target.id));
-   if(balance?.level!=='fair')continue;
-   const after=project(rosters.a.map(player=>player.id===send.id?target:player));
-   const gain=Math.round((after.points-before.points)*100)/100;
-   if(gain<=0||best&&gain<best.gain)continue;
-   const opponentAfter=project(rosters.b.map(player=>player.id===target.id?send:player));
-   const opponentGain=Math.round((opponentAfter.points-opponentBefore.points)*100)/100;
-   if(opponentGain<0||best&&gain===best.gain&&opponentGain<=best.opponentGain)continue;
-   best={target,send,gain,opponentGain,balance,impact:{
-    a:lineupSwapImpact(before,after,send,target),
-    b:lineupSwapImpact(opponentBefore,opponentAfter,target,send)
-   }};
-  }
-  if(best)ranked.push(best);
- }
- return ranked.sort((a,b)=>b.gain-a.gain||b.opponentGain-a.opponentGain||a.target.name.localeCompare(b.target.name));
+export function swapLineup(players,sent,received){
+ const ids=new Set(sent.map(player=>player.id));
+ return [...players.filter(player=>!ids.has(player.id)),...received];
 }
+
+export function rankLineupTargets(project,rosters,outgoing,targets,weights,limits={}){
+ const before=project(rosters.a),opponentBefore=project(rosters.b);
+ const source=suggestionPackages(outgoing.filter(player=>!before.missing.includes(player.name)),weights);
+ const wanted=suggestionPackages(targets.filter(player=>!opponentBefore.missing.includes(player.name)),weights);
+ const ranked=[];
+ const score=project.score||((players)=>project(players).points);
+ for(const a of source)for(const b of wanted){
+  const balance=tradeBalance(a.points,b.points);
+  if(balance?.level!=='fair'||a.players.some(player=>b.players.some(other=>other.id===player.id)))continue;
+  const delta=b.players.length-a.players.length;
+  if(rosters.a.length+delta>(limits.a??rosters.a.length)||rosters.b.length-delta>(limits.b??rosters.b.length))continue;
+  const gain=Math.round((score(swapLineup(rosters.a,a.players,b.players))-before.points)*100)/100;
+  if(gain<=0)continue;
+  const opponentGain=Math.round((score(swapLineup(rosters.b,b.players,a.players))-opponentBefore.points)*100)/100;
+  if(opponentGain<0)continue;
+  ranked.push({a:a.players,b:b.players,gain,opponentGain,balance});
+ }
+ return ranked.sort(compareLineupTrades);
+}
+
+export const compareLineupTrades=(a,b)=>b.gain-a.gain||b.opponentGain-a.opponentGain||a.balance.percentage-b.balance.percentage;
 
 export function historicalAvailability(player,record,currentSeason,weights){
  if(!record||!Number.isInteger(currentSeason))return null;
@@ -355,7 +399,7 @@ function suggestionPackages(players,weights){
  const packages=[];
  function extend(start,group,points){
   if(group.length)packages.push({players:group,points});
-  if(group.length===3)return;
+  if(group.length===2)return;
   for(let i=start;i<pool.length;i++)extend(i+1,[...group,pool[i].player],points+pool[i].points);
  }
  extend(0,[],0);

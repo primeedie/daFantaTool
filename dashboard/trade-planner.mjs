@@ -1,4 +1,4 @@
-import {tradeBalance,tradePoints} from './trade-model.mjs?v=roster-tools';
+import {tradeBalance,tradePoints} from './trade-model.mjs?v=league-trades';
 
 export function rankStreamers(project,players,pool,drop){
  const before=project(players);
@@ -50,7 +50,7 @@ export function counteroffers(project,teams,offer,weights){
   const removed=offer[key].map((_,index)=>offer[key].filter((_,i)=>i!==index));
   const replaced=available.flatMap(player=>offer[key].map((_,index)=>offer[key].map((pick,i)=>i===index?player:pick)));
   for(const players of [...added,...removed,...replaced]){
-   if(!players.length)continue;
+   if(!players.length||players.length>2||offer[key==='a'?'b':'a'].length>2)continue;
    const proposal={...offer,[key]:players};
    const balance=tradeBalance(packageValue(proposal.a),packageValue(proposal.b));
    if(balance?.level!=='fair'||baseline&&balance.percentage>=baseline.percentage)continue;

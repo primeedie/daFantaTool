@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,packageForm,compareGamesPlayed,statSwings,packageScenarios,nextOpponents,easternWeek,weeklyPackage,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,rosterSpots,rosterSettings,rosterAdjustment} from '../dashboard/trade-model.mjs';
 import {normalizeRosterConfig,savedRosterFilter,rosterConfigHash,parseRosterConfig} from '../dashboard/saved-rosters.mjs';
 import {injuryHistory} from '../refresh-injury-history.mjs';
-import {pickerMatch,suggestFairTrades,lineupWeek,lineupHorizon,rankLineupTargets} from '../dashboard/trade-model.mjs';
+import {pickerMatch,suggestFairTrades,lineupWeek,lineupHorizon,rankLineupTargets,lineupSwapImpact,swapLineup} from '../dashboard/trade-model.mjs';
 import {playerKey} from '../dashboard/model.mjs';
 import {bigBalls} from '../dashboard/big-balls.mjs';
 import {smallBalls} from '../dashboard/small-balls.mjs';
@@ -95,11 +95,14 @@ test('lineup targets favor usable starts and apply league eligibility across the
  const candidates=[center,guard,costly,uneven];
  const [best,other]=rankLineupTargets(project,{a:[...centers,send],b:[...opponent,...candidates]},[send],candidates,{pts:2});
  assert.equal(other,undefined);
- assert.equal(best.target.id,'guard');
+ assert.deepEqual(best.b.map(player=>player.id),['guard']);
  assert.equal(best.gain,2);
  assert.equal(best.opponentGain,38);
- assert.deepEqual(best.impact.a,{outgoingStarts:1,incomingStarts:1,otherStarterDelta:0,bestDay:{date:dates.at(-1),slot:'PG',gain:40},starterShift:null});
- assert.deepEqual(best.impact.b,{outgoingStarts:0,incomingStarts:1,otherStarterDelta:0,bestDay:{date:dates[0],slot:'PG',gain:38},starterShift:null});
+ const rosters={a:[...centers,send],b:[...opponent,...candidates]};
+ for(const key of ['a','b'])assert.equal(project.score(rosters[key]),project(rosters[key]).points);
+ const impact=(key,other)=>lineupSwapImpact(project(rosters[key]),project(swapLineup(rosters[key],best[key],best[other])),best[key],best[other]);
+ assert.deepEqual(impact('a','b'),{outgoingStarts:1,incomingStarts:1,otherStarterDelta:0,bestDay:{date:dates.at(-1),slot:'PG',gain:40},starterShift:null});
+ assert.deepEqual(impact('b','a'),{outgoingStarts:0,incomingStarts:1,otherStarterDelta:0,bestDay:{date:dates[0],slot:'PG',gain:38},starterShift:null});
  assert.equal(lineupWeek({...feed,refreshedDates:dates.slice(0,-1)},{pts:2},dates),null);
 });
 
@@ -155,6 +158,25 @@ test('suggestions use only marked players and rank qualifying packages by gap',(
  assert.ok(offers.every(({balance})=>balance.percentage<=10));
  assert.deepEqual(suggestFairTrades([player('same',50)],[player('same',50)],{pts:1}),[]);
  assert.deepEqual(suggestFairTrades([player('x',10)],[player('y',20)],{pts:1}),[]);
+});
+
+test('a two-for-two offer can move four benched games into usable starts',()=>{
+ const dates=['2026-11-20','2026-11-21'];
+ const weights={pts:1};
+ const game=(date,home,away)=>({date:date+'T21:00Z',home,away});
+ const project=lineupWeek({refreshedDates:dates,games:[game(dates[0],'LAL','DEN'),game(dates[1],'NYK','BOS')]},weights,dates);
+ const group=(team,points)=>points.map((pts,index)=>({
+  id:team+index,name:team+index,nba:team,position:'PG',stats:{pts}
+ }));
+ const a=group('LAL',[24,25]),b=group('NYK',[24,25]);
+ const incumbents=[35,36,37,38];
+ const rosters={a:[...a,...group('DEN',incumbents)],b:[...b,...group('BOS',incumbents)]};
+ const [offer]=rankLineupTargets(project,rosters,a,b,weights);
+ assert.equal(offer.a.length,2);
+ assert.equal(offer.b.length,2);
+ assert.equal(offer.gain,49);
+ assert.equal(offer.opponentGain,49);
+ assert.equal(project.score(swapLineup(rosters.a,a,b)),project(swapLineup(rosters.a,a,b)).points);
 });
 
 test('the player picker prioritizes exact nicknames and keeps NBA-team and name search',()=>{

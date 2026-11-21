@@ -69,10 +69,10 @@ function recentGames(data){
  return (data?.gl2026?.body||[])
   .filter(row=>row.gametype==='REGULAR'&&String(row.playedgame)==='1'&&/^\d{4}-\d{2}-\d{2}/.test(row.gamedate))
   .sort((a,b)=>b.gamedate.localeCompare(a.gamedate))
-  .map(row=>Object.fromEntries(Object.entries(statFields).flatMap(([key,field])=>{
+  .map(row=>({date:row.gamedate.slice(0,10),opponent:nbaCode(row.oppraw),...Object.fromEntries(Object.entries(statFields).flatMap(([key,field])=>{
    const raw=row[field];
    return raw!=null&&String(raw).trim()&&Number.isFinite(Number(raw))?[[key,Number(raw)]]:[];
-  })));
+  }))}));
 }
 
 function opponentHistory(data){

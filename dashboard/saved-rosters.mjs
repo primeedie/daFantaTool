@@ -99,11 +99,12 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
  const configById=id=>publicLeague(id)||(id===''?null:library[Number(id)]);
  const current=()=>configById(configs.value);
  const currentTeam=()=>teams.value===''?null:current()?.teams[Number(teams.value)];
- const getTeam=key=>{
-  const [configIndex,teamIndex]=selectors[key].value.split(':');
+ const resolveTeam=value=>{
+  const [configIndex,teamIndex]=value.split(':');
   const config=configById(configIndex),team=config?.teams[teamIndex];
-  return team?{config,team:publicEstimates.get(team)||team}:null;
+  return team?{config,team:publicEstimates.get(team)||team,value}:null;
  };
+ const getTeam=key=>resolveTeam(selectors[key].value);
 
  function refreshSelectors(){
   for(const select of Object.values(selectors)){
@@ -268,7 +269,10 @@ export function setupRosterBook(onChange,openFreeAgents,openRosterPicker,loadPla
   importButton.hidden=!imported;
   status.textContent=imported?`${imported.name} · ${imported.teams.map(team=>team.name).join(', ')}`:'Could not open this roster link.';
  }
- return {getTeam,setInjuryEstimates(players,report){
+ return {getTeam,resolveTeam,leagueTeams(saved){
+  const league=saved.value.split(':')[0];
+  return saved.config.teams.map((_,index)=>resolveTeam(`${league}:${index}`));
+ },setInjuryEstimates(players,report){
   const age=(Date.now()-Date.parse(report?.updatedAt))/3600000;
   const out=new Set();
   if(age>=0&&age<=48){
