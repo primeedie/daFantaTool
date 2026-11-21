@@ -108,12 +108,17 @@ test('the public Big Balls preset has its league scoring and ten non-overlapping
  assert.equal(league.teams.length,10);
  assert.equal(league.regular,13);
  assert.equal(league.il,3);
- assert.equal(league.teams.reduce((sum,team)=>sum+team.players.length,0),126);
+ assert.equal(league.teams.reduce((sum,team)=>sum+team.players.length,0),125);
  assert.equal(league.teams.reduce((sum,team)=>sum+team.injured.length,0),20);
  const wolfgang=league.teams.find(team=>team.name==='Wolfgang');
- assert.equal(wolfgang.unassigned.length,2);
- assert.equal(savedRosterFilter(league,wolfgang,'trade')({name:'Brayden Burries'}),true);
- assert.equal(savedRosterFilter(league,null,'pickup')({name:'Brayden Burries'}),false);
+ const alien=league.teams.find(team=>team.name==='Alien Kalbo');
+ const black=league.teams.find(team=>team.name==='The Black C0ks');
+ assert.ok(black.players.includes('Jaxson Hayes'));
+ assert.deepEqual(estimateInjurySlots(alien,league.regular,new Set()).ilEstimate.regular,['Rui Hachimura']);
+ assert.deepEqual(estimateInjurySlots(wolfgang,league.regular,new Set()).ilEstimate.regular,['Yanic Konan Niederhäuser']);
+ assert.deepEqual(wolfgang.unassigned,['Yanic Konan Niederhäuser']);
+ assert.equal(savedRosterFilter(league,wolfgang,'trade')({name:'Brayden Burries'}),false);
+ assert.equal(savedRosterFilter(league,null,'pickup')({name:'Brayden Burries'}),true);
  assert.deepEqual(bigBalls.scoring,scoringWeights(base,false));
  assert.equal(savedRosterFilter(league,null,'pickup')({name:'Stephen Curry'}),false);
  for(const [manager,player] of [['Alien Kalbo','Rui Hachimura'],['Vinscoksukrz','Kasparas Jakučionis'],['Night Night','Devin Vassell']]){
@@ -122,7 +127,7 @@ test('the public Big Balls preset has its league scoring and ten non-overlapping
   assert.equal(savedRosterFilter(league,team,'trade')({name:player}),true);
   assert.equal(savedRosterFilter(league,null,'pickup')({name:player}),false);
  }
- for(const [manager,player] of [['Night Night','Alex Caruso'],['The Black C0ks','Kris Dunn']]){
+ for(const [manager,player] of [['Night Night','Alex Caruso'],['The Black C0ks','Kris Dunn'],['John NBA','Toumani Camara'],['Alien Kalbo','Kyle Kuzma']]){
   const team=league.teams.find(team=>team.name===manager);
   assert.equal(savedRosterFilter(league,team,'trade')({name:player}),false);
  }

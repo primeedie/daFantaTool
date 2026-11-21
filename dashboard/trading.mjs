@@ -1,6 +1,6 @@
 import {nbaBadge,playerKey} from './public-ui.mjs';
-import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=league-trades';
-import {bigBalls} from './big-balls.mjs?v=2026-11-20';
+import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=roster-nov21';
+import {bigBalls} from './big-balls.mjs?v=2026-11-21';
 import {smallBalls} from './small-balls.mjs?v=reed-pickup';
 import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,playerInjury,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,lineupWeek,lineupHorizon,lineupWeekCount,rankLineupTargets,lineupTradeFairness,compareLineupTrades,lineupSwapImpact,swapLineup,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=balanced-trades';
 import {rankStreamers,tradedRoster,counteroffers} from './trade-planner.mjs?v=league-trades';
@@ -1420,7 +1420,7 @@ $('#trade-ask').addEventListener('submit',event=>{
 
 async function loadPlayers(){
  if(dataset)return dataset;
- if(!dataRequest)dataRequest=fetch('./trade-data.json?v=small-balls').then(async response=>{
+ if(!dataRequest)dataRequest=fetch('./trade-data.json?v=roster-nov21').then(async response=>{
   if(!response.ok)throw new Error('Player data unavailable');
   const data=await response.json();
   if(!data.players?.length)throw new Error('Empty player data');

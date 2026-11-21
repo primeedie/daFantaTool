@@ -14,7 +14,7 @@ const teamIndex=origin+'/basketball/team/los-angeles-lakers-lal';
 const profileFallbacks={krisdunn:'/basketball/player/kris-dunn-3854',jimmybutler:'/basketball/player/jimmy-butler-3231',
  klaythompson:'/basketball/player/klay-thompson-3197',jaredmccain:'/basketball/player/jared-mccain-6266',
  yanickonanniederhauser:'/basketball/player/yanic-konan-niederhauser-6616',
- kasparasjakucionis:'/basketball/player/kasparas-jakucionis-6557',
+ jaxsonhayes:'/basketball/player/jaxson-hayes-4771',kasparasjakucionis:'/basketball/player/kasparas-jakucionis-6557',
  yanghansen:'/basketball/player/yang-hansen-6617',jordanpoole:'/basketball/player/jordan-poole-4791'};
 const codes={SAN:'SAS',SA:'SAS',NY:'NYK',NO:'NOP',GS:'GSW',PHO:'PHX',UTAH:'UTA',WSH:'WAS'};
 const nbaCode=code=>codes[code]||code;
