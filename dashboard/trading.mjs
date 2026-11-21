@@ -2,7 +2,7 @@ import {nbaBadge,playerKey} from './public-ui.mjs';
 import {setupRosterBook,savedRosterFilter} from './saved-rosters.mjs?v=league-scoring-filter';
 import {bigBalls} from './big-balls.mjs?v=2026-11-21';
 import {smallBalls} from './small-balls.mjs?v=reed-pickup';
-import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,playerInjury,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,lineupWeek,lineupHorizon,lineupWeekCount,rankLineupTargets,lineupTradeFairness,compareLineupTrades,lineupSwapImpact,swapLineup,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit} from './trade-model.mjs?v=refresh-fair-trades';
+import {boxFields,scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,playerInjury,managerChanges,compareGamesPlayed,statSwings,packageScenarios,packageForm,nextOpponents,easternWeek,weeklyPackage,lineupWeek,lineupHorizon,lineupWeekCount,rankLineupTargets,lineupTradeFairness,compareLineupTrades,lineupSwapImpact,swapLineup,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,isTradeHash,defaultRoster,rosterSpots,rosterSettings,rosterAdjustment,pickerMatch,suggestFairTrades,suggestionPoolLimit,playerUpside} from './trade-model.mjs?v=player-upside';
 import {rankStreamers,tradedRoster,counteroffers} from './trade-planner.mjs?v=league-trades';
 
 const $=selector=>document.querySelector(selector);
@@ -773,8 +773,10 @@ function suggestionCard(offer,teams,project,reference){
   if(before.missing.length||teams[key].team.unassigned?.length)partial.push(teams[key].team.name);
   return swapImpactDetails(teams[key].team.name,received,sent,index?offer.opponentGain:offer.gain,lineupSwapImpact(before,after,sent,received));
  }).join('');
+ const upside=tradeSides.flatMap(key=>offer[other(key)].filter(player=>Number.isInteger(player.rank)&&player.rank>0&&player.rank<=10)
+  .map(player=>`${esc(teams[key].team.name)} gets ${playerBadge(player)} (preseason <b>${rankText(player.rank)}</b>, current <b>${rankText(seasonRank(player))}</b>)`));
  return `<article class="suggestion-offer"><header><h3>${esc(teams.a.team.name)} / ${esc(teams.b.team.name)}</h3><span class="sub">${offer.a.length}-for-${offer.b.length} · ${format(offer.balance.percentage)}% season FP/game gap</span></header>
-  <dl class="swap-impacts">${details}</dl>${partial.length?`<p class="sub">Partial lineup projection for ${partial.map(esc).join(' and ')}.</p>`:''}${pastTradeGames([...offer.a,...offer.b])}
+  <dl class="swap-impacts">${details}</dl>${upside.length?`<p class="sub"><strong>Upside to watch</strong> · ${upside.join(' · ')}</p>`:''}${partial.length?`<p class="sub">Partial lineup projection for ${partial.map(esc).join(' and ')}.</p>`:''}${pastTradeGames([...offer.a,...offer.b])}
   <div class="suggestion-actions"><button class="button" type="button" data-swap-load="${reference}">Review lineup</button><button class="button" type="button" data-swap-save="${reference}">Save to shortlist</button></div></article>`;
 }
 
@@ -1175,7 +1177,42 @@ function outlookTable(players){
  return `<section class="trade-subsection">${title}${blocks}<p class="sub">Defense uses recent regular-season finals from <a href="https://www.espn.com/nba/scoreboard" target="_blank" rel="noopener noreferrer">ESPN</a>. The per-100 figure uses estimated possessions and needs at least five box scores. Last meeting uses available RotoWire regular-season logs and your scoring settings.</p></section>`;
 }
 
-function renderSummary(balance,risks,scenarios,incoming){
+function upsideRows(incoming){
+ return Object.fromEntries(tradeSides.map(key=>[key,incoming[key].map(player=>({player,...playerUpside(player,weights,seasonRank(player))}))]));
+}
+
+function upsideRead(row){
+ if(row.topTenRoom)return 'Preseason top 10 with room to climb.';
+ if(row.topTen&&row.current!==null&&row.current<=10)return 'Already scoring at a top-10 level.';
+ if(row.topTen)return 'Preseason top 10. Still a limited season sample.';
+ if(row.ceilingGain>0)return 'High-scoring games show room above the season average.';
+ return row.ceiling===null?'Limited game-log sample.':'High-game mark is close to or below the season average.';
+}
+
+function upsideHighlight(rows){
+ return rows.filter(row=>row.topTen||row.ceilingGain>0).sort((a,b)=>
+  Number(b.topTenRoom)-Number(a.topTenRoom)||(b.ceilingGain??0)-(a.ceilingGain??0)||Number(b.topTen)-Number(a.topTen))[0];
+}
+
+function upsideSummary(upside){
+ const lines=tradeSides.flatMap(key=>{
+  const best=upsideHighlight(upside[key]);
+  if(!best)return [];
+  const details=[
+   best.topTen?`Preseason <b>${rankText(best.preseason)}</b> · current <b>${rankText(best.current)}</b>`:'',
+   best.ceilingGain>0?`<b class="fp-gain">${signed(best.ceilingGain)} FP</b> above average at the high-game mark`:''
+  ].filter(Boolean);
+  return [`<span>${feedbackManager(key)} receives ${playerBadge(best.player)} · ${details.join(' · ')}</span>`];
+ });
+ return lines.join('')||'No clear upside signal in the available data.';
+}
+
+function upsideTable(upside){
+ const rows=tradeSides.flatMap(key=>upside[key].map(row=>`<tr><th scope="row">${playerBadge(row.player)}<small class="sub form-coverage">To ${managerLabel(key)}</small></th><td class="num">${rankText(row.preseason)}</td><td class="num">${rankText(row.current)}</td><td class="num">${format(row.season)}</td><td class="num">${format(row.recent)}</td><td class="num">${format(row.ceiling)}</td><td class="num"><b class="${tone(row.ceilingGain)}">${signed(row.ceilingGain)}</b></td><td>${upsideRead(row)}</td></tr>`)).join('');
+ return `<section class="trade-subsection"><h3>Player upside</h3><div class="table-wrap"><table class="trade-scenario-table"><thead><tr><th>Player</th><th class="num">Preseason rank</th><th class="num">Current rank</th><th class="num">Season FP/game</th><th class="num">Last 5 FP/game</th><th class="num">High-game FP</th><th class="num">High vs. season</th><th>Read</th></tr></thead><tbody>${rows}</tbody></table></div><p class="sub">Preseason ranks come from RotoWire. Current rank uses your scoring. High-game FP is the same game-log ceiling shown in Scoring Range and requires at least five games played.</p></section>`;
+}
+
+function renderSummary(balance,risks,scenarios,incoming,upside){
  const result=$('#trade-summary-result');
  if(!balance)result.textContent='Season FP edge unavailable.';
  else if(!balance.leader)result.textContent='Even on season FP per game.';
@@ -1189,6 +1226,7 @@ function renderSummary(balance,risks,scenarios,incoming){
  const floor=tradeBalance(scenarios?.a?.floor,scenarios?.b?.floor);
  const ceiling=tradeBalance(scenarios?.a?.ceiling,scenarios?.b?.ceiling);
  $('#trade-summary-range').innerHTML=`<span>Floor · ${edge(floor,'FP/game')}</span><span>Ceiling · ${edge(ceiling,'FP/game')}</span>`;
+ $('#trade-summary-upside').innerHTML=upsideSummary(upside);
  const week=weekComparison(incoming,1);
  $('#trade-summary-week').innerHTML=week?edge(tradeBalance(week.a.total,week.b.total),'projected FP'):'Unavailable';
 
@@ -1211,14 +1249,16 @@ function renderContext(selected,totals,balance,rosterResults){
  const incoming={a:selected.b,b:selected.a};
  const risks={a:tradeContext(incoming.a,injuryData?.players,weights),b:tradeContext(incoming.b,injuryData?.players,weights)};
  const scenarios=a&&b?{a:packageScenarios(incoming.a,weights),b:packageScenarios(incoming.b,weights)}:null;
- if(a&&b)renderSummary(balance,risks,scenarios,incoming);
+ const upside=upsideRows(incoming);
+ if(a&&b)renderSummary(balance,risks,scenarios,incoming,upside);
+ $('#trade-upside').innerHTML=upsideTable(upside);
  const rosterSummary=$('#trade-summary-roster-row');
  rosterSummary.hidden=!rosterResults||!Object.values(rosterResults).some(row=>row.players.length);
  if(!rosterSummary.hidden)$('#trade-summary-roster').innerHTML=['a','b'].map(key=>`${feedbackManager(key)} <strong class="${tone(rosterResults[key].net)}">${signed(rosterResults[key].net)} FP/game</strong>${rosterResults[key].spots.cuts&&rosterResults[key].remaining?' before remaining cuts':''}`).join(' · ');
  const formRows=a&&b?[5,10,15].map(window=>({
   window,a:packageForm(incoming.a,weights,window),b:packageForm(incoming.b,weights,window)
  })):[];
- chatTrade={incoming,selected,risks,scenarios,totals,formRows,rosterResults};
+ chatTrade={incoming,selected,risks,scenarios,totals,formRows,rosterResults,upside};
  const scenarioPanel=$('#trade-scenarios');
  scenarioPanel.innerHTML=a&&b?scenarioTable(scenarios,totals):'';
  for(const marker of scenarioPanel.querySelectorAll('[data-position]')){
@@ -1309,7 +1349,7 @@ function analysisNotes(selected,totals,risks,formRows){
 }
 
 function tradeAnswer(question){
- const {incoming,totals,risks,scenarios,selected,formRows,rosterResults}=chatTrade;
+ const {incoming,totals,risks,scenarios,selected,formRows,rosterResults,upside}=chatTrade;
  const q=question.toLowerCase();
  const requestedWindow=Number(q.match(/\blast\s+(5|10|15)\b/)?.[1])||null;
  const recent=formRows.find(row=>row.window===(requestedWindow??5));
@@ -1334,7 +1374,23 @@ function tradeAnswer(question){
    return opponents.length?`${player.name}: ${opponents.join(', ')}.`:`No upcoming games in the feed for ${player.name}.`;
   }).join('\n')+'\nSee Next five opponents for defense and last meetings.';
  }
- if(/\b(floor|ceiling|quartile|variance|range|upside)\b/.test(q)){
+ if(/\b(upside|breakout|bounce[ -]back)\b/.test(q)){
+  const mentions=new Set(q.match(/[\p{L}]+/gu)||[]);
+  const identified=chosen.length?chosen:[...incoming.a,...incoming.b].filter(player=>player.name.toLowerCase().split(/\s+/).some(part=>part.length>2&&mentions.has(part)));
+  const entries=tradeSides.flatMap(key=>upside[key].filter(({player})=>!identified.length||identified.includes(player)).map(row=>({key,row})));
+  const rows=entries.map(({key,row})=>{
+   const draft=row.preseason===null?'No draft rank':`RotoWire preseason rank #${row.preseason}`;
+   const current=row.current===null?'current rank unavailable':`currently #${row.current} at ${format(row.season)} FP per game`;
+   const form=row.recent===null?'':` Last five: ${format(row.recent)} FP per game.`;
+   const high=row.ceiling===null?'':` High-game mark: ${format(row.ceiling)} FP${row.ceilingGain>0?` (${signed(row.ceilingGain)} above average)`:''}.`;
+   return `${manager(key)} gets ${row.player.name}. ${draft}, ${current}. ${upsideRead(row)}${form}${high}`;
+  });
+  const best=entries.filter(({row})=>row.ceilingGain>0).sort((a,b)=>b.row.ceilingGain-a.row.ceilingGain)[0];
+  const tied=best&&entries.filter(({row})=>row.ceilingGain===best.row.ceilingGain).length>1;
+  if(entries.length>1&&best&&!tied)rows.unshift(`${best.row.player.name} has the biggest gap between the season average and the high-game mark at ${signed(best.row.ceilingGain)} FP.`);
+  return rows.join('\n');
+ }
+ if(/\b(floor|ceiling|quartile|variance|range)\b/.test(q)){
   if(!scenarios.a||!scenarios.b)return 'Every player needs five complete season games before both packages can be compared at the floor and ceiling.';
   return `Floor: ${comparison(scenarios.a.floor,scenarios.b.floor)}\nCeiling: ${comparison(scenarios.a.ceiling,scenarios.b.ceiling)}\nPlayers can hit their highs and lows on different nights.`;
  }
@@ -1397,9 +1453,9 @@ function tradeAnswer(question){
  }
  if(chosen.length===1){
   const player=chosen[0],points=fp(player);
-  return `${player.name} has ${points===null?'no complete FP average':`${format(points)} FP per game`} under your settings${player.games>0?` across ${player.games} games`:''}. Ask about injuries, recent form, or games played for more context.`;
+  return `${player.name} has ${points===null?'no complete FP average':`${format(points)} FP per game`} under your settings${player.games>0?` across ${player.games} games`:''}. Ask about upside, injuries, recent form, or games played for more context.`;
  }
- return 'Ask about fairness, floor and ceiling, recent form, injury history, weekly points, stat drivers, or roster spots.';
+ return 'Ask about fairness, upside, floor and ceiling, recent form, injury history, weekly points, stat drivers, or roster spots.';
 }
 
 function askTrade(question){

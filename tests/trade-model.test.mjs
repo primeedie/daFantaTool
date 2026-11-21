@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {scoringWeights,tradePoints,seasonRanks,tradeBalance,tradeContext,managerChanges,packageForm,compareGamesPlayed,statSwings,packageScenarios,nextOpponents,easternWeek,weeklyPackage,historicalAvailability,parseSharedTrade,compactTradeHash,sharedPlayerRef,rosterSpots,rosterSettings,rosterAdjustment} from '../dashboard/trade-model.mjs';
 import {normalizeRosterConfig,savedRosterFilter,rosterConfigHash,parseRosterConfig} from '../dashboard/saved-rosters.mjs';
 import {injuryHistory} from '../refresh-injury-history.mjs';
-import {pickerMatch,suggestFairTrades,lineupWeek,lineupHorizon,rankLineupTargets,lineupSwapImpact,swapLineup} from '../dashboard/trade-model.mjs';
+import {pickerMatch,suggestFairTrades,lineupWeek,lineupHorizon,rankLineupTargets,lineupSwapImpact,swapLineup,playerUpside} from '../dashboard/trade-model.mjs';
 import {playerKey} from '../dashboard/model.mjs';
 import {bigBalls} from '../dashboard/big-balls.mjs';
 import {smallBalls} from '../dashboard/small-balls.mjs';
@@ -382,4 +382,16 @@ test('trade floor and ceiling add individual quartiles and require five games pe
  const q={gameLogs:[10,20,30,40,50].map(pts=>({pts}))};
  assert.deepEqual(packageScenarios([p,q],{pts:1}),{floor:22.5,ceiling:47.5});
  assert.equal(packageScenarios([q,{gameLogs:q.gameLogs.slice(0,4)}],{pts:1}),null);
+});
+
+test('player upside uses draft pedigree separately from current rank and logged production',()=>{
+ const player={rank:7,games:12,stats:{pts:30},gameLogs:[60,40,35,25,20].map(pts=>({pts}))};
+ const weights={pts:2};
+ assert.deepEqual(playerUpside(player,weights,18),{season:60,preseason:7,current:18,ceiling:80,recent:72,ceilingGain:20,topTen:true,topTenRoom:true});
+ assert.equal(playerUpside(player,weights,9).topTenRoom,false);
+ assert.equal(playerUpside({...player,rank:11},weights,18).topTenRoom,false);
+ const short=playerUpside({...player,games:4,gameLogs:player.gameLogs.slice(0,4)},weights,18);
+ assert.equal(short.topTenRoom,false);
+ assert.equal(short.ceiling,null);
+ assert.equal(short.recent,null);
 });

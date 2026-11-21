@@ -9,7 +9,7 @@
  <link rel="stylesheet" href="./font.css?v=logo-contrast">
  <link rel="stylesheet" href="./trading.css?v=refresh-fair-trades-current-ranks">
  <script type="module" src="./theme.mjs?v=logo-contrast"></script>
- <script type="module" src="./trading.mjs?v=refresh-exclusions"></script>
+ <script type="module" src="./trading.mjs?v=player-upside"></script>
 </head>
 <body class="trade-page">
  <header class="site-header"><div class="masthead">
@@ -123,6 +123,7 @@
      <p id="trade-summary-result"></p>
      <dl class="summary-details">
       <div><dt>Scoring range</dt><dd id="trade-summary-range"></dd></div>
+      <div><dt>Upside to watch</dt><dd id="trade-summary-upside"></dd></div>
       <div><dt>Next week</dt><dd id="trade-summary-week"></dd></div>
       <div><dt>Injury watch</dt><dd id="trade-summary-flags"></dd></div>
       <div><dt>Injury history</dt><dd id="trade-summary-history"></dd></div>
@@ -141,6 +142,7 @@
     <section id="trade-context" class="panel panel-body trade-balance" aria-labelledby="trade-context-title" hidden>
      <h2 id="trade-context-title">Trade breakdown</h2>
      <div id="trade-scenarios"></div>
+     <div id="trade-upside"></div>
      <div id="trade-analysis"></div>
      <div id="trade-weekly"></div>
      <div id="trade-outlook"></div>
@@ -158,6 +160,7 @@
      <div class="question-chips" id="trade-questions">
       <button class="button" type="button" data-question="Is this fair?">Is this fair?</button>
       <button class="button" type="button" data-question="Who has the better floor and ceiling?">Floor &amp; ceiling</button>
+      <button class="button" type="button" data-question="Who has the most upside?">Upside</button>
       <button class="button" type="button" data-question="What are the injury risks?">Injury risk</button>
       <button class="button" type="button" data-question="What does their injury history show?">Injury history</button>
        <button class="button" type="button" data-question="What changes after roster adjustments?">Roster adjustments</button>

@@ -478,6 +478,21 @@ export function packageScenarios(players,weights){
  return {floor,ceiling};
 }
 
+export function playerUpside(player,weights,currentRank){
+ const season=player.games>0?tradePoints(player.stats,weights):null;
+ const preseason=Number.isInteger(player.rank)&&player.rank>0?player.rank:null;
+ const current=currentRank??null;
+ const lastFive=packageForm([player],weights,5);
+ const ceiling=packageScenarios([player],weights)?.ceiling??null;
+ return {
+  season,preseason,current,ceiling,
+  recent:lastFive?.shortest===5?lastFive.points:null,
+  ceilingGain:ceiling!==null&&season!==null?Number((ceiling-season).toFixed(2)):null,
+  topTen:preseason!==null&&preseason<=10,
+  topTenRoom:preseason!==null&&preseason<=10&&current!==null&&current>10&&player.games>=5
+ };
+}
+
 export function compareGamesPlayed(playerA,playerB){
  const years=Object.keys(playerA.history||{}).filter(year=>Number.isFinite(playerA.history[year])&&Number.isFinite(playerB.history?.[year])).sort();
  if(!years.length)return null;
